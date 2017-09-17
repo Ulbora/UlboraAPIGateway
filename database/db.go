@@ -5,6 +5,10 @@
  Copyright (C) 2017 Ken Williamson
  All rights reserved.
 
+ Certain inventions and disclosures in this file may be claimed within
+ patents owned or patent applications filed by Ulbora Labs Inc., or third
+ parties.
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published
  by the Free Software Foundation, either version 3 of the License, or

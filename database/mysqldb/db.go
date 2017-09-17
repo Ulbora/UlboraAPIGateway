@@ -5,6 +5,10 @@
  Copyright (C) 2016 Ken Williamson
  All rights reserved.
 
+ Certain inventions and disclosures in this file may be claimed within
+ patents owned or patent applications filed by Ulbora Labs Inc., or third
+ parties.
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published
  by the Free Software Foundation, either version 3 of the License, or
@@ -60,6 +64,12 @@ func GetClientList(args ...interface{}) *crud.DbRows {
 	return rowsPtr
 }
 
+//DeleteClient delete
+func DeleteClient(args ...interface{}) bool {
+	success := crud.Delete(nil, ClientDeleteQuery, args...)
+	return success
+}
+
 //InsertRestRoute insert
 func InsertRestRoute(args ...interface{}) (bool, int64) {
 	success, insID := crud.Insert(nil, InsertRestRouteQuery, args...)
@@ -88,6 +98,54 @@ func GetRestRouteList(args ...interface{}) *crud.DbRows {
 func DeleteRestRoute(args ...interface{}) bool {
 	success := crud.Delete(nil, RestRouteDeleteQuery, args...)
 	return success
+}
+
+//InsertRouteURL insert
+func InsertRouteURL(args ...interface{}) (bool, int64) {
+	success, insID := crud.Insert(nil, InsertRouteURLQuery, args...)
+	return success, insID
+}
+
+//UpdateRouteURL updates a row. Passing in tx allows for transactions
+func UpdateRouteURL(args ...interface{}) bool {
+	success := crud.Update(nil, UpdateRouteURLQuery, args...)
+	return success
+}
+
+//ActivateRouteURL updates a row. Passing in tx allows for transactions
+func ActivateRouteURL(args ...interface{}) bool {
+	success := crud.Update(nil, ActivateRouteURLQuery, args...)
+	return success
+}
+
+//DeactivateOtherRouteURLs updates a row. Passing in tx allows for transactions
+func DeactivateOtherRouteURLs(args ...interface{}) bool {
+	success := crud.Update(nil, DeactivateOtherRouteURLsQuery, args...)
+	return success
+}
+
+//GetRouteURL get a row. Passing in tx allows for transactions
+func GetRouteURL(args ...interface{}) *crud.DbRow {
+	rowPtr := crud.Get(RouteURLGetQuery, args...)
+	return rowPtr
+}
+
+//GetRouteURLList get a row. Passing in tx allows for transactions
+func GetRouteURLList(args ...interface{}) *crud.DbRows {
+	rowsPtr := crud.GetList(RouteURLGetListQuery, args...)
+	return rowsPtr
+}
+
+//DeleteRouteURL delete
+func DeleteRouteURL(args ...interface{}) bool {
+	success := crud.Delete(nil, RouteURLDeleteQuery, args...)
+	return success
+}
+
+//GetRouteURLs get a row. Passing in tx allows for transactions
+func GetRouteURLs(args ...interface{}) *crud.DbRows {
+	rowsPtr := crud.GetList(GetRouteURLsQuery, args...)
+	return rowsPtr
 }
 
 //CloseDb close connection to db

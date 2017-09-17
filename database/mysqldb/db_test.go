@@ -10,6 +10,8 @@ var connected bool
 var clientID int64
 var insertID int64
 var routeID int64
+var routeURLID int64
+var routeURLID2 int64
 
 func TestConnectDb(t *testing.T) {
 	connected = ConnectDb("localhost:3306", "admin", "admin", "ulbora_api_gateway")
@@ -179,46 +181,167 @@ func TestGetRestRouteList(t *testing.T) {
 	}
 }
 
-// func TestGetContentByClientCategory(t *testing.T) {
-// 	a := []interface{}{125, "books"}
-// 	rowsPtr := GetContentByClientCategory(a...)
-// 	if rowsPtr != nil {
-// 		foundRows := rowsPtr.Rows
-// 		fmt.Print("Get by client category")
-// 		fmt.Println(foundRows)
-// 		//fmt.Println("GetList results: --------------------------")
-// 		for r := range foundRows {
-// 			foundRow := foundRows[r]
-// 			for c := range foundRow {
-// 				if c == 0 {
-// 					int64Val, err2 := strconv.ParseInt(foundRow[c], 10, 0)
-// 					if err2 != nil {
-// 						fmt.Print(err2)
-// 					}
-// 					if r == 0 {
-// 						if insertID2 != int64Val {
-// 							fmt.Print(insertID)
-// 							fmt.Print(" != ")
-// 							fmt.Println(int64Val)
-// 							t.Fail()
-// 						}
-// 					}
-// 				}
-// 				//fmt.Println(string(foundRow[c]))
-// 			}
-// 		}
-// 	} else {
-// 		fmt.Println("database read failed")
-// 		t.Fail()
-// 	}
-// }
+func TestInsertRouteURL(t *testing.T) {
+	var a []interface{}
+	a = append(a, "blue", "http://www.apigateway.com/blue/", true, routeID, clientID)
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success, insID := InsertRouteURL(a...)
+	if success == true && insID != -1 {
+		routeURLID = insID
+		fmt.Print("new URL Id: ")
+		fmt.Println(insID)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
 
-func TestDeleteRestRoute(t *testing.T) {
+	var a2 []interface{}
+	a2 = append(a2, "bside", "http://www.apigateway.com/green/", true, routeID, clientID)
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success2, insID2 := InsertRouteURL(a2...)
+	if success2 == true && insID2 != -1 {
+		routeURLID2 = insID2
+		fmt.Print("new URL Id: ")
+		fmt.Println(insID2)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
+}
+
+func TestUpdateRouteURL(t *testing.T) {
+	var a []interface{}
+	a = append(a, "green", "http://www.apigateway.com/green/", false, routeURLID2, routeID, clientID)
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success := UpdateRouteURL(a...)
+	if success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestActivateRouteURL(t *testing.T) {
+	var a []interface{}
+	a = append(a, routeURLID2, routeID, clientID)
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success := ActivateRouteURL(a...)
+	if success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+
+	var a2 []interface{}
+	a2 = append(a2, routeURLID2, routeID, clientID)
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success2 := DeactivateOtherRouteURLs(a2...)
+	if success2 != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestGetRouteURL(t *testing.T) {
+	a := []interface{}{routeURLID2, routeID, clientID}
+	rowPtr := GetRouteURL(a...)
+	if rowPtr != nil {
+		foundRow := rowPtr.Row
+		fmt.Print("Get ")
+		fmt.Println(foundRow)
+		//fmt.Println("Get results: --------------------------")
+		int64Val, err2 := strconv.ParseInt(foundRow[0], 10, 0)
+		if err2 != nil {
+			fmt.Print(err2)
+		}
+		if routeURLID2 != int64Val {
+			fmt.Print(routeURLID2)
+			fmt.Print(" != ")
+			fmt.Println(int64Val)
+			t.Fail()
+		}
+		active, err3 := strconv.ParseBool(foundRow[3])
+		if err3 != nil {
+			fmt.Print(err3)
+		}
+		if active != true {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestGetRouteURL2(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowPtr := GetRouteURL(a...)
+	if rowPtr != nil {
+		foundRow := rowPtr.Row
+		fmt.Print("Get ")
+		fmt.Println(foundRow)
+		//fmt.Println("Get results: --------------------------")
+		int64Val, err2 := strconv.ParseInt(foundRow[0], 10, 0)
+		if err2 != nil {
+			fmt.Print(err2)
+		}
+		if routeURLID != int64Val {
+			fmt.Print(routeURLID)
+			fmt.Print(" != ")
+			fmt.Println(int64Val)
+			t.Fail()
+		}
+		active, err3 := strconv.ParseBool(foundRow[3])
+		if err3 != nil {
+			fmt.Print(err3)
+		}
+		if active == true {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestGetRouteURLList(t *testing.T) {
 	a := []interface{}{routeID, clientID}
-	success := DeleteRestRoute(a...)
+	rowsPtr := GetRouteURLList(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get route urls ")
+		fmt.Println(foundRows)
+		//fmt.Println("GetList results: --------------------------")
+		if len(foundRows) != 2 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestGetRouteURLs(t *testing.T) {
+	a := []interface{}{clientID, "mail2"}
+	rowsPtr := GetRouteURLs(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get route urls ")
+		fmt.Println(foundRows)
+		//fmt.Println("GetList results: --------------------------")
+		if len(foundRows) != 2 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDeleteClient(t *testing.T) {
+	a := []interface{}{clientID}
+	success := DeleteClient(a...)
 	if success == true {
-		fmt.Print("Deleted ")
-		fmt.Println(routeID)
+		fmt.Print("Deleted client ")
+		fmt.Println(clientID)
 	} else {
 		fmt.Println("database delete failed")
 		t.Fail()
@@ -234,6 +357,40 @@ func TestDeleteRestRoute(t *testing.T) {
 	// 	t.Fail()
 	// }
 }
+
+// func TestDeleteRestRoute(t *testing.T) {
+// 	a := []interface{}{routeID, clientID}
+// 	success := DeleteRestRoute(a...)
+// 	if success == true {
+// 		fmt.Print("Deleted ")
+// 		fmt.Println(routeID)
+// 	} else {
+// 		fmt.Println("database delete failed")
+// 		t.Fail()
+// 	}
+
+// 	// a2 := []interface{}{insertID2, 125}
+// 	// success2 := DeleteContent(a2...)
+// 	// if success2 == true {
+// 	// 	fmt.Print("Deleted ")
+// 	// 	fmt.Println(insertID2)
+// 	// } else {
+// 	// 	fmt.Println("database delete failed")
+// 	// 	t.Fail()
+// 	// }
+// }
+
+// func TestDeleteRouteURL(t *testing.T) {
+// 	a := []interface{}{routeURLID, routeID, clientID}
+// 	success := DeleteRouteURL(a...)
+// 	if success == true {
+// 		fmt.Print("Deleted route url: ")
+// 		fmt.Println(routeURLID)
+// 	} else {
+// 		fmt.Println("database delete failed")
+// 		t.Fail()
+// 	}
+// }
 
 func TestCloseDb(t *testing.T) {
 	if connected == true {

@@ -8,6 +8,7 @@ const (
 	UpdateClientQuery  = "UPDATE client set api_key = ?, enabled = ?, level = ? WHERE client_id = ? "
 	ClientGetQuery     = "select * from client WHERE client_id = ? "
 	ClientGetListQuery = "select * from client order by client_id "
+	ClientDeleteQuery  = "delete from client WHERE client_id = ? "
 
 	// route
 	InsertRestRouteQuery  = "INSERT INTO rest_route (route, client_id) VALUES (?, ?) "
@@ -17,11 +18,13 @@ const (
 	RestRouteDeleteQuery  = "delete from rest_route WHERE id = ? and client_id = ?"
 
 	// rest route
-	InsertRouteURLQuery  = "INSERT INTO route_url (name, url, active, rest_route_id, rest_route_client_id) VALUES (?, ?, ?, ?, ?) "
-	UpdateRouteURLQuery  = "UPDATE route_url set name = ?, url, active WHERE rest_route_id = ? and rest_route_client_id = ? "
-	RouteURLGetQuery     = "select * from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
-	RouteURLGetListQuery = "select * from route_url WHERE rest_route_id = ? and rest_route_client_id = ? "
-	RouteURLDeleteQuery  = "delete from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
+	InsertRouteURLQuery           = "INSERT INTO route_url (name, url, active, rest_route_id, rest_route_client_id) VALUES (?, ?, ?, ?, ?) "
+	UpdateRouteURLQuery           = "UPDATE route_url set name = ?, url = ?, active = ? WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
+	ActivateRouteURLQuery         = "UPDATE route_url set active = 1 WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
+	DeactivateOtherRouteURLsQuery = "UPDATE route_url set active = 0 WHERE id != ? and rest_route_id = ? and rest_route_client_id = ? "
+	RouteURLGetQuery              = "select * from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
+	RouteURLGetListQuery          = "select * from route_url WHERE rest_route_id = ? and rest_route_client_id = ? "
+	RouteURLDeleteQuery           = "delete from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
 
 	GetRouteURLsQuery = "select rr.route, rl.name, rl.url, rl.active " +
 		" from rest_route rr inner join client c " +
