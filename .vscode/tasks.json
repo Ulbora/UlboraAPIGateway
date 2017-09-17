@@ -1,0 +1,30 @@
+{
+  "version": "0.1.0",
+  "command": "go",
+  "isShellCommand": true,
+  "showOutput": "always",  
+  "tasks": [
+    {
+      "taskName": "install",
+      "suppressTaskName": false,
+      "isBuildCommand": true,
+      "args": [  
+        "github.com/Ulbora/go-crud-mysql",     
+        "UlboraApiGateway/database/mysqldb",
+        "UlboraApiGateway/database",
+        "UlboraApiGateway/manager",
+        "github.com/Ulbora/go-ulbora-oauth2"
+      ]
+    },
+    {
+      "taskName": "get",
+      "suppressTaskName": false,
+      "isBuildCommand": false,
+      "args": [
+        "-u",
+        "github.com/Ulbora/go-crud-mysql",
+        "github.com/Ulbora/go-ulbora-oauth2"
+      ]
+    }
+  ]
+}
