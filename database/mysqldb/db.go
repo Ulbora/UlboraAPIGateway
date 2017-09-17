@@ -1,8 +1,8 @@
 /*
- Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
+ Copyright (C) 2016 Ulbora Labs Inc. (www.ulboralabs.com)
  All rights reserved.
 
- Copyright (C) 2017 Ken Williamson
+ Copyright (C) 2016 Ken Williamson
  All rights reserved.
 
  This program is free software: you can redistribute it and/or modify
@@ -19,3 +19,79 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 package mysqldb
+
+import (
+	crud "github.com/Ulbora/go-crud-mysql"
+)
+
+//ConnectDb connect to db
+func ConnectDb(host, user, pw, dbName string) bool {
+	res := crud.InitializeMysql(host, user, pw, dbName)
+	return res
+}
+
+//ConnectionTest get a row. Passing in tx allows for transactions
+func ConnectionTest(args ...interface{}) *crud.DbRow {
+	rowPtr := crud.Get(ConnectionTestQuery, args...)
+	return rowPtr
+}
+
+//InsertClient insert
+func InsertClient(args ...interface{}) (bool, int64) {
+	success, insID := crud.Insert(nil, InsertClientQuery, args...)
+	return success, insID
+}
+
+//UpdateClient updates a row. Passing in tx allows for transactions
+func UpdateClient(args ...interface{}) bool {
+	success := crud.Update(nil, UpdateClientQuery, args...)
+	return success
+}
+
+//GetClient get a row. Passing in tx allows for transactions
+func GetClient(args ...interface{}) *crud.DbRow {
+	rowPtr := crud.Get(ClientGetQuery, args...)
+	return rowPtr
+}
+
+//GetClientList get a row. Passing in tx allows for transactions
+func GetClientList(args ...interface{}) *crud.DbRows {
+	rowsPtr := crud.GetList(ClientGetListQuery, args...)
+	return rowsPtr
+}
+
+//InsertRestRoute insert
+func InsertRestRoute(args ...interface{}) (bool, int64) {
+	success, insID := crud.Insert(nil, InsertRestRouteQuery, args...)
+	return success, insID
+}
+
+//UpdateRestRoute updates a row. Passing in tx allows for transactions
+func UpdateRestRoute(args ...interface{}) bool {
+	success := crud.Update(nil, UpdateRestRouteQuery, args...)
+	return success
+}
+
+//GetRestRoute get a row. Passing in tx allows for transactions
+func GetRestRoute(args ...interface{}) *crud.DbRow {
+	rowPtr := crud.Get(RestRouteGetQuery, args...)
+	return rowPtr
+}
+
+//GetRestRouteList get a row. Passing in tx allows for transactions
+func GetRestRouteList(args ...interface{}) *crud.DbRows {
+	rowsPtr := crud.GetList(RestRouteGetListQuery, args...)
+	return rowsPtr
+}
+
+//DeleteRestRoute delete
+func DeleteRestRoute(args ...interface{}) bool {
+	success := crud.Delete(nil, RestRouteDeleteQuery, args...)
+	return success
+}
+
+//CloseDb close connection to db
+func CloseDb() bool {
+	res := crud.Close()
+	return res
+}
