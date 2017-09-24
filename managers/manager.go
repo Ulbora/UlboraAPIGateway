@@ -75,10 +75,10 @@ type GatewayDB struct {
 
 //GatewayRoutes gateway routes
 type GatewayRoutes struct {
-	Route      string
-	ClientID   int64
-	GwDB       GatewayDB
-	GwCacheURL string
+	Route       string
+	ClientID    int64
+	GwDB        GatewayDB
+	GwCacheHost string
 }
 
 //ConnectDb to database

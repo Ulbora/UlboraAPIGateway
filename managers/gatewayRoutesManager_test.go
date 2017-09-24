@@ -2,6 +2,7 @@ package managers
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -81,9 +82,9 @@ func TestGatewayRoutes_InsertRouteURL4(t *testing.T) {
 	}
 
 	var ru2 RouteURL
-	ru2.Name = "sideb"
+	ru2.Name = "green"
 	ru2.URL = "http://www.apigateway.com/blue/"
-	ru2.Active = false
+	ru2.Active = true
 	ru2.RouteID = routeID4
 	ru2.ClientID = clientID4
 
@@ -116,17 +117,38 @@ func TestGatewayRoutes_GetGatewayRoutes(t *testing.T) {
 	gatewayRoutes.GwDB = gatewayDB4
 	gatewayRoutes.ClientID = clientID4
 	gatewayRoutes.Route = "content"
-	gatewayRoutes.GwCacheURL = ""
-	res := gatewayRoutes.GetGatewayRoutes()
-	// var ru RouteURL
-	// ru.RouteID = routeID3
-	// ru.ClientID = clientID3
-	// res := gatewayDB.GetRouteURLList(&ru)
-	fmt.Println("")
-	fmt.Print("found route URL list: ")
+	gatewayRoutes.GwCacheHost = "http://localhost:3010"
+	var cid = strconv.FormatInt(gatewayRoutes.ClientID, 10) // string(gatewayRoutes.ClientID)
+	fmt.Print("cid: ")
+	fmt.Println(cid)
+	var keyused = cid + ":" + gatewayRoutes.Route
+	fmt.Print("Key Used: ")
+	fmt.Println(keyused)
+	res := gatewayRoutes.GetGatewayRoutes(true, "")
+	fmt.Println("Route: ")
 	fmt.Println(res)
-	if len(*res) != 2 {
-		fmt.Println("database read failed")
+	if res.Active != true && res.Name != "green" {
+		fmt.Println("route not found")
+		t.Fail()
+	}
+}
+
+func TestGatewayRoutes_GetGatewayRoutes2(t *testing.T) {
+	gatewayRoutes.GwDB = gatewayDB4
+	gatewayRoutes.ClientID = clientID4
+	gatewayRoutes.Route = "content"
+	gatewayRoutes.GwCacheHost = "http://localhost:3010"
+	var cid = strconv.FormatInt(gatewayRoutes.ClientID, 10) // string(gatewayRoutes.ClientID)
+	fmt.Print("cid: ")
+	fmt.Println(cid)
+	var keyused = cid + ":" + gatewayRoutes.Route
+	fmt.Print("Key Used: ")
+	fmt.Println(keyused)
+	res := gatewayRoutes.GetGatewayRoutes(false, "blue")
+	fmt.Println("Route: ")
+	fmt.Println(res)
+	if res.Active != false && res.Name != "blue" {
+		fmt.Println("route not found")
 		t.Fail()
 	}
 }

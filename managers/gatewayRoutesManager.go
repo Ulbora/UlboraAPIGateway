@@ -25,57 +25,89 @@
 package managers
 
 import (
+	ch "UlboraApiGateway/cache"
+	b64 "encoding/base64"
+	"encoding/json"
 	"fmt"
 	"strconv"
 )
 
-// //GetActiveRouteURL route from database
-// func (db *GatewayDB) GetActiveRouteURL(ru *RouteURL) *RouteURL {
-// 	var a []interface{}
-// 	a = append(a, ru.ID, ru.RouteID, ru.ClientID)
-// 	var rtn *RouteURL
-// 	rowPtr := db.DbConfig.GetRouteURL(a...)
-// 	if rowPtr != nil {
-// 		//print("content row: ")
-// 		//println(rowPtr.Row)
-// 		foundRow := rowPtr.Row
-// 		rtn = parseRouteURLRow(&foundRow)
-// 	}
-// 	return rtn
-// }
-
 //GetGatewayRoutes route
-func (gw *GatewayRoutes) GetGatewayRoutes() *[]GatewayRouteURL {
-	var rtn []GatewayRouteURL
-
+func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *GatewayRouteURL {
+	var rtnVal GatewayRouteURL
+	var rtn = make([]GatewayRouteURL, 0)
 	// check cache for saved value---------
-
-	// //--------------
-
-	// var a []interface{}
-	// a = append(a, ru.RouteID, ru.ClientID)
-	// rowsPtr := gw.GwDB.DbConfig.GetRouteNameURLList(a...)
-	// if rowsPtr != nil {
-	// 	foundRows := rowsPtr.Rows
-	// 	for r := range foundRows {
-	// 		foundRow := foundRows[r]
-	// 		rowContent := parseRouteURLsRow(&foundRow)
-	// 		rtn = append(rtn, *rowContent)
-	// 	}
-	// }
-
-	return &rtn
+	var cp ch.CProxy
+	cp.Host = gw.GwCacheHost
+	var cid = strconv.FormatInt(gw.ClientID, 10)
+	var key = cid + ":" + gw.Route
+	//fmt.Print("Key Used for cache: ")
+	//fmt.Println(key)
+	res := cp.Get(key)
+	if res.Success == true {
+		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			err := json.Unmarshal([]byte(rJSON), &rtn)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		fmt.Println("Found Gateway route in cache.")
+	} else {
+		//read db
+		fmt.Println("Routes not found in cache, reading db.")
+		var a []interface{}
+		a = append(a, gw.Route, gw.ClientID)
+		rowsPtr := gw.GwDB.DbConfig.GetRouteNameURLList(a...)
+		if rowsPtr != nil {
+			foundRows := rowsPtr.Rows
+			for r := range foundRows {
+				foundRow := foundRows[r]
+				rowContent := parseGatewayRoutesRow(&foundRow)
+				rtn = append(rtn, *rowContent)
+			}
+			// add to cache now-----
+			aJSON, err := json.Marshal(rtn)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				cval := b64.StdEncoding.EncodeToString([]byte(aJSON))
+				var i ch.Item
+				i.Key = key
+				i.Value = cval
+				res := cp.Set(&i)
+				if res.Success != true {
+					fmt.Println("Routes not cached from db.")
+				}
+			}
+		}
+	}
+	fmt.Println("Routes: ")
+	fmt.Println(rtn)
+	if len(rtn) > 0 && getActive == true {
+		for r := range rtn {
+			if rtn[r].Active == true {
+				rtnVal = rtn[r]
+				break
+			}
+		}
+	} else if len(rtn) > 0 {
+		for r := range rtn {
+			if rtn[r].Name == routeName {
+				rtnVal = rtn[r]
+				break
+			}
+		}
+	}
+	return &rtnVal
 }
 
-func parseGatewayRoutesRow(foundRow *[]string) *RouteURL {
-	var rtn RouteURL
+func parseGatewayRoutesRow(foundRow *[]string) *GatewayRouteURL {
+	var rtn GatewayRouteURL
 	if len(*foundRow) > 0 {
-		ID, errID := strconv.ParseInt((*foundRow)[0], 10, 0)
-		if errID != nil {
-			fmt.Print(errID)
-		} else {
-			rtn.ID = ID
-		}
+		rtn.Route = (*foundRow)[0]
 		rtn.Name = (*foundRow)[1]
 		rtn.URL = (*foundRow)[2]
 		active, err := strconv.ParseBool((*foundRow)[3])
@@ -84,18 +116,6 @@ func parseGatewayRoutesRow(foundRow *[]string) *RouteURL {
 			rtn.Active = false
 		} else {
 			rtn.Active = active
-		}
-		RID, errRID := strconv.ParseInt((*foundRow)[4], 10, 0)
-		if errRID != nil {
-			fmt.Print(errRID)
-		} else {
-			rtn.RouteID = RID
-		}
-		CID, errID2 := strconv.ParseInt((*foundRow)[5], 10, 0)
-		if errID2 != nil {
-			fmt.Print(errID2)
-		} else {
-			rtn.ClientID = CID
 		}
 	}
 	return &rtn

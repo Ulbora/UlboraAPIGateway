@@ -39,19 +39,19 @@ type CProxy struct {
 
 //Item CacheItem
 type Item struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 //ResponseValue ResponseValue
 type ResponseValue struct {
-	Success bool
-	Value   string
+	Success bool   `json:"success"`
+	Value   string `json:"value"`
 }
 
 //Response Response
 type Response struct {
-	Success bool
+	Success bool `json:"success"`
 }
 
 // Set sets the cache
@@ -80,6 +80,51 @@ func (cp *CProxy) Set(i *Item) *Response {
 				if error != nil {
 					log.Println(error.Error())
 				}
+			}
+		}
+	}
+	return rtn
+}
+
+//Get get value
+func (cp *CProxy) Get(key string) *ResponseValue {
+	var rtn = new(ResponseValue)
+	var sURL = cp.Host + "/rs/cache/get/" + key
+	resp, err := http.Get(sURL)
+	//fmt.Println(resp)
+	if err != nil {
+		log.Println(err.Error())
+	} else {
+		defer resp.Body.Close()
+		decoder := json.NewDecoder(resp.Body)
+		error := decoder.Decode(&rtn)
+		if error != nil {
+			log.Println(error.Error())
+		}
+	}
+	return rtn
+}
+
+//Delete delete value
+func (cp *CProxy) Delete(key string) *Response {
+	var rtn = new(Response)
+	var sURL = cp.Host + "/rs/cache/delete/" + key
+	req, rErr := http.NewRequest("DELETE", sURL, nil)
+	if rErr != nil {
+		fmt.Print("request err: ")
+		fmt.Println(rErr)
+	} else {
+		client := &http.Client{}
+		resp, cErr := client.Do(req)
+		if cErr != nil {
+			fmt.Print("Cache Service delete err: ")
+			fmt.Println(cErr)
+		} else {
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
+			error := decoder.Decode(&rtn)
+			if error != nil {
+				log.Println(error.Error())
 			}
 		}
 	}

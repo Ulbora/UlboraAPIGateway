@@ -49,7 +49,7 @@ const (
 	DeactivateOtherRouteURLsQuery = "UPDATE route_url set active = 0 WHERE id != ? and rest_route_id = ? and rest_route_client_id = ? "
 	RouteURLGetQuery              = "select * from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
 	RouteURLGetListQuery          = "select * from route_url WHERE rest_route_id = ? and rest_route_client_id = ? "
-	RouteNameURLGetListQuery      = "select ru.* " +
+	RouteNameURLGetListQuery      = "select rr.route, ru.name, ru.url, ru.active " +
 		"from route_url ru " +
 		"inner join rest_route rr " +
 		"on ru.rest_route_id = rr.id " +
