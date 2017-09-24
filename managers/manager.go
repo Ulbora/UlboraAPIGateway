@@ -60,9 +60,25 @@ type RouteURL struct {
 	ClientID int64  `json:"clientId"`
 }
 
+//GatewayRouteURL url
+type GatewayRouteURL struct {
+	Route  string `json:"route"`
+	Name   string `json:"name"`
+	URL    string `json:"url"`
+	Active bool   `json:"active"`
+}
+
 //GatewayDB db config
 type GatewayDB struct {
 	DbConfig db.DbConfig
+}
+
+//GatewayRoutes gateway routes
+type GatewayRoutes struct {
+	Route      string
+	ClientID   int64
+	GwDB       GatewayDB
+	GwCacheURL string
 }
 
 //ConnectDb to database

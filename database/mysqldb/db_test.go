@@ -319,6 +319,23 @@ func TestGetRouteURLList(t *testing.T) {
 	}
 }
 
+func TestGetRouteNameURLList(t *testing.T) {
+	a := []interface{}{"mail2", clientID}
+	rowsPtr := GetRouteNameURLList(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get route by name urls ")
+		fmt.Println(foundRows)
+		//fmt.Println("GetList results: --------------------------")
+		if len(foundRows) != 2 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
 func TestGetRouteURLs(t *testing.T) {
 	a := []interface{}{clientID, "mail2"}
 	rowsPtr := GetRouteURLs(a...)

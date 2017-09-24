@@ -136,6 +136,12 @@ func GetRouteURLList(args ...interface{}) *crud.DbRows {
 	return rowsPtr
 }
 
+//GetRouteNameURLList get a row. Passing in tx allows for transactions
+func GetRouteNameURLList(args ...interface{}) *crud.DbRows {
+	rowsPtr := crud.GetList(RouteNameURLGetListQuery, args...)
+	return rowsPtr
+}
+
 //DeleteRouteURL delete
 func DeleteRouteURL(args ...interface{}) bool {
 	success := crud.Delete(nil, RouteURLDeleteQuery, args...)

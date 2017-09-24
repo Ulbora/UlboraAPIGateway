@@ -49,7 +49,13 @@ const (
 	DeactivateOtherRouteURLsQuery = "UPDATE route_url set active = 0 WHERE id != ? and rest_route_id = ? and rest_route_client_id = ? "
 	RouteURLGetQuery              = "select * from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
 	RouteURLGetListQuery          = "select * from route_url WHERE rest_route_id = ? and rest_route_client_id = ? "
-	RouteURLDeleteQuery           = "delete from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
+	RouteNameURLGetListQuery      = "select ru.* " +
+		"from route_url ru " +
+		"inner join rest_route rr " +
+		"on ru.rest_route_id = rr.id " +
+		"and ru.rest_route_client_id = rr.client_id " +
+		"WHERE rr.route = ? and ru.rest_route_client_id = ? "
+	RouteURLDeleteQuery = "delete from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? and active = 0 "
 
 	GetRouteURLsQuery = "select rr.route, rl.name, rl.url, rl.active " +
 		" from rest_route rr inner join client c " +
@@ -65,5 +71,5 @@ const (
 		" INNER join route_url rl " +
 		" on rl.rest_route_id = rr.id " +
 		" and rl.rest_route_client_id = rr.client_id " +
-		" where c.client_id = ? and rr.route = ? and rl.active = ? "
+		" where c.client_id = ? and rr.route = ? and rl.active = 1 "
 )

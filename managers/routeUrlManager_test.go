@@ -112,53 +112,107 @@ func TestRouteURL_UpdateRouteURL(t *testing.T) {
 	}
 }
 
-// func TestRouteURL_GetRestRoute(t *testing.T) {
-// 	var rr RestRoute
-// 	rr.ID = routeID
-// 	rr.ClientID = clientID2
-// 	res := gatewayDB.GetRestRoute(&rr)
-// 	fmt.Println("")
-// 	fmt.Print("found route: ")
-// 	fmt.Println(res)
-// 	if res.Route != "content2" {
-// 		fmt.Println("database insert failed")
-// 		t.Fail()
-// 	}
-// }
+func TestRouteURL_ActivateRouteURL(t *testing.T) {
+	var ru RouteURL
+	ru.ID = routeURLID33
+	ru.RouteID = routeID3
+	ru.ClientID = clientID3
 
-// func TestRouteURL_GetRestRouteList(t *testing.T) {
-// 	var rr RestRoute
-// 	rr.ClientID = clientID2
-// 	res := gatewayDB.GetRestRouteList(&rr)
-// 	fmt.Println("")
-// 	fmt.Print("found client list: ")
-// 	fmt.Println(res)
-// 	if len(*res) != 1 {
-// 		fmt.Println("database read failed")
-// 		t.Fail()
-// 	}
-// }
+	res := gatewayDB.ActivateRouteURL(&ru)
+	if res.Success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
 
-// func TestRouteURL_DeleteRestRouteList(t *testing.T) {
-// 	var rr RestRoute
-// 	rr.ID = routeID
-// 	rr.ClientID = clientID2
-// 	res := gatewayDB.DeleteRestRoute(&rr)
-// 	if res.Success != true {
-// 		fmt.Println("database delete failed")
-// 		t.Fail()
-// 	}
-// }
+func TestRouteURL_ActivateRouteURL2(t *testing.T) {
+	var ru RouteURL
+	ru.ID = routeURLID3
+	ru.RouteID = routeID3
+	ru.ClientID = clientID3
 
-// func TestRouteURL_DeleteClient(t *testing.T) {
-// 	var c Client
-// 	c.ClientID = clientID2
-// 	res := gatewayDB.DeleteClient(&c)
-// 	if res.Success != true {
-// 		fmt.Println("database delete failed")
-// 		t.Fail()
-// 	}
-// }
+	res := gatewayDB.ActivateRouteURL(&ru)
+	if res.Success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestRouteURL_ActivateRouteURL3(t *testing.T) {
+	var ru RouteURL
+	ru.ID = routeURLID33
+	ru.RouteID = routeID3
+	ru.ClientID = clientID3
+
+	res := gatewayDB.ActivateRouteURL(&ru)
+	if res.Success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestRouteURL_GetRouteURL(t *testing.T) {
+	var ru RouteURL
+	ru.ID = routeURLID33
+	ru.RouteID = routeID3
+	ru.ClientID = clientID3
+	res := gatewayDB.GetRouteURL(&ru)
+	fmt.Println("")
+	fmt.Print("found route URL: ")
+	fmt.Println(res)
+	if res.Active != true {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestRouteURL_GetRouteURLList(t *testing.T) {
+	var ru RouteURL
+	ru.RouteID = routeID3
+	ru.ClientID = clientID3
+	res := gatewayDB.GetRouteURLList(&ru)
+	fmt.Println("")
+	fmt.Print("found route URL list: ")
+	fmt.Println(res)
+	if len(*res) != 2 {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestRouteURL_DeleteActiveRouteURL(t *testing.T) {
+	var ru RouteURL
+	ru.ID = routeURLID33
+	ru.RouteID = routeID3
+	ru.ClientID = clientID3
+	res := gatewayDB.DeleteRouteURL(&ru)
+	if res.Success != false {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestRouteURL_DeleteNonActiveRouteURL(t *testing.T) {
+	var ru RouteURL
+	ru.ID = routeURLID3
+	ru.RouteID = routeID3
+	ru.ClientID = clientID3
+	res := gatewayDB.DeleteRouteURL(&ru)
+	if res.Success != true {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestRouteURL_DeleteClient(t *testing.T) {
+	var c Client
+	c.ClientID = clientID3
+	res := gatewayDB.DeleteClient(&c)
+	if res.Success != true {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
 
 func TestRouteURL_TestCloseDb(t *testing.T) {
 	success := gatewayDB3.CloseDb()

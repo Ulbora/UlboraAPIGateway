@@ -79,26 +79,11 @@ func (db *GatewayDB) ActivateRouteURL(ru *RouteURL) *GatewayResponse {
 	a = append(a, ru.ID, ru.RouteID, ru.ClientID)
 	success := db.DbConfig.ActivateRouteURL(a...)
 	if success == true {
-		fmt.Println("update record")
-	}
-	rtn.ID = ru.ID
-	rtn.Success = success
-	return &rtn
-}
-
-//DeactivateOtherRouteURLs in database
-func (db *GatewayDB) DeactivateOtherRouteURLs(ru *RouteURL) *GatewayResponse {
-	var rtn GatewayResponse
-	dbConnected := db.DbConfig.ConnectionTest()
-	if !dbConnected {
-		fmt.Println("reconnection to closed database")
-		db.DbConfig.ConnectDb()
-	}
-	var a []interface{}
-	a = append(a, ru.ID, ru.RouteID, ru.ClientID)
-	success := db.DbConfig.DeactivateOtherRouteURLs(a...)
-	if success == true {
-		fmt.Println("update record")
+		fmt.Println("activated urls")
+		successd := db.DbConfig.DeactivateOtherRouteURLs(a...)
+		if successd == true {
+			fmt.Println("deactivated other urls")
+		}
 	}
 	rtn.ID = ru.ID
 	rtn.Success = success
@@ -106,16 +91,16 @@ func (db *GatewayDB) DeactivateOtherRouteURLs(ru *RouteURL) *GatewayResponse {
 }
 
 //GetRouteURL route from database
-func (db *GatewayDB) GetRouteURL(ru *RouteURL) *RestRoute {
+func (db *GatewayDB) GetRouteURL(ru *RouteURL) *RouteURL {
 	var a []interface{}
 	a = append(a, ru.ID, ru.RouteID, ru.ClientID)
-	var rtn *RestRoute
+	var rtn *RouteURL
 	rowPtr := db.DbConfig.GetRouteURL(a...)
 	if rowPtr != nil {
 		//print("content row: ")
 		//println(rowPtr.Row)
 		foundRow := rowPtr.Row
-		rtn = parseRestRouteRow(&foundRow)
+		rtn = parseRouteURLRow(&foundRow)
 	}
 	return rtn
 }

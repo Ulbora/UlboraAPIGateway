@@ -313,6 +313,23 @@ func TestDbConfig_GetRouteURLList(t *testing.T) {
 	}
 }
 
+func TestDbConfig_GetRouteNameURLList(t *testing.T) {
+	a := []interface{}{"mail2", clientID}
+	rowsPtr := dbConfig.GetRouteNameURLList(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get route name urls ")
+		fmt.Println(foundRows)
+		//fmt.Println("GetList results: --------------------------")
+		if len(foundRows) != 2 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
 func TestDbConfig_GetRouteURLs(t *testing.T) {
 	a := []interface{}{clientID, "mail2"}
 	rowsPtr := dbConfig.GetRouteURLs(a...)

@@ -228,6 +228,17 @@ func (db *DbConfig) GetRouteURLList(args ...interface{}) *Rows {
 	return &routeRows
 }
 
+//GetRouteNameURLList get a row. Passing in tx allows for transactions
+func (db *DbConfig) GetRouteNameURLList(args ...interface{}) *Rows {
+	var routeRows Rows
+	rowsPtr := routeDb.GetRouteNameURLList(args...)
+	if rowsPtr != nil {
+		routeRows.Columns = rowsPtr.Columns
+		routeRows.Rows = rowsPtr.Rows
+	}
+	return &routeRows
+}
+
 //DeleteRouteURL delete
 func (db *DbConfig) DeleteRouteURL(args ...interface{}) bool {
 	success := routeDb.DeleteRouteURL(args...)

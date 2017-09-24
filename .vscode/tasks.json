@@ -12,8 +12,9 @@
         "github.com/Ulbora/go-crud-mysql",     
         "UlboraApiGateway/database/mysqldb",
         "UlboraApiGateway/database",
-        "UlboraApiGateway/manager",
-        "github.com/Ulbora/go-ulbora-oauth2"
+        "UlboraApiGateway/managers",
+        "github.com/Ulbora/go-ulbora-oauth2",
+        "UlboraApiGateway/cache"
       ]
     },
     {
