@@ -32,17 +32,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
-	fmt.Println("Api Gateway running!")
-	router := mux.NewRouter()
-	//router.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=\\-\\//]+}", handleActiveRoute)
-	//router.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=&\\//]+}", handleActiveRoute)
-	//router.HandleFunc("/{route}/{fpath:[(.)\\//]+}", handleActiveRoute)
-	s := router.PathPrefix("/p").Subrouter()
-	s.HandleFunc("/{route}/{fpath:[^.]+}", handleActiveRoute)
-	//s.HandleFunc("/{route}/{fpath:[^/]*}", handleActiveRoute)
-	//s.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=&\\//]+}", handleActiveRoute)
-	//router.HandleFunc("/rs/cache/get/{key}", handleCacheGet).Methods("GET")
-	//router.HandleFunc("/rs/cache/delete/{key}", handleCacheDelete).Methods("DELETE")
-	http.ListenAndServe(":3011", router)
+func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
+	//w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	route := vars["route"]
+	fpath := vars["fpath"]
+	fmt.Print("route: ")
+	fmt.Println(route)
+	fmt.Print("fpath: ")
+	fmt.Println(fpath)
+	code := r.URL.Query()
+	fmt.Println(code)
+	w.WriteHeader(http.StatusOK)
 }
