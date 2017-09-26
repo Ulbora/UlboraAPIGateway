@@ -26,7 +26,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -34,14 +36,88 @@ import (
 
 func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 	//w.Header().Set("Content-Type", "application/json")
-	vars := mux.Vars(r)
-	route := vars["route"]
-	fpath := vars["fpath"]
-	fmt.Print("route: ")
-	fmt.Println(route)
-	fmt.Print("fpath: ")
-	fmt.Println(fpath)
-	code := r.URL.Query()
-	fmt.Println(code)
+	//cType := r.Header.Get("Content-Type")
+	//h := r.
+	//h.WriteSubset
+	//http.Redirect(w, r, path, http.StatusFound)
+	switch r.Method {
+	case "POST", "PUT", "PATCH":
+		vars := mux.Vars(r)
+		route := vars["route"]
+		fpath := vars["fpath"]
+		var spath = "http://localhost:3003" + "/" + fpath
+		fmt.Print("route: ")
+		fmt.Println(route)
+		fmt.Print("fpath: ")
+		fmt.Println(fpath)
+		code := r.URL.Query()
+		fmt.Println(code)
+		//body := r.Body.Read()
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Print("Body: ")
+			fmt.Println(string(body))
+		}
+		req, rErr := http.NewRequest(r.Method, spath, bytes.NewBuffer(body))
+		if rErr != nil {
+			fmt.Print("request err: ")
+			fmt.Println(rErr)
+		} else {
+			var rtn string
+			var rtnCode int
+			req.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+			client := &http.Client{}
+			resp, cErr := client.Do(req)
+			if cErr != nil {
+				fmt.Print("Request err: ")
+				fmt.Println(cErr)
+				rtnCode = 400
+				rtn = cErr.Error()
+			} else {
+				defer resp.Body.Close()
+				respbody, err := ioutil.ReadAll(resp.Body)
+				if err != nil {
+					fmt.Println(err)
+					rtnCode = 500
+					rtn = err.Error()
+				} else {
+					rtn = string(respbody)
+					fmt.Print("Resp Body: ")
+					fmt.Println(rtn)
+					rtnCode = resp.StatusCode
+				}
+				//decoder := json.NewDecoder(resp.Body)
+				//error := decoder.Decode(&rtn)
+				//if error != nil {
+				//log.Println(error.Error())
+				//}
+
+			}
+			w.WriteHeader(rtnCode)
+			fmt.Fprint(w, rtn)
+		}
+
+	//case "PUT":
+
+	//case "PATCH":
+
+	case "GET", "DELETE":
+		vars := mux.Vars(r)
+		route := vars["route"]
+		fpath := vars["fpath"]
+		fmt.Print("route: ")
+		fmt.Println(route)
+		fmt.Print("fpath: ")
+		fmt.Println(fpath)
+		code := r.URL.Query()
+		fmt.Println(code)
+	//case "DELETE":
+
+	case "OPTIONS":
+
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
