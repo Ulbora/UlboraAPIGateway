@@ -41,8 +41,8 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
 	var key = cid + ":" + gw.Route
-	//fmt.Print("Key Used for cache: ")
-	//fmt.Println(key)
+	fmt.Print("Key Used for cache: ")
+	fmt.Println(key)
 	res := cp.Get(key)
 	if res.Success == true {
 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
@@ -58,6 +58,12 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	} else {
 		//read db
 		fmt.Println("Routes not found in cache, reading db.")
+
+		dbConnected := gw.GwDB.DbConfig.ConnectionTest()
+		if !dbConnected {
+			fmt.Println("reconnection to closed database")
+			gw.GwDB.DbConfig.ConnectDb()
+		}
 		var a []interface{}
 		a = append(a, gw.Route, gw.ClientID)
 		rowsPtr := gw.GwDB.DbConfig.GetRouteNameURLList(a...)

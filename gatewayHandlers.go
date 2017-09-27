@@ -26,25 +26,34 @@
 package main
 
 import (
+	mgr "UlboraApiGateway/managers"
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 
+	//mgr "UlboraApiGateway/managers"
+
 	"github.com/gorilla/mux"
 )
 
 func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
-	//w.Header().Set("Content-Type", "application/json")
-	//cType := r.Header.Get("Content-Type")
-	//h := r.
-	//h.WriteSubset
-	//http.Redirect(w, r, path, http.StatusFound)
+	var gwr mgr.GatewayRoutes
+	gwr.ClientID = 1
+	gwr.GwCacheHost = "http://localhost:3010"
+	gwr.GwDB = gatewayDB
+
+	var rtn string
+	var rtnCode int
 	switch r.Method {
 	case "POST", "PUT", "PATCH":
 		vars := mux.Vars(r)
 		route := vars["route"]
 		fpath := vars["fpath"]
+		gwr.Route = route
+		rts := gwr.GetGatewayRoutes(true, "")
+		fmt.Print("found routes: ")
+		fmt.Println(rts)
 		var spath = "http://localhost:3003" + "/" + fpath
 		fmt.Print("route: ")
 		fmt.Println(route)
@@ -65,8 +74,6 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 			fmt.Print("request err: ")
 			fmt.Println(rErr)
 		} else {
-			var rtn string
-			var rtnCode int
 			req.Header.Set("Content-Type", r.Header.Get("Content-Type"))
 			client := &http.Client{}
 			resp, cErr := client.Do(req)
@@ -87,6 +94,7 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 					fmt.Print("Resp Body: ")
 					fmt.Println(rtn)
 					rtnCode = resp.StatusCode
+					w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 				}
 				//decoder := json.NewDecoder(resp.Body)
 				//error := decoder.Decode(&rtn)
@@ -103,7 +111,7 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 
 	//case "PATCH":
 
-	case "GET", "DELETE":
+	case "GET":
 		vars := mux.Vars(r)
 		route := vars["route"]
 		fpath := vars["fpath"]
@@ -113,7 +121,91 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(fpath)
 		code := r.URL.Query()
 		fmt.Println(code)
-	//case "DELETE":
+		var spath = "http://localhost:3003" + "/" + fpath + parseQueryString(code)
+		fmt.Print("api path: ")
+		fmt.Println(spath)
+		resp, err := http.Get(spath)
+		fmt.Print("res: ")
+		fmt.Println(resp)
+		if err != nil {
+			fmt.Println(err)
+			rtnCode = 400
+			rtn = err.Error()
+		} else {
+			defer resp.Body.Close()
+			respbody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Println(err)
+				rtnCode = 500
+				rtn = err.Error()
+			} else {
+				rtn = string(respbody)
+				fmt.Print("Resp Body: ")
+				fmt.Println(rtn)
+				rtnCode = resp.StatusCode
+				w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+			}
+		}
+		w.WriteHeader(rtnCode)
+		fmt.Fprint(w, rtn)
+	case "DELETE":
+		vars := mux.Vars(r)
+		route := vars["route"]
+		fpath := vars["fpath"]
+		var spath = "http://localhost:3003" + "/" + fpath
+		fmt.Print("route: ")
+		fmt.Println(route)
+		fmt.Print("fpath: ")
+		fmt.Println(fpath)
+		code := r.URL.Query()
+		fmt.Println(code)
+		//body := r.Body.Read()
+		// body, err := ioutil.ReadAll(r.Body)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// } else {
+		// 	fmt.Print("Body: ")
+		// 	fmt.Println(string(body))
+		// }
+		req, rErr := http.NewRequest(r.Method, spath, nil)
+		if rErr != nil {
+			fmt.Print("request err: ")
+			fmt.Println(rErr)
+		} else {
+			var rtn string
+			var rtnCode int
+			//req.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+			client := &http.Client{}
+			resp, cErr := client.Do(req)
+			if cErr != nil {
+				fmt.Print("Request err: ")
+				fmt.Println(cErr)
+				rtnCode = 400
+				rtn = cErr.Error()
+			} else {
+				defer resp.Body.Close()
+				respbody, err := ioutil.ReadAll(resp.Body)
+				if err != nil {
+					fmt.Println(err)
+					rtnCode = 500
+					rtn = err.Error()
+				} else {
+					rtn = string(respbody)
+					fmt.Print("Resp Body: ")
+					fmt.Println(rtn)
+					rtnCode = resp.StatusCode
+					w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+				}
+				//decoder := json.NewDecoder(resp.Body)
+				//error := decoder.Decode(&rtn)
+				//if error != nil {
+				//log.Println(error.Error())
+				//}
+
+			}
+			w.WriteHeader(rtnCode)
+			fmt.Fprint(w, rtn)
+		}
 
 	case "OPTIONS":
 

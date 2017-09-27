@@ -28,18 +28,55 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+
+	mgr "UlboraApiGateway/managers"
 
 	"github.com/gorilla/mux"
 )
 
+var gatewayDB mgr.GatewayDB
+
+//var gwr mgr.GatewayRoutes
+
 func main() {
+
+	if os.Getenv("MYSQL_PORT_3306_TCP_ADDR") != "" {
+		gatewayDB.DbConfig.Host = os.Getenv("MYSQL_PORT_3306_TCP_ADDR")
+	} else if os.Getenv("DATABASE_HOST") != "" {
+		gatewayDB.DbConfig.Host = os.Getenv("DATABASE_HOST")
+	} else {
+		gatewayDB.DbConfig.Host = "localhost:3306"
+	}
+
+	if os.Getenv("DATABASE_USER_NAME") != "" {
+		gatewayDB.DbConfig.DbUser = os.Getenv("DATABASE_USER_NAME")
+	} else {
+		gatewayDB.DbConfig.DbUser = "admin"
+	}
+
+	if os.Getenv("DATABASE_USER_PASSWORD") != "" {
+		gatewayDB.DbConfig.DbPw = os.Getenv("DATABASE_USER_PASSWORD")
+	} else {
+		gatewayDB.DbConfig.DbPw = "admin"
+	}
+
+	if os.Getenv("DATABASE_NAME") != "" {
+		gatewayDB.DbConfig.DatabaseName = os.Getenv("DATABASE_NAME")
+	} else {
+		gatewayDB.DbConfig.DatabaseName = "ulbora_api_gateway"
+	}
+	gatewayDB.ConnectDb()
+	defer gatewayDB.CloseDb()
+	//gwr.GwDB = gatewayDB
+
 	fmt.Println("Api Gateway running!")
 	router := mux.NewRouter()
 	//router.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=\\-\\//]+}", handleActiveRoute)
 	//router.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=&\\//]+}", handleActiveRoute)
-	//router.HandleFunc("/{route}/{fpath:[(.)\\//]+}", handleActiveRoute)
-	s := router.PathPrefix("/p").Subrouter()
-	s.HandleFunc("/{route}/{fpath:[^.]+}", handleActiveRoute)
+	router.HandleFunc("/{route}/{fpath:[^.]+}", handleActiveRoute)
+	//s := router.PathPrefix("/p").Subrouter()
+	//s.HandleFunc("/{route}/{fpath:[^.]+}", handleActiveRoute)
 	//s.HandleFunc("/{route}/{fpath:[^/]*}", handleActiveRoute)
 	//s.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=&\\//]+}", handleActiveRoute)
 	//router.HandleFunc("/rs/cache/get/{key}", handleCacheGet).Methods("GET")
