@@ -25,7 +25,10 @@
 
 package main
 
-import "net/url"
+import (
+	"net/url"
+	"os"
+)
 
 func parseQueryString(vals url.Values) string {
 	var rtn = ""
@@ -37,6 +40,16 @@ func parseQueryString(vals url.Values) string {
 		} else {
 			rtn += "&" + key + "=" + value[0]
 		}
+	}
+	return rtn
+}
+
+func getCacheHost() string {
+	var rtn = ""
+	if os.Getenv("CACHE_HOST") != "" {
+		rtn = os.Getenv("CACHE_HOST")
+	} else {
+		rtn = "http://localhost:3010"
 	}
 	return rtn
 }
