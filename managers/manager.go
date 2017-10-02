@@ -76,6 +76,7 @@ type GatewayDB struct {
 //GatewayRoutes gateway routes
 type GatewayRoutes struct {
 	Route       string
+	APIKey      string
 	ClientID    int64
 	GwDB        GatewayDB
 	GwCacheHost string

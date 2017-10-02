@@ -31,13 +31,18 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
-func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
+func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 	var gwr mgr.GatewayRoutes
-	gwr.ClientID = 1
+	cid := r.Header.Get("clientId")
+	gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
+	gwr.APIKey = r.Header.Get("apiKey")
+	//fmt.Print("apiKey: ")
+	//fmt.Println(gwr.APIKey)
 	gwr.GwCacheHost = getCacheHost()
 	gwr.GwDB = gatewayDB
 
@@ -45,44 +50,57 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 	var rtnCode int
 	vars := mux.Vars(r)
 	route := vars["route"]
+	rName := vars["rname"]
 	fpath := vars["fpath"]
 	code := r.URL.Query()
 	gwr.Route = route
-	rts := gwr.GetGatewayRoutes(true, "")
-
-	fmt.Print("route: ")
-	fmt.Println(route)
-	fmt.Print("fpath: ")
-	fmt.Println(fpath)
-	fmt.Print("code: ")
-	fmt.Println(code)
-	fmt.Println("Found url: " + rts.URL)
+	var activeRoute = true
+	if rName != "" {
+		activeRoute = false
+	}
+	//fmt.Println("getting route active: " + rName)
+	//fmt.Print("active: ")
+	//fmt.Println(activeRoute)
+	rts := gwr.GetGatewayRoutes(activeRoute, rName)
+	// fmt.Print("route: ")
+	// fmt.Println(route)
+	// fmt.Print("fpath: ")
+	// fmt.Println(fpath)
+	// fmt.Print("rName: ")
+	// fmt.Println(rName)
+	// fmt.Print("code: ")
+	// fmt.Println(code)
+	//fmt.Println("Found url: " + rts.URL)
 	if rts.URL == "" {
-		fmt.Println("No route found")
+		fmt.Println("No route found in gateway")
 		rtnCode = 400
 		rtn = "bad route"
+		fmt.Print("found routes: ")
+		fmt.Println(rts)
 	} else {
 		switch r.Method {
 		case "POST", "PUT", "PATCH":
-			fmt.Print("found routes: ")
-			fmt.Println(rts)
+			//fmt.Print("found routes: ")
+			//fmt.Println(rts)
 			var spath = rts.URL + "/" + fpath + parseQueryString(code)
-			fmt.Print("spath: ")
-			fmt.Println(spath)
+			//fmt.Print("spath: ")
+			//fmt.Println(spath)
 			//body := r.Body.Read()
 			body, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				fmt.Println(err)
-			} else {
-				fmt.Print("Body: ")
-				fmt.Println(string(body))
-			}
+			} //else {
+			//fmt.Print("Body: ")
+			//fmt.Println(string(body))
+			//}
 			req, rErr := http.NewRequest(r.Method, spath, bytes.NewBuffer(body))
 			if rErr != nil {
 				fmt.Print("request err: ")
 				fmt.Println(rErr)
+				rtnCode = 400
+				rtn = rErr.Error()
 			} else {
-				req.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+				buildHeaders(r, req)
 				client := &http.Client{}
 				resp, cErr := client.Do(req)
 				if cErr != nil {
@@ -94,13 +112,14 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 					defer resp.Body.Close()
 					respbody, err := ioutil.ReadAll(resp.Body)
 					if err != nil {
+						fmt.Print("Resp Body err: ")
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
 					} else {
 						rtn = string(respbody)
-						fmt.Print("Resp Body: ")
-						fmt.Println(rtn)
+						//fmt.Print("Resp Body: ")
+						//fmt.Println(rtn)
 						rtnCode = resp.StatusCode
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
@@ -108,42 +127,56 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 			}
 		case "GET":
 			var spath = rts.URL + "/" + fpath + parseQueryString(code)
-			fmt.Print("api path: ")
-			fmt.Println(spath)
-			resp, err := http.Get(spath)
-			fmt.Print("res: ")
-			fmt.Println(resp)
-			if err != nil {
-				fmt.Println(err)
-				rtnCode = 400
-				rtn = err.Error()
-			} else {
-				defer resp.Body.Close()
-				respbody, err := ioutil.ReadAll(resp.Body)
-				if err != nil {
-					fmt.Println(err)
-					rtnCode = 500
-					rtn = err.Error()
-				} else {
-					rtn = string(respbody)
-					fmt.Print("Resp Body: ")
-					fmt.Println(rtn)
-					rtnCode = resp.StatusCode
-					w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-				}
-			}
-		case "DELETE":
-			var spath = rts.URL + "/" + fpath + parseQueryString(code)
-			fmt.Print("fpath: ")
-			fmt.Println(fpath)
-			code := r.URL.Query()
-			fmt.Println(code)
+			//fmt.Print("api path: ")
+			//fmt.Println(spath)
 			req, rErr := http.NewRequest(r.Method, spath, nil)
 			if rErr != nil {
 				fmt.Print("request err: ")
 				fmt.Println(rErr)
+				rtnCode = 400
+				rtn = rErr.Error()
 			} else {
-				//req.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+				buildHeaders(r, req)
+				client := &http.Client{}
+				resp, cErr := client.Do(req)
+				if cErr != nil {
+					fmt.Print("Request err: ")
+					fmt.Println(cErr)
+					rtnCode = 400
+					rtn = cErr.Error()
+				} else {
+					//fmt.Print("res: ")
+					//fmt.Println(resp)
+					defer resp.Body.Close()
+					respbody, err := ioutil.ReadAll(resp.Body)
+					if err != nil {
+						fmt.Print("Resp Body err: ")
+						fmt.Println(err)
+						rtnCode = 500
+						rtn = err.Error()
+					} else {
+						rtn = string(respbody)
+						//fmt.Print("Resp Body: ")
+						//fmt.Println(rtn)
+						rtnCode = resp.StatusCode
+						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+					}
+				}
+			}
+		case "DELETE":
+			var spath = rts.URL + "/" + fpath + parseQueryString(code)
+			//fmt.Print("fpath: ")
+			//fmt.Println(fpath)
+			//code := r.URL.Query()
+			//fmt.Println(code)
+			req, rErr := http.NewRequest(r.Method, spath, nil)
+			if rErr != nil {
+				fmt.Print("request err: ")
+				fmt.Println(rErr)
+				rtnCode = 400
+				rtn = rErr.Error()
+			} else {
+				buildHeaders(r, req)
 				client := &http.Client{}
 				resp, cErr := client.Do(req)
 				if cErr != nil {
@@ -155,13 +188,14 @@ func handleActiveRoute(w http.ResponseWriter, r *http.Request) {
 					defer resp.Body.Close()
 					respbody, err := ioutil.ReadAll(resp.Body)
 					if err != nil {
+						fmt.Print("Resp Body err: ")
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
 					} else {
 						rtn = string(respbody)
-						fmt.Print("Resp Body: ")
-						fmt.Println(rtn)
+						//fmt.Print("Resp Body: ")
+						//fmt.Println(rtn)
 						rtnCode = resp.StatusCode
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}

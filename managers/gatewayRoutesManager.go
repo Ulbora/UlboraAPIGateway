@@ -41,8 +41,8 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
 	var key = cid + ":" + gw.Route
-	fmt.Print("Key Used for cache: ")
-	fmt.Println(key)
+	//fmt.Print("Key Used for cache: ")
+	//fmt.Println(key)
 	res := cp.Get(key)
 	if res.Success == true {
 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
@@ -54,10 +54,10 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 				fmt.Println(err)
 			}
 		}
-		fmt.Println("Found Gateway route in cache.")
+		//fmt.Println("Found Gateway route in cache for key: " + key)
 	} else {
 		//read db
-		fmt.Println("Routes not found in cache, reading db.")
+		fmt.Println("Routes not found in cache for key " + key + ", reading db.")
 
 		dbConnected := gw.GwDB.DbConfig.ConnectionTest()
 		if !dbConnected {
@@ -65,8 +65,10 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 			gw.GwDB.DbConfig.ConnectDb()
 		}
 		var a []interface{}
-		a = append(a, gw.Route, gw.ClientID)
+		a = append(a, gw.Route, gw.ClientID, gw.APIKey)
 		rowsPtr := gw.GwDB.DbConfig.GetRouteNameURLList(a...)
+		//fmt.Print("rows")
+		//fmt.Println(rowsPtr)
 		if rowsPtr != nil {
 			foundRows := rowsPtr.Rows
 			for r := range foundRows {
@@ -76,8 +78,12 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 			}
 			// add to cache now-----
 			aJSON, err := json.Marshal(rtn)
+			//fmt.Print("rtn")
+			//fmt.Println(rtn)
 			if err != nil {
 				fmt.Println(err)
+			} else if len(rtn) == 0 {
+				fmt.Println("Now records found in database, not saving to cache.")
 			} else {
 				cval := b64.StdEncoding.EncodeToString([]byte(aJSON))
 				var i ch.Item
@@ -85,13 +91,13 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 				i.Value = cval
 				res := cp.Set(&i)
 				if res.Success != true {
-					fmt.Println("Routes not cached from db.")
+					fmt.Println("Routes not cached from db for key " + key + ".")
 				}
 			}
 		}
 	}
-	fmt.Println("Routes: ")
-	fmt.Println(rtn)
+	//fmt.Println("Routes: ")
+	//fmt.Println(rtn)
 	if len(rtn) > 0 && getActive == true {
 		for r := range rtn {
 			if rtn[r].Active == true {

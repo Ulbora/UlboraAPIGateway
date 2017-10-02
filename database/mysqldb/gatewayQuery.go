@@ -54,7 +54,9 @@ const (
 		"inner join rest_route rr " +
 		"on ru.rest_route_id = rr.id " +
 		"and ru.rest_route_client_id = rr.client_id " +
-		"WHERE rr.route = ? and ru.rest_route_client_id = ? "
+		"inner join client c " +
+		"on c.client_id = rr.client_id " +
+		"WHERE rr.route = ? and ru.rest_route_client_id = ? and c.api_key = ? "
 	RouteURLDeleteQuery = "delete from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? and active = 0 "
 
 	GetRouteURLsQuery = "select rr.route, rl.name, rl.url, rl.active " +

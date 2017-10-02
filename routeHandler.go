@@ -24,3 +24,13 @@
 */
 
 package main
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func handleIndexRoute(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+	fmt.Fprint(w, "hello")
+}

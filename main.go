@@ -72,14 +72,8 @@ func main() {
 
 	fmt.Println("Api Gateway running!")
 	router := mux.NewRouter()
-	//router.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=\\-\\//]+}", handleActiveRoute)
-	//router.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=&\\//]+}", handleActiveRoute)
-	router.HandleFunc("/{route}/{fpath:[^.]+}", handleActiveRoute)
-	//s := router.PathPrefix("/p").Subrouter()
-	//s.HandleFunc("/{route}/{fpath:[^.]+}", handleActiveRoute)
-	//s.HandleFunc("/{route}/{fpath:[^/]*}", handleActiveRoute)
-	//s.HandleFunc("/{route}/{fpath:[a-zA-Z0-9=&\\//]+}", handleActiveRoute)
-	//router.HandleFunc("/rs/cache/get/{key}", handleCacheGet).Methods("GET")
-	//router.HandleFunc("/rs/cache/delete/{key}", handleCacheDelete).Methods("DELETE")
+	router.HandleFunc("/", handleIndexRoute)
+	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)
+	router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
 	http.ListenAndServe(":3011", router)
 }

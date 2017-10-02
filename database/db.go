@@ -232,8 +232,8 @@ func (db *DbConfig) GetRouteURLList(args ...interface{}) *Rows {
 func (db *DbConfig) GetRouteNameURLList(args ...interface{}) *Rows {
 	var routeRows Rows
 	rowsPtr := routeDb.GetRouteNameURLList(args...)
-	fmt.Print("database row: ")
-	fmt.Println(rowsPtr)
+	//fmt.Print("database row: ")
+	//fmt.Println(rowsPtr)
 	if rowsPtr != nil {
 		routeRows.Columns = rowsPtr.Columns
 		routeRows.Rows = rowsPtr.Rows

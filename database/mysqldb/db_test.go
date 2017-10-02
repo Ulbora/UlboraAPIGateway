@@ -320,7 +320,7 @@ func TestGetRouteURLList(t *testing.T) {
 }
 
 func TestGetRouteNameURLList(t *testing.T) {
-	a := []interface{}{"mail2", clientID}
+	a := []interface{}{"mail2", clientID, "23ddeee"}
 	rowsPtr := GetRouteNameURLList(a...)
 	if rowsPtr != nil {
 		foundRows := rowsPtr.Rows

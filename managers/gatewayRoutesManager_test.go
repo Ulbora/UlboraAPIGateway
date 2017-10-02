@@ -116,6 +116,7 @@ func TestGatewayRoutes_InsertRouteURL4(t *testing.T) {
 func TestGatewayRoutes_GetGatewayRoutes(t *testing.T) {
 	gatewayRoutes.GwDB = gatewayDB4
 	gatewayRoutes.ClientID = clientID4
+	gatewayRoutes.APIKey = "12233hgdd333"
 	gatewayRoutes.Route = "content"
 	gatewayRoutes.GwCacheHost = "http://localhost:3010"
 	var cid = strconv.FormatInt(gatewayRoutes.ClientID, 10) // string(gatewayRoutes.ClientID)
@@ -136,6 +137,7 @@ func TestGatewayRoutes_GetGatewayRoutes(t *testing.T) {
 func TestGatewayRoutes_GetGatewayRoutes2(t *testing.T) {
 	gatewayRoutes.GwDB = gatewayDB4
 	gatewayRoutes.ClientID = clientID4
+	gatewayRoutes.APIKey = "12233hgdd333"
 	gatewayRoutes.Route = "content"
 	gatewayRoutes.GwCacheHost = "http://localhost:3010"
 	var cid = strconv.FormatInt(gatewayRoutes.ClientID, 10) // string(gatewayRoutes.ClientID)

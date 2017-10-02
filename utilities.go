@@ -26,6 +26,7 @@
 package main
 
 import (
+	"net/http"
 	"net/url"
 	"os"
 )
@@ -52,4 +53,15 @@ func getCacheHost() string {
 		rtn = "http://localhost:3010"
 	}
 	return rtn
+}
+
+func buildHeaders(pr *http.Request, sr *http.Request) {
+	h := pr.Header
+	for hn, v := range h {
+		//fmt.Print("header: ")
+		//fmt.Print(hn)
+		//fmt.Print(" value: ")
+		//fmt.Println(v[0])
+		sr.Header.Set(hn, v[0])
+	}
 }

@@ -314,7 +314,7 @@ func TestDbConfig_GetRouteURLList(t *testing.T) {
 }
 
 func TestDbConfig_GetRouteNameURLList(t *testing.T) {
-	a := []interface{}{"mail2", clientID}
+	a := []interface{}{"mail2", clientID, "23ddeee"}
 	rowsPtr := dbConfig.GetRouteNameURLList(a...)
 	if rowsPtr != nil {
 		foundRows := rowsPtr.Rows
