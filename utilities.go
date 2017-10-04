@@ -26,9 +26,14 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
+	"strings"
+
+	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 )
 
 func parseQueryString(vals url.Values) string {
@@ -64,4 +69,46 @@ func buildHeaders(pr *http.Request, sr *http.Request) {
 		//fmt.Println(v[0])
 		sr.Header.Set(hn, v[0])
 	}
+}
+
+func getAuth(req *http.Request) *uoauth.Oauth {
+	changeHeader := getHeaders(req)
+	auth := new(uoauth.Oauth)
+	auth.Token = changeHeader.token
+	auth.ClientID = changeHeader.clientID
+	auth.UserID = changeHeader.userID
+	auth.Hashed = changeHeader.hashed
+	if os.Getenv("OAUTH2_VALIDATION_URI") != "" {
+		auth.ValidationURL = os.Getenv("OAUTH2_VALIDATION_URI")
+	} else {
+		auth.ValidationURL = "http://localhost:3000/rs/token/validate"
+	}
+	return auth
+}
+
+func getHeaders(req *http.Request) *authHeader {
+	var rtn = new(authHeader)
+	authHeader := req.Header.Get("Authorization")
+	tokenArray := strings.Split(authHeader, " ")
+	if len(tokenArray) == 2 {
+		rtn.token = tokenArray[1]
+		//fmt.Println(rtn.token)
+	}
+	userIDHeader := req.Header.Get("userId")
+	rtn.userID = userIDHeader
+
+	clientIDHeader := req.Header.Get("clientId")
+	clientID, err := strconv.ParseInt(clientIDHeader, 10, 32)
+	if err != nil {
+		fmt.Println(err)
+	}
+	rtn.clientID = clientID
+	if req.Header.Get("hashed") == "true" {
+		rtn.hashed = true
+	} else {
+		rtn.hashed = false
+	}
+	//fmt.Println(clientIDHeader)
+	//fmt.Println(userIDHeader)
+	return rtn
 }

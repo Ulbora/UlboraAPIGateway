@@ -35,6 +35,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type authHeader struct {
+	token    string
+	clientID int64
+	userID   string
+	hashed   bool
+}
+
 var gatewayDB mgr.GatewayDB
 
 //var gwr mgr.GatewayRoutes
@@ -72,7 +79,13 @@ func main() {
 
 	fmt.Println("Api Gateway running!")
 	router := mux.NewRouter()
-	router.HandleFunc("/", handleIndexRoute)
+	router.HandleFunc("/rs/gwClient/add", handleClientChange)
+	router.HandleFunc("/rs/gwClient/update", handleClientChange)
+	router.HandleFunc("/rs/gwClient/get", handleClient)
+	router.HandleFunc("/rs/gwClient/list", handleClientList)
+	router.HandleFunc("/rs/gwClient/delete", handleClient)
+
+	//gateway routes
 	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)
 	router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
 	http.ListenAndServe(":3011", router)

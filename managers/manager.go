@@ -37,7 +37,7 @@ type GatewayResponse struct {
 
 //Client client
 type Client struct {
-	ClientID int64  `json:"id"`
+	ClientID int64  `json:"clientId"`
 	APIKey   string `json:"apiKey"`
 	Enabled  bool   `json:"enabled"`
 	Level    string `json:"level"`
