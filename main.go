@@ -79,11 +79,19 @@ func main() {
 
 	fmt.Println("Api Gateway running!")
 	router := mux.NewRouter()
+	//super admin client services
 	router.HandleFunc("/rs/gwClient/add", handleClientChange)
 	router.HandleFunc("/rs/gwClient/update", handleClientChange)
-	router.HandleFunc("/rs/gwClient/get", handleClient)
+	router.HandleFunc("/rs/gwClient/get/{clientId}", handleClient)
 	router.HandleFunc("/rs/gwClient/list", handleClientList)
-	router.HandleFunc("/rs/gwClient/delete", handleClient)
+	router.HandleFunc("/rs/gwClient/delete/{clientId}", handleClient)
+
+	// super admin restRoute services
+	router.HandleFunc("/rs/gwRestRouteSuper/add", handleRestRouteSuperChange)
+	router.HandleFunc("/rs/gwRestRouteSuper/update", handleRestRouteSuperChange)
+	router.HandleFunc("/rs/gwRestRouteSuper/get/{id}/{clientId}", handleRestRouteSuper)
+	router.HandleFunc("/rs/gwRestRouteSuper/list/{clientId}", handleRestRouteSuperList)
+	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", handleRestRouteSuper)
 
 	//gateway routes
 	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)

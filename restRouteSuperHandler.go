@@ -38,7 +38,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func handleClientChange(w http.ResponseWriter, r *http.Request) {
+func handleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
@@ -50,21 +50,21 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwClient/add"
+			me.URI = "/rs/gwRestRouteSuper/add"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
-				client := new(mng.Client)
+				rt := new(mng.RestRoute)
 				decoder := json.NewDecoder(r.Body)
-				error := decoder.Decode(&client)
+				error := decoder.Decode(&rt)
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if client.ClientID == 0 || client.APIKey == "" || client.Level == "" {
+				} else if rt.ClientID == 0 || rt.Route == "" {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
-					resOut := gatewayDB.InsertClient(client)
+					resOut := gatewayDB.InsertRestRoute(rt)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
@@ -77,21 +77,21 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case "PUT":
-			me.URI = "/rs/gwClient/update"
+			me.URI = "/rs/gwRestRouteSuper/update"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
-				client := new(mng.Client)
+				rt := new(mng.RestRoute)
 				decoder := json.NewDecoder(r.Body)
-				error := decoder.Decode(&client)
+				error := decoder.Decode(&rt)
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if client.APIKey == "" || client.Level == "" || client.ClientID == 0 {
+				} else if rt.ClientID == 0 || rt.ID == 0 || rt.Route == "" {
 					http.Error(w, "bad request in update", http.StatusBadRequest)
 				} else {
-					resOut := gatewayDB.UpdateClient(client)
+					resOut := gatewayDB.UpdateRestRoute(rt)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
@@ -107,30 +107,35 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleClient(w http.ResponseWriter, r *http.Request) {
+func handleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	clientID, errID := strconv.ParseInt(vars["clientId"], 10, 0)
+	id, errID := strconv.ParseInt(vars["id"], 10, 0)
 	if errID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+	clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
+	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 	//fmt.Print("id is: ")
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwClient/get"
+		me.URI = "/rs/gwRestRouteSuper/get"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
-			client := new(mng.Client)
-			client.ClientID = clientID
-			resOut := gatewayDB.GetClient(client)
+			rt := new(mng.RestRoute)
+			rt.ID = id
+			rt.ClientID = clientID
+			resOut := gatewayDB.GetRestRoute(rt)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(resOut)
@@ -143,15 +148,16 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
-		me.URI = "/rs/gwClient/delete"
+		me.URI = "/rs/gwRestRouteSuper/delete"
 		me.Scope = "write"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
-			client := new(mng.Client)
-			client.ClientID = clientID
-			resOut := gatewayDB.DeleteClient(client)
+			rt := new(mng.RestRoute)
+			rt.ID = id
+			rt.ClientID = clientID
+			resOut := gatewayDB.DeleteRestRoute(rt)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(resOut)
@@ -165,21 +171,27 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleClientList(w http.ResponseWriter, r *http.Request) {
+func handleRestRouteSuperList(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
-	me.Scope = "write"
+	me.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
+	if errCID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwClient/list"
+		me.URI = "/rs/gwRestRouteSuper/list"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
-			client := new(mng.Client)
-			resOut := gatewayDB.GetClientList(client)
+			rt := new(mng.RestRoute)
+			rt.ClientID = clientID
+			resOut := gatewayDB.GetRestRouteList(rt)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(resOut)
