@@ -93,6 +93,8 @@ func main() {
 	router.HandleFunc("/rs/gwRestRouteSuper/list/{clientId}", handleRestRouteSuperList)
 	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", handleRestRouteSuper)
 
+	// admin restRoute services
+
 	//gateway routes
 	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)
 	router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
