@@ -61,7 +61,7 @@ func handleRestRouteChange(w http.ResponseWriter, r *http.Request) {
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if rt.ClientID == 0 || rt.Route == "" {
+				} else if rt.Route == "" {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
 					rt.ClientID = auth.ClientID
@@ -89,7 +89,7 @@ func handleRestRouteChange(w http.ResponseWriter, r *http.Request) {
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if rt.ClientID == 0 || rt.ID == 0 || rt.Route == "" {
+				} else if rt.ID == 0 || rt.Route == "" {
 					http.Error(w, "bad request in update", http.StatusBadRequest)
 				} else {
 					rt.ClientID = auth.ClientID
