@@ -27,7 +27,7 @@ func TestDbConfig_ConnectDb(t *testing.T) {
 }
 
 func TestDbConfig_ConnecTest(t *testing.T) {
-	clientID = 3
+	clientID = 333333
 	var a []interface{}
 	success := dbConfig.ConnectionTest(a...)
 	if success == true {
@@ -205,7 +205,7 @@ func TestDbConfig_InsertRouteURL(t *testing.T) {
 
 func TestDbConfig_UpdateRouteURL(t *testing.T) {
 	var a []interface{}
-	a = append(a, "green", "http://www.apigateway.com/green/", false, routeURLID2, routeID, clientID)
+	a = append(a, "green", "http://www.apigateway.com/green/", routeURLID2, routeID, clientID)
 	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
 	success := dbConfig.UpdateRouteURL(a...)
 	if success != true {

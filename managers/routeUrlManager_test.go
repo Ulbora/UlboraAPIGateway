@@ -101,7 +101,6 @@ func TestRouteURL_UpdateRouteURL(t *testing.T) {
 	ru.ID = routeURLID33
 	ru.Name = "green"
 	ru.URL = "http://www.apigateway.com/green/"
-	ru.Active = false
 	ru.RouteID = routeID3
 	ru.ClientID = clientID3
 

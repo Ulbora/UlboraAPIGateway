@@ -93,12 +93,28 @@ func main() {
 	router.HandleFunc("/rs/gwRestRouteSuper/list/{clientId}", handleRestRouteSuperList)
 	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", handleRestRouteSuper)
 
+	// super admin routeUrl services
+	router.HandleFunc("/rs/gwRouteUrlSuper/add", handleRouteURLSuperChange)
+	router.HandleFunc("/rs/gwRouteUrlSuper/update", handleRouteURLSuperChange)
+	router.HandleFunc("/rs/gwRouteUrlSuper/get/{id}/{routeId}/{clientId}", handleRouteURLSuper)
+	router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
+	router.HandleFunc("/rs/gwRouteUrlSuper/delete/{id}/{routeId}/{clientId}", handleRouteURLSuper)
+	router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
+
 	// admin restRoute services
 	router.HandleFunc("/rs/gwRestRoute/add", handleRestRouteChange)
 	router.HandleFunc("/rs/gwRestRoute/update", handleRestRouteChange)
 	router.HandleFunc("/rs/gwRestRoute/get/{id}", handleRestRoute)
 	router.HandleFunc("/rs/gwRestRoute/list", handleRestRouteList)
 	router.HandleFunc("/rs/gwRestRoute/delete/{id}", handleRestRoute)
+
+	// admin routeUrl services
+	router.HandleFunc("/rs/gwRouteUrl/add", handleRouteURLChange)
+	router.HandleFunc("/rs/gwRouteUrl/update", handleRouteURLChange)
+	router.HandleFunc("/rs/gwRouteUrl/get/{id}/{routeId}", handleRouteURL)
+	router.HandleFunc("/rs/gwRouteUrl/list/{routeId}", handleRouteURLList)
+	router.HandleFunc("/rs/gwRouteUrl/delete/{id}/{routeId}", handleRouteURL)
+	router.HandleFunc("/rs/gwRouteUrl/activate", handleRouteURLActivate)
 
 	//gateway routes
 	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)

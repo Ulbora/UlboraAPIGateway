@@ -22,7 +22,7 @@ func TestConnectDb(t *testing.T) {
 }
 
 func TestConnectionTest(t *testing.T) {
-	clientID = 2
+	clientID = 2222
 	var a []interface{}
 	rowPtr := ConnectionTest(a...)
 	if rowPtr != nil {
@@ -211,7 +211,7 @@ func TestInsertRouteURL(t *testing.T) {
 
 func TestUpdateRouteURL(t *testing.T) {
 	var a []interface{}
-	a = append(a, "green", "http://www.apigateway.com/green/", false, routeURLID2, routeID, clientID)
+	a = append(a, "green", "http://www.apigateway.com/green/", routeURLID2, routeID, clientID)
 	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
 	success := UpdateRouteURL(a...)
 	if success != true {

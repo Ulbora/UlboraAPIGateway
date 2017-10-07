@@ -57,7 +57,7 @@ func (db *GatewayDB) UpdateRouteURL(ru *RouteURL) *GatewayResponse {
 		db.DbConfig.ConnectDb()
 	}
 	var a []interface{}
-	a = append(a, ru.Name, ru.URL, ru.Active, ru.ID, ru.RouteID, ru.ClientID)
+	a = append(a, ru.Name, ru.URL, ru.ID, ru.RouteID, ru.ClientID)
 	success := db.DbConfig.UpdateRouteURL(a...)
 	if success == true {
 		fmt.Println("update record")

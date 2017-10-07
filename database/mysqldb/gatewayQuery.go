@@ -44,7 +44,7 @@ const (
 
 	// rest route
 	InsertRouteURLQuery           = "INSERT INTO route_url (name, url, active, rest_route_id, rest_route_client_id) VALUES (?, ?, ?, ?, ?) "
-	UpdateRouteURLQuery           = "UPDATE route_url set name = ?, url = ?, active = ? WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
+	UpdateRouteURLQuery           = "UPDATE route_url set name = ?, url = ? WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
 	ActivateRouteURLQuery         = "UPDATE route_url set active = 1 WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
 	DeactivateOtherRouteURLsQuery = "UPDATE route_url set active = 0 WHERE id != ? and rest_route_id = ? and rest_route_client_id = ? "
 	RouteURLGetQuery              = "select * from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
