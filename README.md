@@ -18,9 +18,15 @@ User Admin Portal: https://github.com/Ulbora/ApiGatewayUserPortal.git
 
 
 # Using API Gateway Routes
-The Ulbora API Gateway routes REST services calls to endpoint assigned through the user portal.
+- The Ulbora API Gateway routes REST service calls to endpoints assigned through the user portal.
+- There can be multiple API endpoints mapped to any route; blue, green, or any name you choose.
+- CORS is passed through the gateway, so if CORS is enabled in your REST services, it works automatically in the gateway.
+- Authentication is also passed through the gateway. If you pass any type of token in a header, it will be passed through automatically.
+- Any other headers are also passed through the gateway automatically.
+- The gateway works with both JSON and XML bodies.
 
-## Headers For Gateway
+
+## Headers For Gateway Route Calls
 - clientId: Your assigned client id
 - apiKey: Your assigned API Key
 - Any other headers required for your micro services
@@ -41,6 +47,7 @@ The Ulbora API Gateway routes REST services calls to endpoint assigned through t
 - Note: 
 - routeID is: challenge
 - routeName is: blue
+- yourRoute is: rs/challenge/en_us?g=g&b=b which can be mappend in the user portal to something like https://www.youapi/rs/challenge/en_us?g=g&b=b
 
 ### Local Prod
 
@@ -48,6 +55,7 @@ The Ulbora API Gateway routes REST services calls to endpoint assigned through t
 - (example): http://localhost:3011/challenge/rs/challenge?name=sam&age=44
 - Note: 
 - routeID is: challenge
+- yourRoute is: /rs/challenge?name=sam&age=44 which can be mappend in the user portal to something like https://www.youapi/rs/challenge?name=sam&age=44
 
 ## Add Client
 
