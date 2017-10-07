@@ -1,7 +1,7 @@
 Ulbora API Gateway
 ==============
 
-Multi-user API gateway with self service portal: http://www.myapigateway.com
+Multi-user lightweight API Gateway with a self service portal: http://www.myapigateway.com
 
 Copyright (C) 2016 Ulbora Labs Inc. (www.ulboralabs.com)
 All rights reserved.
@@ -56,6 +56,10 @@ User Admin Portal: https://github.com/Ulbora/ApiGatewayUserPortal.git
 - Note: 
 - routeID is: challenge
 - yourRoute is: /rs/challenge?name=sam&age=44 which can be mappend in the user portal to something like https://www.youapi/rs/challenge?name=sam&age=44
+
+### Active Production Route
+The User Admin Portal allows you to make any route URL the active production route with the click of a switch.
+Using Non-Prod routes allows you to test services before placing them in production.
 
 ## Add Client
 
