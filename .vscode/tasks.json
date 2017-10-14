@@ -26,6 +26,16 @@
         "github.com/Ulbora/go-crud-mysql",
         "github.com/Ulbora/go-ulbora-oauth2"
       ]
+    },
+    {
+      "taskName": "build",
+      "suppressTaskName": false,
+      "isBuildCommand": true,
+      "args": [  
+        "-o",     
+        "main",
+        "*.go"
+      ]
     }
   ]
 }

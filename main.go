@@ -25,6 +25,7 @@
 
 package main
 
+//build command "go build -o main *.go"
 import (
 	"fmt"
 	"net/http"
