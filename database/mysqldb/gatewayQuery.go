@@ -35,6 +35,45 @@ const (
 	ClientGetListQuery = "select * from client order by client_id "
 	ClientDeleteQuery  = "delete from client WHERE client_id = ? "
 
+	//route performance
+	InsertRoutePerformanceQuery = "INSERT INTO route_performance (calls, latency_ms_total, entered, route_url_id, " +
+		"route_url_rest_route_id, route_url_rest_route_client_id) " +
+		"VALUES(?, ?, ?, ?, ?, ?) "
+	RoutePerformanceGetQuery = "SELECT * FROM route_performance WHERE route_url_id = ? and route_url_rest_route_id = ? " +
+		"and route_url_rest_route_client_id = ? "
+	RoutePerformanceRemoveOldQuery = "DELETE FROM route_performance " +
+		"WHERE entered < (NOW()- INTERVAL 90 DAY)"
+
+	//route error
+	InsertRouteErrorQuery = "INSERT INTO route_error (code, message, entered, route_url_id, " +
+		"route_url_rest_route_id, route_url_rest_route_client_id) " +
+		"VALUES(?, ?, ?, ?, ?, ?) "
+	RouteErrorGetQuery = "SELECT * FROM route_error WHERE route_url_id = ? and route_url_rest_route_id = ? " +
+		"and route_url_rest_route_client_id = ? "
+	RouteErrorRemoveOldQuery = "DELETE FROM route_error " +
+		"WHERE entered < (NOW()- INTERVAL 90 DAY)"
+
+	//circuit breaker
+	InsertRouteBreakerQuery = "INSERT INTO breaker (failure_threshold, health_check_time_seconds, failover_route_name, " +
+		"open_fail_code, route_url_id, " +
+		"route_url_rest_route_id, route_url_rest_route_client_id) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?) "
+
+	UpdateRouteBreakerConfigQuery = "UPDATE breaker set failure_threshold = ?, health_check_time_seconds = ?, " +
+		"failover_route_name = ?, open_fail_code = ? " +
+		"WHERE id = ? and route_url_id = ? and route_url_rest_route_id = ? and  route_url_rest_route_client_id = ? "
+
+	UpdateRouteBreakerFailQuery = "UPDATE breaker set failure_count = ?, last_failure_time = ? " +
+		"WHERE id = ? and route_url_id = ? and route_url_rest_route_id = ? and  route_url_rest_route_client_id = ? "
+
+	BreakerGetQuery = "select id, failure_threshold, health_check_time_seconds, failover_route_name, open_fail_code, " +
+		"failure_count, last_failure_time " +
+		"from breaker WHERE route_url_id = ? and route_url_rest_route_id = ? and  " +
+		"route_url_rest_route_client_id = ? "
+
+	BreakerDeleteQuery = "delete from breaker WHERE route_url_id = ? and route_url_rest_route_id = ? and " +
+		"route_url_rest_route_client_id = ? "
+
 	// route
 	InsertRestRouteQuery  = "INSERT INTO rest_route (route, client_id) VALUES (?, ?) "
 	UpdateRestRouteQuery  = "UPDATE rest_route set route = ? WHERE id = ? and client_id = ? "

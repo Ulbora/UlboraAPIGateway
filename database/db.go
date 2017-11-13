@@ -124,6 +124,32 @@ func (db *DbConfig) DeleteClient(args ...interface{}) bool {
 	return success
 }
 
+//InsertRoutePerformance in database
+func (db *DbConfig) InsertRoutePerformance(args ...interface{}) (bool, int64) {
+	success, insID := routeDb.InsertRoutePerformance(args...)
+	if success == true {
+		fmt.Println("inserted record")
+	}
+	return success, insID
+}
+
+//GetRoutePerformance get a row. Passing in tx allows for transactions
+func (db *DbConfig) GetRoutePerformance(args ...interface{}) *Rows {
+	var clientRows Rows
+	rowsPtr := routeDb.GetRoutePerformance(args...)
+	if rowsPtr != nil {
+		clientRows.Columns = rowsPtr.Columns
+		clientRows.Rows = rowsPtr.Rows
+	}
+	return &clientRows
+}
+
+//DeleteRoutePerformance delete
+func (db *DbConfig) DeleteRoutePerformance(args ...interface{}) bool {
+	success := routeDb.DeleteRoutePerformance(args...)
+	return success
+}
+
 //InsertRestRoute in database
 func (db *DbConfig) InsertRestRoute(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertRestRoute(args...)

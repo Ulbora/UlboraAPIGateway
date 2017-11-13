@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
+	"time"
 )
 
 var connected bool
@@ -345,6 +346,172 @@ func TestGetRouteURLs(t *testing.T) {
 		fmt.Println(foundRows)
 		//fmt.Println("GetList results: --------------------------")
 		if len(foundRows) != 2 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestInsertRoutePerformance(t *testing.T) {
+	a := []interface{}{100, 5000, time.Now().Add(time.Hour * -2400), routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success, insID := InsertRoutePerformance(a...)
+	if success == true && insID != -1 {
+		fmt.Print("new performance Id: ")
+		fmt.Println(insID)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
+}
+
+func TestGetRoutePerformance(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowsPtr := GetRoutePerformance(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get performance records ")
+		fmt.Println(foundRows)
+		//fmt.Println("GetList results: --------------------------")
+		if len(foundRows) == 0 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDeleteRoutePerformance(t *testing.T) {
+	a := []interface{}{}
+	success := DeleteRoutePerformance(a...)
+	if success == true {
+		fmt.Print("Deleted performance records ")
+	} else {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestInsertRouteError(t *testing.T) {
+	a := []interface{}{404, "error call failed", time.Now().Add(time.Hour * -2400), routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success, insID := InsertRouteError(a...)
+	if success == true && insID != -1 {
+		fmt.Print("new error Id: ")
+		fmt.Println(insID)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
+}
+
+func TestGetRouteError(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowsPtr := GetRouteError(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get error records ")
+		fmt.Println(foundRows)
+		//fmt.Println("GetList results: --------------------------")
+		if len(foundRows) == 0 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDeleteRouteError(t *testing.T) {
+	a := []interface{}{}
+	success := DeleteRouteError(a...)
+	if success == true {
+		fmt.Print("Deleted error records ")
+	} else {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+var brkID int64
+
+func TestInsertBreaker(t *testing.T) {
+	a := []interface{}{3, 500, "mail", 400, routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success, insID := InsertRouteBreaker(a...)
+	if success == true && insID != -1 {
+		brkID = insID
+		fmt.Print("new breaker Id: ")
+		fmt.Println(insID)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
+}
+
+func TestUpdateBreakerConfig(t *testing.T) {
+	a := []interface{}{5, 400, "mailblue", 401, brkID, routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success := UpdateRouteBreakerConfig(a...)
+	if success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestUpdateBreakerFail(t *testing.T) {
+	a := []interface{}{1, time.Now(), brkID, routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success := UpdateRouteBreakerFail(a...)
+	if success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestGetBreaker(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowPtr := GetBreaker(a...)
+	if rowPtr != nil {
+		foundRow := rowPtr.Row
+		fmt.Print("Get breaker records ")
+		fmt.Println(foundRow)
+		code, _ := strconv.Atoi(foundRow[2])
+		fallOvR := foundRow[3]
+		failCnt, _ := strconv.Atoi(foundRow[5])
+		if code != 400 && fallOvR != "mailblue" && failCnt != 1 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDeleteBreaker(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	success := DeleteBreaker(a...)
+	if success == true {
+		fmt.Println("Deleted breaker records ")
+	} else {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestGetBreaker2(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowPtr := GetBreaker(a...)
+	if rowPtr != nil {
+		foundRow := rowPtr.Row
+		fmt.Print("Get breaker records 2 ")
+		fmt.Println(foundRow)
+		// code, _ := strconv.Atoi(foundRow[2])
+		// failCnt, _ := strconv.Atoi(foundRow[5])
+		if len(foundRow) != 0 {
 			t.Fail()
 		}
 	} else {

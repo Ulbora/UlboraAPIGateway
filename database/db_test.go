@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
+	"time"
 )
 
 var dbConfig DbConfig
@@ -343,6 +344,48 @@ func TestDbConfig_GetRouteURLs(t *testing.T) {
 		}
 	} else {
 		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_InsertRoutePerformance(t *testing.T) {
+	a := []interface{}{100, 5000, time.Now().Add(time.Hour * -2400), routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success, insID := dbConfig.InsertRoutePerformance(a...)
+	if success == true && insID != -1 {
+		routeID = insID
+		fmt.Print("new Id performance: ")
+		fmt.Println(insID)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_GetRoutePerformance(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowsPtr := dbConfig.GetRoutePerformance(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get route performance ")
+		fmt.Println(foundRows)
+		if len(foundRows) == 0 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_DeleteRoutePerformance(t *testing.T) {
+	a := []interface{}{}
+	success := dbConfig.DeleteRoutePerformance(a...)
+	if success == true {
+		fmt.Print("Deleted route performance: ")
+		fmt.Println(routeURLID)
+	} else {
+		fmt.Println("database delete failed")
 		t.Fail()
 	}
 }

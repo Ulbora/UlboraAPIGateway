@@ -70,6 +70,72 @@ func DeleteClient(args ...interface{}) bool {
 	return success
 }
 
+//InsertRoutePerformance insert
+func InsertRoutePerformance(args ...interface{}) (bool, int64) {
+	success, insID := crud.Insert(nil, InsertRoutePerformanceQuery, args...)
+	return success, insID
+}
+
+//GetRoutePerformance get a row.
+func GetRoutePerformance(args ...interface{}) *crud.DbRows {
+	rowsPtr := crud.GetList(RoutePerformanceGetQuery, args...)
+	return rowsPtr
+}
+
+//DeleteRoutePerformance delete
+func DeleteRoutePerformance(args ...interface{}) bool {
+	success := crud.Delete(nil, RoutePerformanceRemoveOldQuery, args...)
+	return success
+}
+
+//InsertRouteError insert
+func InsertRouteError(args ...interface{}) (bool, int64) {
+	success, insID := crud.Insert(nil, InsertRouteErrorQuery, args...)
+	return success, insID
+}
+
+//GetRouteError get a row.
+func GetRouteError(args ...interface{}) *crud.DbRows {
+	rowsPtr := crud.GetList(RouteErrorGetQuery, args...)
+	return rowsPtr
+}
+
+//DeleteRouteError delete
+func DeleteRouteError(args ...interface{}) bool {
+	success := crud.Delete(nil, RouteErrorRemoveOldQuery, args...)
+	return success
+}
+
+//InsertRouteBreaker insert
+func InsertRouteBreaker(args ...interface{}) (bool, int64) {
+	success, insID := crud.Insert(nil, InsertRouteBreakerQuery, args...)
+	return success, insID
+}
+
+//UpdateRouteBreakerConfig updates a row. Passing in tx allows for transactions
+func UpdateRouteBreakerConfig(args ...interface{}) bool {
+	success := crud.Update(nil, UpdateRouteBreakerConfigQuery, args...)
+	return success
+}
+
+//UpdateRouteBreakerFail updates a row. Passing in tx allows for transactions
+func UpdateRouteBreakerFail(args ...interface{}) bool {
+	success := crud.Update(nil, UpdateRouteBreakerFailQuery, args...)
+	return success
+}
+
+//GetBreaker get a row. Passing in tx allows for transactions
+func GetBreaker(args ...interface{}) *crud.DbRow {
+	rowPtr := crud.Get(BreakerGetQuery, args...)
+	return rowPtr
+}
+
+//DeleteBreaker delete
+func DeleteBreaker(args ...interface{}) bool {
+	success := crud.Delete(nil, BreakerDeleteQuery, args...)
+	return success
+}
+
 //InsertRestRoute insert
 func InsertRestRoute(args ...interface{}) (bool, int64) {
 	success, insID := crud.Insert(nil, InsertRestRouteQuery, args...)
