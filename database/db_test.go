@@ -353,7 +353,6 @@ func TestDbConfig_InsertRoutePerformance(t *testing.T) {
 	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
 	success, insID := dbConfig.InsertRoutePerformance(a...)
 	if success == true && insID != -1 {
-		routeID = insID
 		fmt.Print("new Id performance: ")
 		fmt.Println(insID)
 	} else {
@@ -390,13 +389,124 @@ func TestDbConfig_DeleteRoutePerformance(t *testing.T) {
 	}
 }
 
+func TestDbConfig_InsertRouteError(t *testing.T) {
+	a := []interface{}{404, "error call failed", time.Now().Add(time.Hour * -2400), routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success, insID := dbConfig.InsertRouteError(a...)
+	if success == true && insID != -1 {
+		fmt.Print("new Id route error id: ")
+		fmt.Println(insID)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_GetRouteError(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowsPtr := dbConfig.GetRouteError(a...)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		fmt.Print("Get route error ")
+		fmt.Println(foundRows)
+		if len(foundRows) == 0 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_DeleteRouteError(t *testing.T) {
+	a := []interface{}{}
+	success := dbConfig.DeleteRouteError(a...)
+	if success == true {
+		fmt.Print("Deleted route error: ")
+		fmt.Println(routeURLID)
+	} else {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+var brkID int64
+
+func TestDbConfig_InsertRouteBreaker(t *testing.T) {
+	a := []interface{}{3, 500, "mail", 400, routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success, insID := dbConfig.InsertRouteBreaker(a...)
+	if success == true && insID != -1 {
+		brkID = insID
+		fmt.Print("new Id route breaker id: ")
+		fmt.Println(insID)
+	} else {
+		fmt.Println("database insert failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_UpdateRouteBreakerConfig(t *testing.T) {
+	a := []interface{}{5, 400, "mailblue", 401, brkID, routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success := dbConfig.UpdateRouteBreakerConfig(a...)
+	if success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_UpdateRouteBreakerFail(t *testing.T) {
+	a := []interface{}{1, time.Now(), brkID, routeURLID, routeID, clientID}
+	//can also be: a := []interface{}{"test insert", time.Now(), "some content text", 125}
+	success := dbConfig.UpdateRouteBreakerFail(a...)
+	if success != true {
+		fmt.Println("database update failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_GetBreaker(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	rowPtr := dbConfig.GetBreaker(a...)
+	if rowPtr != nil {
+		foundRow := rowPtr.Row
+		fmt.Print("Get route breaker ")
+		fmt.Println(foundRow)
+		code, _ := strconv.Atoi(foundRow[2])
+		fallOvR := foundRow[3]
+		failCnt, _ := strconv.Atoi(foundRow[5])
+		if code != 400 && fallOvR != "mailblue" && failCnt != 1 {
+			t.Fail()
+		}
+	} else {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestDbConfig_DeleteBreaker(t *testing.T) {
+	a := []interface{}{routeURLID, routeID, clientID}
+	success := dbConfig.DeleteBreaker(a...)
+	if success == true {
+		fmt.Print("Deleted route breaker: ")
+		fmt.Println(routeURLID)
+	} else {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
 func TestDbConfig_DeleteRouteURL(t *testing.T) {
 	a := []interface{}{routeURLID, routeID, clientID}
+	fmt.Println(a)
 	success := dbConfig.DeleteRouteURL(a...)
 	if success == true {
 		fmt.Print("Deleted route url: ")
 		fmt.Println(routeURLID)
 	} else {
+		fmt.Print("Deleted failed for route url: ")
+		fmt.Println(routeURLID)
 		fmt.Println("database delete failed")
 		t.Fail()
 	}
@@ -413,6 +523,7 @@ func TestDbConfig_DeleteRestRoute(t *testing.T) {
 		t.Fail()
 	}
 }
+
 func TestDbConfig_DeleteClient(t *testing.T) {
 	a := []interface{}{clientID}
 	success := dbConfig.DeleteClient(a...)

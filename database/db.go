@@ -150,6 +150,76 @@ func (db *DbConfig) DeleteRoutePerformance(args ...interface{}) bool {
 	return success
 }
 
+//InsertRouteError in database
+func (db *DbConfig) InsertRouteError(args ...interface{}) (bool, int64) {
+	success, insID := routeDb.InsertRouteError(args...)
+	if success == true {
+		fmt.Println("inserted record")
+	}
+	return success, insID
+}
+
+//GetRouteError get a row. Passing in tx allows for transactions
+func (db *DbConfig) GetRouteError(args ...interface{}) *Rows {
+	var clientRows Rows
+	rowsPtr := routeDb.GetRouteError(args...)
+	if rowsPtr != nil {
+		clientRows.Columns = rowsPtr.Columns
+		clientRows.Rows = rowsPtr.Rows
+	}
+	return &clientRows
+}
+
+//DeleteRouteError delete
+func (db *DbConfig) DeleteRouteError(args ...interface{}) bool {
+	success := routeDb.DeleteRouteError(args...)
+	return success
+}
+
+//InsertRouteBreaker in database
+func (db *DbConfig) InsertRouteBreaker(args ...interface{}) (bool, int64) {
+	success, insID := routeDb.InsertRouteBreaker(args...)
+	if success == true {
+		fmt.Println("inserted record")
+	}
+	return success, insID
+}
+
+//UpdateRouteBreakerConfig in database
+func (db *DbConfig) UpdateRouteBreakerConfig(args ...interface{}) bool {
+	success := routeDb.UpdateRouteBreakerConfig(args...)
+	if success == true {
+		fmt.Println("updated record")
+	}
+	return success
+}
+
+//UpdateRouteBreakerFail in database
+func (db *DbConfig) UpdateRouteBreakerFail(args ...interface{}) bool {
+	success := routeDb.UpdateRouteBreakerFail(args...)
+	if success == true {
+		fmt.Println("updated record")
+	}
+	return success
+}
+
+//GetBreaker get a row. Passing in tx allows for transactions
+func (db *DbConfig) GetBreaker(args ...interface{}) *Row {
+	var clientRow Row
+	rowPtr := routeDb.GetBreaker(args...)
+	if rowPtr != nil {
+		clientRow.Columns = rowPtr.Columns
+		clientRow.Row = rowPtr.Row
+	}
+	return &clientRow
+}
+
+//DeleteBreaker delete
+func (db *DbConfig) DeleteBreaker(args ...interface{}) bool {
+	success := routeDb.DeleteBreaker(args...)
+	return success
+}
+
 //InsertRestRoute in database
 func (db *DbConfig) InsertRestRoute(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertRestRoute(args...)
