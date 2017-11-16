@@ -4,6 +4,7 @@ import (
 	mgr "UlboraApiGateway/managers"
 	"fmt"
 	"testing"
+	"time"
 )
 
 var gatewayDB GatewayErrorMonitor
@@ -91,6 +92,7 @@ func TestGatewayErrorMonitor_InsertRouteError(t *testing.T) {
 	var e GwError
 	e.ClientID = clientID
 	e.Code = 500
+	e.Entered = time.Now().Add(time.Hour * -2400)
 	e.Message = "internal error"
 	e.RestRouteID = routeID
 	e.RouteURIID = routeURLID
