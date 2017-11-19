@@ -1,4 +1,4 @@
-package gwerrors
+package monitor
 
 import (
 	mgr "UlboraApiGateway/managers"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var gatewayDB GatewayErrorMonitor
+var gatewayDB GatewayPerformanceMonitor
 var gatewayDB2 mgr.GatewayDB
 var connected1 bool
 var connected2 bool
@@ -18,8 +18,8 @@ var routeID int64
 
 var routeURLID int64
 
-func TestGatewayErrorMonitor_ConnectDb(t *testing.T) {
-	clientID = 46677777777
+func TestGatewayPerformanceMonitor_ConnectDb(t *testing.T) {
+	clientID = 4334567
 	gatewayDB.DbConfig.Host = "localhost:3306"
 	gatewayDB.DbConfig.DbUser = "admin"
 	gatewayDB.DbConfig.DbPw = "admin"
@@ -36,7 +36,7 @@ func TestGatewayErrorMonitor_ConnectDb(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertClient(t *testing.T) {
+func TestGatewayPerformanceMonitor_InsertClient(t *testing.T) {
 	var c mgr.Client
 	c.APIKey = "12233hgdd333"
 	c.ClientID = clientID
@@ -53,7 +53,7 @@ func TestGatewayErrorMonitor_InsertClient(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertRestRoute(t *testing.T) {
+func TestGatewayPerformanceMonitor_InsertRestRoute(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.Route = "content"
 	rr.ClientID = clientID
@@ -69,7 +69,7 @@ func TestGatewayErrorMonitor_InsertRestRoute(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertRouteURL(t *testing.T) {
+func TestGatewayPerformanceMonitor_InsertRouteURL(t *testing.T) {
 	var ru mgr.RouteURL
 	ru.Name = "blue"
 	ru.URL = "http://www.apigateway.com/blue/"
@@ -88,28 +88,28 @@ func TestGatewayErrorMonitor_InsertRouteURL(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertRouteError(t *testing.T) {
-	var e GwError
-	e.ClientID = clientID
-	e.Code = 500
-	e.Entered = time.Now().Add(time.Hour * -2400)
-	e.Message = "internal error"
-	e.RestRouteID = routeID
-	e.RouteURIID = routeURLID
-	suc, err := gatewayDB.InsertRouteError(&e)
+func TestGatewayPerformanceMonitor_InsertRoutePerformance(t *testing.T) {
+	var p GwPerformance
+	p.ClientID = clientID
+	p.Calls = 500
+	p.Entered = time.Now().Add(time.Hour * -2400)
+	p.LatencyMsTotal = 10000
+	p.RestRouteID = routeID
+	p.RouteURIID = routeURLID
+	suc, err := gatewayDB.InsertRoutePerformance(&p)
 	if suc != true || err != nil {
 		t.Fail()
 	}
 }
 
-func TestGatewayErrorMonitor_GetRouteError(t *testing.T) {
-	var e GwError
-	e.ClientID = clientID
-	e.RestRouteID = routeID
-	e.RouteURIID = routeURLID
-	res := gatewayDB.GetRouteError(&e)
+func TestGatewayPerformanceMonitor_GetRoutePerformance(t *testing.T) {
+	var p GwPerformance
+	p.ClientID = clientID
+	p.RestRouteID = routeID
+	p.RouteURIID = routeURLID
+	res := gatewayDB.GetRoutePerformance(&p)
 	fmt.Println("")
-	fmt.Print("found gw error list: ")
+	fmt.Print("found gw performance list: ")
 	fmt.Println(res)
 	if len(*res) == 0 {
 		fmt.Println("database read failed")
@@ -117,15 +117,15 @@ func TestGatewayErrorMonitor_GetRouteError(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_DeleteRouteError(t *testing.T) {
-	res := gatewayDB.DeleteRouteError()
+func TestGatewayPerformanceMonitor_DeleteRoutePerformance(t *testing.T) {
+	res := gatewayDB.DeleteRoutePerformance()
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
 	}
 }
 
-func TestGatewayErrorMonitor_DeleteClient(t *testing.T) {
+func TestGatewayPerformanceMonitor_DeleteClient(t *testing.T) {
 	var c mgr.Client
 	c.ClientID = clientID
 	res := gatewayDB2.DeleteClient(&c)
@@ -135,7 +135,7 @@ func TestGatewayErrorMonitor_DeleteClient(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_TestCloseDb(t *testing.T) {
+func TestGatewayPerformanceMonitor_TestCloseDb(t *testing.T) {
 	success := gatewayDB.CloseDb()
 	success2 := gatewayDB2.CloseDb()
 	if success != true || success2 != true {

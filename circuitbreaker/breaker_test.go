@@ -1,13 +1,12 @@
-package gwerrors
+package circuitbreaker
 
 import (
 	mgr "UlboraApiGateway/managers"
 	"fmt"
 	"testing"
-	"time"
 )
 
-var gatewayDB GatewayErrorMonitor
+var gatewayDB CircuitBreaker
 var gatewayDB2 mgr.GatewayDB
 var connected1 bool
 var connected2 bool
@@ -18,8 +17,8 @@ var routeID int64
 
 var routeURLID int64
 
-func TestGatewayErrorMonitor_ConnectDb(t *testing.T) {
-	clientID = 46677777777
+func TestCircuitBreaker_ConnectDb(t *testing.T) {
+	clientID = 433477888567
 	gatewayDB.DbConfig.Host = "localhost:3306"
 	gatewayDB.DbConfig.DbUser = "admin"
 	gatewayDB.DbConfig.DbPw = "admin"
@@ -36,7 +35,7 @@ func TestGatewayErrorMonitor_ConnectDb(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertClient(t *testing.T) {
+func TestCircuitBreaker_InsertClient(t *testing.T) {
 	var c mgr.Client
 	c.APIKey = "12233hgdd333"
 	c.ClientID = clientID
@@ -53,7 +52,7 @@ func TestGatewayErrorMonitor_InsertClient(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertRestRoute(t *testing.T) {
+func TestCircuitBreaker_InsertRestRoute(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.Route = "content"
 	rr.ClientID = clientID
@@ -69,7 +68,7 @@ func TestGatewayErrorMonitor_InsertRestRoute(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertRouteURL(t *testing.T) {
+func TestCircuitBreaker_InsertRouteURL(t *testing.T) {
 	var ru mgr.RouteURL
 	ru.Name = "blue"
 	ru.URL = "http://www.apigateway.com/blue/"
@@ -88,44 +87,85 @@ func TestGatewayErrorMonitor_InsertRouteURL(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_InsertRouteError(t *testing.T) {
-	var e GwError
-	e.ClientID = clientID
-	e.Code = 500
-	e.Entered = time.Now().Add(time.Hour * -2400)
-	e.Message = "internal error"
-	e.RestRouteID = routeID
-	e.RouteURIID = routeURLID
-	suc, err := gatewayDB.InsertRouteError(&e)
+func TestCircuitBreaker_InsertBreaker(t *testing.T) {
+	var b Breaker
+	b.ClientID = clientID
+	b.FailureThreshold = 5
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeID
+	b.RouteURIID = routeURLID
+	suc, err := gatewayDB.InsertBreaker(&b)
 	if suc != true || err != nil {
 		t.Fail()
 	}
 }
 
-func TestGatewayErrorMonitor_GetRouteError(t *testing.T) {
-	var e GwError
-	e.ClientID = clientID
-	e.RestRouteID = routeID
-	e.RouteURIID = routeURLID
-	res := gatewayDB.GetRouteError(&e)
+var bid int64
+
+func TestCircuitBreaker_GetRouteBreaker(t *testing.T) {
+	var b Breaker
+	b.ClientID = clientID
+	b.RestRouteID = routeID
+	b.RouteURIID = routeURLID
+	res := gatewayDB.GetBreaker(&b)
 	fmt.Println("")
-	fmt.Print("found gw error list: ")
+	fmt.Print("found breaker: ")
 	fmt.Println(res)
-	if len(*res) == 0 {
+	bid = res.ID
+	if res.FailureThreshold != 5 {
 		fmt.Println("database read failed")
 		t.Fail()
 	}
 }
 
-func TestGatewayErrorMonitor_DeleteRouteError(t *testing.T) {
-	res := gatewayDB.DeleteRouteError()
+func TestCircuitBreaker_UpdateRouteBreaker(t *testing.T) {
+	var b Breaker
+	b.ClientID = clientID
+	b.ID = bid
+	b.FailureThreshold = 3
+	b.HealthCheckTimeSeconds = 60
+	b.FailoverRouteName = "green"
+	b.OpenFailCode = 400
+	b.RestRouteID = routeID
+	b.RouteURIID = routeURLID
+
+	suc, err := gatewayDB.UpdateBreaker(&b)
+	if suc != true {
+		fmt.Println(err)
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_GetRouteBreaker2(t *testing.T) {
+	var b Breaker
+	b.ClientID = clientID
+	b.RestRouteID = routeID
+	b.RouteURIID = routeURLID
+	res := gatewayDB.GetBreaker(&b)
+	fmt.Println("")
+	fmt.Print("found breaker: ")
+	fmt.Println(res)
+	if res.FailureThreshold != 3 {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_DeleteBreaker(t *testing.T) {
+	var b Breaker
+	b.ClientID = clientID
+	b.RestRouteID = routeID
+	b.RouteURIID = routeURLID
+	res := gatewayDB.DeleteBreaker(&b)
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
 	}
 }
 
-func TestGatewayErrorMonitor_DeleteClient(t *testing.T) {
+func TestCircuitBreaker_DeleteClient(t *testing.T) {
 	var c mgr.Client
 	c.ClientID = clientID
 	res := gatewayDB2.DeleteClient(&c)
@@ -135,7 +175,7 @@ func TestGatewayErrorMonitor_DeleteClient(t *testing.T) {
 	}
 }
 
-func TestGatewayErrorMonitor_TestCloseDb(t *testing.T) {
+func TestCircuitBreaker_TestCloseDb(t *testing.T) {
 	success := gatewayDB.CloseDb()
 	success2 := gatewayDB2.CloseDb()
 	if success != true || success2 != true {
