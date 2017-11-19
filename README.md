@@ -16,6 +16,15 @@ parties.
 
 User Admin Portal: https://github.com/Ulbora/ApiGatewayUserPortal.git
 
+# Features
+- Circuit Breaker
+- Health Check
+- Self Healing when breaker is open
+- Gateway Analytics
+- Blue/Green/Active Routes
+- Gateway Error Loggin
+- Admin Portal (written in Golang)
+
 
 # Using API Gateway Routes
 - The Ulbora API Gateway routes REST service calls to endpoints assigned through the user portal.
