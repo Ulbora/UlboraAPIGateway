@@ -67,7 +67,7 @@ const (
 		"WHERE id = ? and route_url_id = ? and route_url_rest_route_id = ? and  route_url_rest_route_client_id = ? "
 
 	BreakerGetQuery = "select id, failure_threshold, health_check_time_seconds, failover_route_name, open_fail_code, " +
-		"failure_count, last_failure_time " +
+		"failure_count, last_failure_time, route_url_id, route_url_rest_route_id, route_url_rest_route_client_id " +
 		"from breaker WHERE route_url_id = ? and route_url_rest_route_id = ? and  " +
 		"route_url_rest_route_client_id = ? "
 

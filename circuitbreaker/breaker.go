@@ -128,6 +128,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 	var s Status
 	key := strconv.FormatInt(clientID, 10) + ":" + strconv.FormatInt(urlID, 10)
 	cs, found := cbCache[key]
+	fmt.Print("cache: ")
+	fmt.Println(cs)
 	if found == true {
 		var timeExpired bool
 		if cs.healthCheckTimeSeconds != 0 {
@@ -137,9 +139,11 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 			}
 		}
 		if cs.failCount >= cs.threshold && timeExpired != true {
+			fmt.Print("setting open")
 			s.Warning = true
 			s.Open = true
 		} else if cs.failCount > 0 {
+			fmt.Print("setting partial")
 			s.Warning = true
 			s.PartialOpen = true
 		}
@@ -220,6 +224,9 @@ func parseCircuitBreakerRow(foundRow *[]string) *Breaker {
 		rtn.OpenFailCode, _ = strconv.Atoi((*foundRow)[4])
 		rtn.FailureCount, _ = strconv.Atoi((*foundRow)[5])
 		rtn.LastFailureTime, _ = time.Parse("2006-01-02 15:04:05", (*foundRow)[6])
+		rtn.RouteURIID, _ = strconv.ParseInt((*foundRow)[7], 10, 0)
+		rtn.RestRouteID, _ = strconv.ParseInt((*foundRow)[8], 10, 0)
+		rtn.ClientID, _ = strconv.ParseInt((*foundRow)[9], 10, 0)
 	}
 	return &rtn
 }

@@ -4,6 +4,7 @@ import (
 	mgr "UlboraApiGateway/managers"
 	"fmt"
 	"testing"
+	"time"
 )
 
 var gatewayDB CircuitBreaker
@@ -125,7 +126,7 @@ func TestCircuitBreaker_UpdateRouteBreaker(t *testing.T) {
 	b.ClientID = clientID
 	b.ID = bid
 	b.FailureThreshold = 3
-	b.HealthCheckTimeSeconds = 60
+	b.HealthCheckTimeSeconds = 2
 	b.FailoverRouteName = "green"
 	b.OpenFailCode = 400
 	b.RestRouteID = routeID
@@ -138,17 +139,93 @@ func TestCircuitBreaker_UpdateRouteBreaker(t *testing.T) {
 	}
 }
 
+var thebreaker *Breaker
+
 func TestCircuitBreaker_GetRouteBreaker2(t *testing.T) {
 	var b Breaker
 	b.ClientID = clientID
 	b.RestRouteID = routeID
 	b.RouteURIID = routeURLID
 	res := gatewayDB.GetBreaker(&b)
+	thebreaker = res
 	fmt.Println("")
 	fmt.Print("found breaker: ")
 	fmt.Println(res)
 	if res.FailureThreshold != 3 {
 		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_GetStatus(t *testing.T) {
+	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println("")
+	fmt.Print("found breaker status: ")
+	fmt.Println(res)
+	if res.Warning != false {
+		fmt.Println("status failed")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_Trip(t *testing.T) {
+	gatewayDB.Trip(thebreaker)
+	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println(res)
+	if res.Open == true || res.Warning != true || res.PartialOpen != true {
+		fmt.Println("circuit breaker should be partially open")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_Trip2(t *testing.T) {
+	gatewayDB.Trip(thebreaker)
+	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println(res)
+	if res.Open == true || res.Warning != true || res.PartialOpen != true {
+		fmt.Println("circuit breaker should be partially open")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_Trip3(t *testing.T) {
+	gatewayDB.Trip(thebreaker)
+	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println(res)
+	if res.Open != true || res.Warning != true || res.PartialOpen == true {
+		fmt.Println("circuit breaker should be open")
+		t.Fail()
+	}
+	time.Sleep(time.Second * 3)
+}
+
+func TestCircuitBreaker_GetStatus2(t *testing.T) {
+	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println("")
+	fmt.Print("found breaker status: ")
+	fmt.Println(res)
+	if res.Open == true || res.Warning != true || res.PartialOpen != true {
+		fmt.Println("circuit breaker should be partially open")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_Trip4(t *testing.T) {
+	gatewayDB.Trip(thebreaker)
+	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println(res)
+	if res.Open != true || res.Warning != true || res.PartialOpen == true {
+		fmt.Println("circuit breaker should be open")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_Reset(t *testing.T) {
+	gatewayDB.Reset(clientID, routeURLID)
+	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println(res)
+	if res.Open == true || res.Warning == true || res.PartialOpen == true {
+		fmt.Println("circuit breaker should be closed")
 		t.Fail()
 	}
 }
