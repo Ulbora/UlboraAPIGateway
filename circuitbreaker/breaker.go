@@ -26,7 +26,10 @@
 package circuitbreaker
 
 import (
+	ch "UlboraApiGateway/cache"
 	db "UlboraApiGateway/database"
+	b64 "encoding/base64"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"sync"
@@ -35,7 +38,8 @@ import (
 
 //CircuitBreaker CircuitBreaker
 type CircuitBreaker struct {
-	DbConfig db.DbConfig
+	DbConfig  db.DbConfig
+	CacheHost string
 }
 
 //Breaker Breaker
@@ -54,16 +58,18 @@ type Breaker struct {
 
 //Status of the circuit breaker
 type Status struct {
-	Warning     bool
-	Open        bool
-	PartialOpen bool
+	Warning           bool
+	Open              bool
+	PartialOpen       bool
+	FailoverRouteName string
 }
 
 type breakerState struct {
-	threshold              int
-	failCount              int
-	lastFailureTime        time.Time
-	healthCheckTimeSeconds int
+	Threshold              int       `json:"threshold"`
+	FailCount              int       `json:"failCount"`
+	LastFailureTime        time.Time `json:"lastFailureTime"`
+	HealthCheckTimeSeconds int       `json:"healthCheckTimeSeconds"`
+	FailoverRouteName      string    `json:"failoverRouteName"`
 }
 
 var cbCache = make(map[string]breakerState)
@@ -127,22 +133,54 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 	defer mu.Unlock()
 	var s Status
 	key := strconv.FormatInt(clientID, 10) + ":" + strconv.FormatInt(urlID, 10)
-	cs, found := cbCache[key]
-	fmt.Print("cache: ")
-	fmt.Println(cs)
+	var cs breakerState
+	var found bool
+	if c.CacheHost != "" {
+		var cp ch.CProxy
+		cp.Host = c.CacheHost
+		res := cp.Get(key)
+		//fmt.Print("cache read in from server in status: ")
+		//fmt.Println(res)
+		if res.Success == true {
+			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
+			//fmt.Print("json from cache: ")
+			//fmt.Println(rJSON)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				err := json.Unmarshal([]byte(rJSON), &cs)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					//fmt.Print("cache from server: ")
+					//fmt.Println(cs)
+					found = res.Success
+				}
+			}
+		} else if res.ServiceFailed == true {
+			cs, found = cbCache[key]
+			//fmt.Print("cache from local after service failed: ")
+			//fmt.Println(cs)
+		}
+	} else {
+		cs, found = cbCache[key]
+		//fmt.Print("cache from local: ")
+		//fmt.Println(cs)
+	}
 	if found == true {
 		var timeExpired bool
-		if cs.healthCheckTimeSeconds != 0 {
-			var expireTime = cs.lastFailureTime.Add(time.Second * time.Duration(cs.healthCheckTimeSeconds))
+		if cs.HealthCheckTimeSeconds != 0 {
+			var expireTime = cs.LastFailureTime.Add(time.Second * time.Duration(cs.HealthCheckTimeSeconds))
 			if expireTime.Before(time.Now()) {
 				timeExpired = true
 			}
 		}
-		if cs.failCount >= cs.threshold && timeExpired != true {
+		if cs.FailCount >= cs.Threshold && timeExpired != true {
 			fmt.Print("setting open")
 			s.Warning = true
 			s.Open = true
-		} else if cs.failCount > 0 {
+			s.FailoverRouteName = cs.FailoverRouteName
+		} else if cs.FailCount > 0 {
 			fmt.Print("setting partial")
 			s.Warning = true
 			s.PartialOpen = true
@@ -157,18 +195,76 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 	defer mu.Unlock()
 	//var s Status
 	key := strconv.FormatInt(b.ClientID, 10) + ":" + strconv.FormatInt(b.RouteURIID, 10)
-	cs, found := cbCache[key]
-	if found == true {
-		cs.failCount = cs.failCount + 1
-		cs.lastFailureTime = time.Now()
-		cbCache[key] = cs
+	//fmt.Print("key: ")
+	//fmt.Println(key)
+	var cp ch.CProxy
+	var cs breakerState
+	var found bool
+	var useExCache bool
+	//cs, found = cbCache[key]
+	if c.CacheHost != "" {
+		useExCache = true
+		//var cp ch.CProxy
+		cp.Host = c.CacheHost
+		res := cp.Get(key)
+		if res.Success == true {
+			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
+			//fmt.Print("json from cache server in Trip: ")
+			//fmt.Println(rJSON)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				err := json.Unmarshal([]byte(rJSON), &cs)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					//fmt.Print("cache from server in Trip: ")
+					//fmt.Println(cs)
+					found = res.Success
+				}
+			}
+		} else if res.ServiceFailed == true {
+			useExCache = false
+			cs, found = cbCache[key]
+			//fmt.Print("cache from local in Trip after service failed: ")
+			//fmt.Println(cs)
+		}
 	} else {
+		cs, found = cbCache[key]
+		//fmt.Print("cache from local in Trip: ")
+		//fmt.Println(cs)
+	}
+	if found == true {
+		//fmt.Print("cache found in Trip: ")
+		//fmt.Println(found)
+		cs.FailCount = cs.FailCount + 1
+		cs.LastFailureTime = time.Now()
+		if useExCache == true {
+			suc := saveToCasheServer(key, cs, cp)
+			if suc != true {
+				cbCache[key] = cs
+			}
+		} else {
+			cbCache[key] = cs
+		}
+	} else {
+		//fmt.Print("cache found in Trip: ")
+		//fmt.Println(found)
 		var bs breakerState
-		bs.healthCheckTimeSeconds = b.HealthCheckTimeSeconds
-		bs.lastFailureTime = time.Now()
-		bs.threshold = b.FailureThreshold
-		bs.failCount = 1
-		cbCache[key] = bs
+		bs.HealthCheckTimeSeconds = b.HealthCheckTimeSeconds
+		bs.LastFailureTime = time.Now()
+		bs.Threshold = b.FailureThreshold
+		bs.FailCount = 1
+		bs.FailoverRouteName = b.FailoverRouteName
+		if useExCache == true {
+			suc := saveToCasheServer(key, bs, cp)
+			if suc != true {
+				cbCache[key] = bs
+			}
+		} else {
+			cbCache[key] = bs
+		}
+		//cbCache[key] = bs
 	}
 }
 
@@ -177,7 +273,17 @@ func (c *CircuitBreaker) Reset(clientID int64, urlID int64) {
 	mu.Lock()
 	defer mu.Unlock()
 	key := strconv.FormatInt(clientID, 10) + ":" + strconv.FormatInt(urlID, 10)
-	delete(cbCache, key)
+	if c.CacheHost != "" {
+		var cp ch.CProxy
+		cp.Host = c.CacheHost
+		res := cp.Delete(key)
+		if res.Success != true {
+			delete(cbCache, key)
+		}
+	} else {
+		delete(cbCache, key)
+	}
+
 }
 
 //GetBreaker from database
@@ -229,4 +335,29 @@ func parseCircuitBreakerRow(foundRow *[]string) *Breaker {
 		rtn.ClientID, _ = strconv.ParseInt((*foundRow)[9], 10, 0)
 	}
 	return &rtn
+}
+
+func saveToCasheServer(key string, bs breakerState, cp ch.CProxy) bool {
+	var rtn bool
+	//fmt.Print("breakerState being saved in Trip: ")
+	//fmt.Println(bs)
+	aJSON, err := json.Marshal(bs)
+	//fmt.Print("json being saved to server in Trip: ")
+	//fmt.Println(aJSON)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		cval := b64.StdEncoding.EncodeToString([]byte(aJSON))
+		var i ch.Item
+		i.Key = key
+		i.Value = cval
+		res := cp.Set(&i)
+		if res.Success != true {
+			fmt.Println("Cache server save failed for " + key + ".")
+		} else {
+			rtn = res.Success
+			//fmt.Println("Cache server save success for " + key + ".")
+		}
+	}
+	return rtn
 }

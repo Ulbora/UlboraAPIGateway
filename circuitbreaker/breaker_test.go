@@ -19,7 +19,7 @@ var routeID int64
 var routeURLID int64
 
 func TestCircuitBreaker_ConnectDb(t *testing.T) {
-	clientID = 433477888567
+	clientID = 433477888567	
 	gatewayDB.DbConfig.Host = "localhost:3306"
 	gatewayDB.DbConfig.DbUser = "admin"
 	gatewayDB.DbConfig.DbPw = "admin"
@@ -172,7 +172,7 @@ func TestCircuitBreaker_Trip(t *testing.T) {
 	gatewayDB.Trip(thebreaker)
 	res := gatewayDB.GetStatus(clientID, routeURLID)
 	fmt.Println(res)
-	if res.Open == true || res.Warning != true || res.PartialOpen != true {
+	if res.Open == true || res.Warning != true || res.PartialOpen != true || res.FailoverRouteName != "" {
 		fmt.Println("circuit breaker should be partially open")
 		t.Fail()
 	}
@@ -182,7 +182,7 @@ func TestCircuitBreaker_Trip2(t *testing.T) {
 	gatewayDB.Trip(thebreaker)
 	res := gatewayDB.GetStatus(clientID, routeURLID)
 	fmt.Println(res)
-	if res.Open == true || res.Warning != true || res.PartialOpen != true {
+	if res.Open == true || res.Warning != true || res.PartialOpen != true || res.FailoverRouteName != "" {
 		fmt.Println("circuit breaker should be partially open")
 		t.Fail()
 	}
@@ -192,7 +192,7 @@ func TestCircuitBreaker_Trip3(t *testing.T) {
 	gatewayDB.Trip(thebreaker)
 	res := gatewayDB.GetStatus(clientID, routeURLID)
 	fmt.Println(res)
-	if res.Open != true || res.Warning != true || res.PartialOpen == true {
+	if res.Open != true || res.Warning != true || res.PartialOpen == true || res.FailoverRouteName != "green" {
 		fmt.Println("circuit breaker should be open")
 		t.Fail()
 	}
@@ -204,7 +204,7 @@ func TestCircuitBreaker_GetStatus2(t *testing.T) {
 	fmt.Println("")
 	fmt.Print("found breaker status: ")
 	fmt.Println(res)
-	if res.Open == true || res.Warning != true || res.PartialOpen != true {
+	if res.Open == true || res.Warning != true || res.PartialOpen != true || res.FailoverRouteName != "" {
 		fmt.Println("circuit breaker should be partially open")
 		t.Fail()
 	}
@@ -214,7 +214,7 @@ func TestCircuitBreaker_Trip4(t *testing.T) {
 	gatewayDB.Trip(thebreaker)
 	res := gatewayDB.GetStatus(clientID, routeURLID)
 	fmt.Println(res)
-	if res.Open != true || res.Warning != true || res.PartialOpen == true {
+	if res.Open != true || res.Warning != true || res.PartialOpen == true || res.FailoverRouteName != "green" {
 		fmt.Println("circuit breaker should be open")
 		t.Fail()
 	}
@@ -224,7 +224,7 @@ func TestCircuitBreaker_Reset(t *testing.T) {
 	gatewayDB.Reset(clientID, routeURLID)
 	res := gatewayDB.GetStatus(clientID, routeURLID)
 	fmt.Println(res)
-	if res.Open == true || res.Warning == true || res.PartialOpen == true {
+	if res.Open == true || res.Warning == true || res.PartialOpen == true || res.FailoverRouteName != "" {
 		fmt.Println("circuit breaker should be closed")
 		t.Fail()
 	}

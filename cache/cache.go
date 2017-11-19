@@ -45,8 +45,9 @@ type Item struct {
 
 //ResponseValue ResponseValue
 type ResponseValue struct {
-	Success bool   `json:"success"`
-	Value   string `json:"value"`
+	Success       bool   `json:"success"`
+	Value         string `json:"value"`
+	ServiceFailed bool   `json:"serviceFailed"`
 }
 
 //Response Response
@@ -94,6 +95,7 @@ func (cp *CProxy) Get(key string) *ResponseValue {
 	//fmt.Println(resp)
 	if err != nil {
 		log.Println(err.Error())
+		rtn.ServiceFailed = true
 	} else {
 		defer resp.Body.Close()
 		decoder := json.NewDecoder(resp.Body)
