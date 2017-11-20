@@ -24,6 +24,8 @@ func TestGatewayPerformanceMonitor_ConnectDb(t *testing.T) {
 	gatewayDB.DbConfig.DbUser = "admin"
 	gatewayDB.DbConfig.DbPw = "admin"
 	gatewayDB.DbConfig.DatabaseName = "ulbora_api_gateway"
+	gatewayDB.CallBatchSize = 2
+	///////////////-- add more test to test remote gatewayDB.CacheHost = "http://localhost:3010"
 	connected1 = gatewayDB.ConnectDb()
 
 	gatewayDB2.DbConfig.Host = "localhost:3306"
@@ -121,6 +123,45 @@ func TestGatewayPerformanceMonitor_DeleteRoutePerformance(t *testing.T) {
 	res := gatewayDB.DeleteRoutePerformance()
 	if res != true {
 		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_SaveRoutePerformance(t *testing.T) {
+	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	if res != true {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_SaveRoutePerformance2(t *testing.T) {
+	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	if res != true {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_SaveRoutePerformance3(t *testing.T) {
+	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	if res != true {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_GetRoutePerformance2(t *testing.T) {
+	var p GwPerformance
+	p.ClientID = clientID
+	p.RestRouteID = routeID
+	p.RouteURIID = routeURLID
+	res := gatewayDB.GetRoutePerformance(&p)
+	fmt.Println("")
+	fmt.Print("found gw performance list: ")
+	fmt.Println(res)
+	if len(*res) == 0 {
+		fmt.Println("database read failed")
 		t.Fail()
 	}
 }

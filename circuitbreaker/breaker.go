@@ -132,7 +132,7 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 	mu.Lock()
 	defer mu.Unlock()
 	var s Status
-	key := strconv.FormatInt(clientID, 10) + ":" + strconv.FormatInt(urlID, 10)
+	key := strconv.FormatInt(clientID, 10) + "breaker:" + strconv.FormatInt(urlID, 10)
 	var cs breakerState
 	var found bool
 	if c.CacheHost != "" {
@@ -194,7 +194,7 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 	mu.Lock()
 	defer mu.Unlock()
 	//var s Status
-	key := strconv.FormatInt(b.ClientID, 10) + ":" + strconv.FormatInt(b.RouteURIID, 10)
+	key := strconv.FormatInt(b.ClientID, 10) + "breaker:" + strconv.FormatInt(b.RouteURIID, 10)
 	//fmt.Print("key: ")
 	//fmt.Println(key)
 	var cp ch.CProxy
@@ -272,7 +272,7 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 func (c *CircuitBreaker) Reset(clientID int64, urlID int64) {
 	mu.Lock()
 	defer mu.Unlock()
-	key := strconv.FormatInt(clientID, 10) + ":" + strconv.FormatInt(urlID, 10)
+	key := strconv.FormatInt(clientID, 10) + "breaker:" + strconv.FormatInt(urlID, 10)
 	if c.CacheHost != "" {
 		var cp ch.CProxy
 		cp.Host = c.CacheHost

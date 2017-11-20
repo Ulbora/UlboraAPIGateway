@@ -25,15 +25,21 @@
 package monitor
 
 import (
+	ch "UlboraApiGateway/cache"
 	db "UlboraApiGateway/database"
+	b64 "encoding/base64"
+	"encoding/json"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 )
 
 //GatewayPerformanceMonitor error monitor
 type GatewayPerformanceMonitor struct {
-	DbConfig db.DbConfig
+	DbConfig      db.DbConfig
+	CacheHost     string
+	CallBatchSize int64
 }
 
 //GwPerformance GwPerformance
@@ -46,6 +52,14 @@ type GwPerformance struct {
 	RestRouteID    int64
 	ClientID       int64
 }
+
+type routePerformance struct {
+	Calls          int64 `json:"calls"`
+	LatencyMsTotal int64 `json:"LatencyMsTotal"`
+}
+
+var perCache = make(map[string]routePerformance)
+var mu sync.Mutex
 
 //ConnectDb to database
 func (g *GatewayPerformanceMonitor) ConnectDb() bool {
@@ -96,6 +110,130 @@ func (g *GatewayPerformanceMonitor) GetRoutePerformance(e *GwPerformance) *[]GwP
 	return &rtn
 }
 
+//SaveRoutePerformance updates route performance in cache
+func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID int64, urlID int64, latency int64) bool {
+	mu.Lock()
+	defer mu.Unlock()
+	var rtn bool
+	//var s Status
+	key := strconv.FormatInt(clientID, 10) + "perf:" + strconv.FormatInt(urlID, 10)
+	//fmt.Print("key: ")
+	//fmt.Println(key)
+
+	var found bool
+	var useExCache bool
+	var cp ch.CProxy
+	var rp routePerformance
+	if g.CacheHost != "" {
+		useExCache = true
+		cp.Host = g.CacheHost
+		res := cp.Get(key)
+		if res.Success == true {
+			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
+			fmt.Print("json from cache: ")
+			fmt.Println(rJSON)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				err := json.Unmarshal([]byte(rJSON), &rp)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					fmt.Print("cache from server: ")
+					fmt.Println(rp)
+					found = res.Success
+				}
+			}
+		} else if res.ServiceFailed == true {
+			useExCache = false
+			rp, found = perCache[key]
+			fmt.Print("cache from local after service failed: ")
+			fmt.Println(rp)
+		}
+	} else {
+		rp, found = perCache[key]
+		fmt.Print("cache from local: ")
+		fmt.Println(rp)
+	}
+	if found == true {
+		rp.Calls = rp.Calls + 1
+		rp.LatencyMsTotal = rp.LatencyMsTotal + latency
+		if rp.Calls >= g.CallBatchSize {
+			//sendToDbAndClear(rp, cp, useExCache)
+			fmt.Print("saving to database and clearing cache")
+			var p GwPerformance
+			p.ClientID = clientID
+			p.Calls = rp.Calls
+			p.Entered = time.Now()
+			p.LatencyMsTotal = rp.LatencyMsTotal
+			p.RestRouteID = routeID
+			p.RouteURIID = urlID
+			suc, err := g.InsertRoutePerformance(&p)
+			if err != nil {
+				fmt.Println(err)
+			}
+			//rtn = true
+			if suc == true {
+				if useExCache == true {
+					//var cp ch.CProxy
+					//cp.Host = c.CacheHost
+					res := cp.Delete(key)
+					if res.Success != true {
+						delete(perCache, key)
+						rtn = true
+					} else {
+						rtn = true
+					}
+				} else {
+					delete(perCache, key)
+					rtn = true
+				}
+			} else {
+				if useExCache == true {
+					suc := saveToCasheServer(key, rp, cp)
+					if suc != true {
+						perCache[key] = rp
+						rtn = true
+					} else {
+						rtn = true
+					}
+				} else {
+					perCache[key] = rp
+					rtn = true
+				}
+			}
+		} else {
+			if useExCache == true {
+				suc := saveToCasheServer(key, rp, cp)
+				if suc != true {
+					perCache[key] = rp
+					rtn = true
+				} else {
+					rtn = true
+				}
+			} else {
+				perCache[key] = rp
+				rtn = true
+			}
+			//rtn = true
+		}
+	} else {
+		//var rp routePerformance
+		rp.Calls = 1
+		rp.LatencyMsTotal = latency
+		if useExCache == true {
+			suc := saveToCasheServer(key, rp, cp)
+			if suc != true {
+				perCache[key] = rp
+			}
+		} else {
+			perCache[key] = rp
+		}
+		rtn = true
+	}
+	return rtn
+}
+
 //DeleteRoutePerformance from database
 func (g *GatewayPerformanceMonitor) DeleteRoutePerformance() bool {
 	a := []interface{}{} //{e.RouteURIID, e.RestRouteID, e.ClientID}
@@ -130,4 +268,40 @@ func parseRoutePerformanceRow(foundRow *[]string) *GwPerformance {
 		rtn.ClientID, _ = strconv.ParseInt((*foundRow)[6], 10, 0)
 	}
 	return &rtn
+}
+
+// func sendToDbAndClear(rp routePerformance, cp ch.CProxy, externalCache bool) {
+// 	var p GwPerformance
+// 	p.ClientID = clientID
+// 	p.Calls = 500
+// 	p.Entered = time.Now().Add(time.Hour * -2400)
+// 	p.LatencyMsTotal = 10000
+// 	p.RestRouteID = routeID
+// 	p.RouteURIID = routeURLID
+// 	suc, err := gatewayDB.InsertRoutePerformance(&p)
+// }
+
+func saveToCasheServer(key string, rp routePerformance, cp ch.CProxy) bool {
+	var rtn bool
+	//fmt.Print("breakerState being saved in Trip: ")
+	//fmt.Println(bs)
+	aJSON, err := json.Marshal(rp)
+	//fmt.Print("json being saved to server in Trip: ")
+	//fmt.Println(aJSON)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		cval := b64.StdEncoding.EncodeToString([]byte(aJSON))
+		var i ch.Item
+		i.Key = key
+		i.Value = cval
+		res := cp.Set(&i)
+		if res.Success != true {
+			fmt.Println("Cache server save failed for " + key + ".")
+		} else {
+			rtn = res.Success
+			//fmt.Println("Cache server save success for " + key + ".")
+		}
+	}
+	return rtn
 }
