@@ -102,6 +102,21 @@ func TestGatewayErrorMonitor_InsertRouteError(t *testing.T) {
 	}
 }
 
+func TestGatewayErrorMonitor_SaveRouteError(t *testing.T) {
+	// var e GwError
+	// e.ClientID = clientID
+	// e.Code = 500
+	// e.Entered = time.Now().Add(time.Hour * -2400)
+	// e.Message = "internal error"
+	// e.RestRouteID = routeID
+	// e.RouteURIID = routeURLID
+	// suc, err := gatewayDB.InsertRouteError(&e)
+	suc, err := gatewayDB.SaveRouteError(clientID, 400, "something went wrong", routeID, routeURLID)
+	if suc != true || err != nil {
+		t.Fail()
+	}
+}
+
 func TestGatewayErrorMonitor_GetRouteError(t *testing.T) {
 	var e GwError
 	e.ClientID = clientID
@@ -119,7 +134,7 @@ func TestGatewayErrorMonitor_GetRouteError(t *testing.T) {
 
 func TestGatewayErrorMonitor_DeleteRouteError(t *testing.T) {
 	res := gatewayDB.DeleteRouteError()
-	if res != true {
+	if res != false {
 		fmt.Println("database delete failed")
 		t.Fail()
 	}

@@ -119,10 +119,12 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 func parseGatewayRoutesRow(foundRow *[]string) *GatewayRouteURL {
 	var rtn GatewayRouteURL
 	if len(*foundRow) > 0 {
-		rtn.Route = (*foundRow)[0]
-		rtn.Name = (*foundRow)[1]
-		rtn.URL = (*foundRow)[2]
-		active, err := strconv.ParseBool((*foundRow)[3])
+		rtn.RouteID, _ = strconv.ParseInt((*foundRow)[0], 10, 0)
+		rtn.Route = (*foundRow)[1]
+		rtn.URLID, _ = strconv.ParseInt((*foundRow)[2], 10, 0)
+		rtn.Name = (*foundRow)[3]
+		rtn.URL = (*foundRow)[4]
+		active, err := strconv.ParseBool((*foundRow)[5])
 		if err != nil {
 			fmt.Print(err)
 			rtn.Active = false

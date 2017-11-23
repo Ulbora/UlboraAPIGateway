@@ -26,6 +26,7 @@
 package main
 
 import (
+	gwerr "UlboraApiGateway/gwerrors"
 	mgr "UlboraApiGateway/managers"
 	"bytes"
 	"fmt"
@@ -38,6 +39,8 @@ import (
 
 func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 	var gwr mgr.GatewayRoutes
+	var errDB gwerr.GatewayErrorMonitor
+	errDB.DbConfig = gatewayDB.DbConfig
 	cid := r.Header.Get("clientId")
 	gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
 	gwr.APIKey = r.Header.Get("apiKey")
@@ -104,10 +107,11 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 				client := &http.Client{}
 				resp, cErr := client.Do(req)
 				if cErr != nil {
-					fmt.Print("Request err: ")
+					fmt.Print("Gateway err: ")
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
+					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
 					respbody, err := ioutil.ReadAll(resp.Body)
@@ -121,6 +125,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						//fmt.Print("Resp Body: ")
 						//fmt.Println(rtn)
 						rtnCode = resp.StatusCode
+						if rtnCode != http.StatusOK {
+							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						}
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
 				}
@@ -144,6 +151,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
+					fmt.Println("Sending error to database")
+					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					//fmt.Print("res: ")
 					//fmt.Println(resp)
@@ -159,6 +168,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						//fmt.Print("Resp Body: ")
 						//fmt.Println(rtn)
 						rtnCode = resp.StatusCode
+						if rtnCode != http.StatusOK {
+							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						}
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
 				}
@@ -184,6 +196,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
+					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
 					respbody, err := ioutil.ReadAll(resp.Body)
@@ -197,6 +210,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						//fmt.Print("Resp Body: ")
 						//fmt.Println(rtn)
 						rtnCode = resp.StatusCode
+						if rtnCode != http.StatusOK {
+							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						}
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
 				}
@@ -215,6 +231,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
+					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
 					respbody, err := ioutil.ReadAll(resp.Body)
@@ -227,6 +244,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Print("Resp Body: ")
 						fmt.Println(rtn)
 						rtnCode = resp.StatusCode
+						if rtnCode != http.StatusOK {
+							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						}
 						w.Header().Set("access-control-allow-headers", resp.Header.Get("access-control-allow-headers"))
 						w.Header().Set("access-control-allow-methods", resp.Header.Get("access-control-allow-methods"))
 						w.Header().Set("access-control-allow-origin", resp.Header.Get("access-control-allow-origin"))

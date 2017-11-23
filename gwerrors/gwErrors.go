@@ -78,6 +78,19 @@ func (g *GatewayErrorMonitor) InsertRouteError(e *GwError) (bool, error) {
 	return success, err
 }
 
+//SaveRouteError SaveRouteError
+func (g *GatewayErrorMonitor) SaveRouteError(cid int64, errCode int, message string, routeID int64, urlID int64) (bool, error) {
+	g.DeleteRouteError()
+	var e GwError
+	e.ClientID = cid
+	e.Code = errCode
+	e.Entered = time.Now()
+	e.Message = message
+	e.RestRouteID = routeID
+	e.RouteURIID = urlID
+	return g.InsertRouteError(&e)
+}
+
 //GetRouteError from database
 func (g *GatewayErrorMonitor) GetRouteError(e *GwError) *[]GwError {
 	a := []interface{}{e.RouteURIID, e.RestRouteID, e.ClientID}
