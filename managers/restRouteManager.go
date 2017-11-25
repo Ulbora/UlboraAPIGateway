@@ -61,6 +61,7 @@ func (db *GatewayDB) UpdateRestRoute(rr *RestRoute) *GatewayResponse {
 	success := db.DbConfig.UpdateRestRoute(a...)
 	if success == true {
 		fmt.Println("update record")
+		db.clearCache(rr.ClientID, rr.Route)
 	}
 	rtn.ID = rr.ID
 	rtn.Success = success
@@ -112,6 +113,7 @@ func (db *GatewayDB) DeleteRestRoute(rr *RestRoute) *GatewayResponse {
 	success := db.DbConfig.DeleteRestRoute(a...)
 	if success == true {
 		fmt.Println("deleted record")
+		db.clearCache(rr.ClientID, rr.Route)
 	}
 	rtn.ID = rr.ID
 	rtn.Success = success

@@ -27,6 +27,7 @@ package main
 
 //build command "go build -o main *.go"
 import (
+	cb "UlboraApiGateway/circuitbreaker"
 	gwerr "UlboraApiGateway/gwerrors"
 	mgr "UlboraApiGateway/managers"
 	gwmon "UlboraApiGateway/monitor"
@@ -47,6 +48,7 @@ type authHeader struct {
 var gatewayDB mgr.GatewayDB
 var errDB gwerr.GatewayErrorMonitor
 var monDB gwmon.GatewayPerformanceMonitor
+var cbDB cb.CircuitBreaker
 
 //var gwr mgr.GatewayRoutes
 
@@ -84,6 +86,9 @@ func main() {
 	monDB.CacheHost = getCacheHost()
 	monDB.CallBatchSize = 10 //size of cache batch saved. normal should be 100
 	monDB.DbConfig = gatewayDB.DbConfig
+	cbDB.DbConfig = gatewayDB.DbConfig
+	cbDB.CacheHost = getCacheHost()
+	gatewayDB.GwCacheHost = getCacheHost()
 
 	fmt.Println("Api Gateway running!")
 	router := mux.NewRouter()

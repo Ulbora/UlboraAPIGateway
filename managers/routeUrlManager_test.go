@@ -104,6 +104,7 @@ func TestRouteURL_UpdateRouteURL(t *testing.T) {
 	ru.RouteID = routeID3
 	ru.ClientID = clientID3
 
+	gatewayDB.GwCacheHost = "http://localhost:3010"
 	res := gatewayDB.UpdateRouteURL(&ru)
 	if res.Success != true {
 		fmt.Println("database update failed")

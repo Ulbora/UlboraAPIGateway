@@ -26,6 +26,7 @@
 package main
 
 import (
+	cb "UlboraApiGateway/circuitbreaker"
 	mgr "UlboraApiGateway/managers"
 	"bytes"
 	"fmt"
@@ -39,7 +40,7 @@ import (
 
 func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 	var sTime1 = time.Now()
-	var sTime2 = time.Now()
+	var sTime2 time.Time
 	var eTime1 time.Time
 	var eTime2 time.Time
 
@@ -69,6 +70,10 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 	//fmt.Print("active: ")
 	//fmt.Println(activeRoute)
 	rts := gwr.GetGatewayRoutes(activeRoute, rName)
+	var b cb.Breaker
+	b.ClientID = gwr.ClientID
+	b.RestRouteID = rts.RouteID
+	b.RouteURIID = rts.URLID
 	// fmt.Print("route: ")
 	// fmt.Println(route)
 	// fmt.Print("fpath: ")
@@ -117,6 +122,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
+					cbk := cbDB.GetBreaker(&b)
+					cbDB.Trip(cbk)
 					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
@@ -126,6 +133,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						cbk := cbDB.GetBreaker(&b)
+						cbDB.Trip(cbk)
 						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
@@ -134,6 +143,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						rtnCode = resp.StatusCode
 						if rtnCode != http.StatusOK {
 							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						} else {
+							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
@@ -156,11 +167,13 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 				resp, cErr := client.Do(req)
 				sTime2 = time.Now()
 				if cErr != nil {
-					fmt.Print("Request err: ")
+					fmt.Print("Gateway err: ")
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
 					fmt.Println("Sending error to database")
+					cbk := cbDB.GetBreaker(&b)
+					cbDB.Trip(cbk)
 					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					//fmt.Print("res: ")
@@ -172,6 +185,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						cbk := cbDB.GetBreaker(&b)
+						cbDB.Trip(cbk)
 						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
@@ -180,6 +195,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						rtnCode = resp.StatusCode
 						if rtnCode != http.StatusOK {
 							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						} else {
+							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
@@ -204,10 +221,12 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 				resp, cErr := client.Do(req)
 				sTime2 = time.Now()
 				if cErr != nil {
-					fmt.Print("Request err: ")
+					fmt.Print("Gateway err: ")
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
+					cbk := cbDB.GetBreaker(&b)
+					cbDB.Trip(cbk)
 					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
@@ -217,6 +236,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						cbk := cbDB.GetBreaker(&b)
+						cbDB.Trip(cbk)
 						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
@@ -225,6 +246,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						rtnCode = resp.StatusCode
 						if rtnCode != http.StatusOK {
 							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						} else {
+							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
 						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
@@ -236,16 +259,20 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 			if rErr != nil {
 				fmt.Print("request err: ")
 				fmt.Println(rErr)
+				rtnCode = 400
+				rtn = rErr.Error()
 			} else {
 				client := &http.Client{}
 				eTime1 = time.Now()
 				resp, cErr := client.Do(req)
 				sTime2 = time.Now()
 				if cErr != nil {
-					fmt.Print("Request err: ")
+					fmt.Print("Gateway err: ")
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
+					cbk := cbDB.GetBreaker(&b)
+					cbDB.Trip(cbk)
 					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
@@ -254,6 +281,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						cbk := cbDB.GetBreaker(&b)
+						cbDB.Trip(cbk)
 						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
@@ -262,6 +291,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						rtnCode = resp.StatusCode
 						if rtnCode != http.StatusOK {
 							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+						} else {
+							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
 						w.Header().Set("access-control-allow-headers", resp.Header.Get("access-control-allow-headers"))
 						w.Header().Set("access-control-allow-methods", resp.Header.Get("access-control-allow-methods"))

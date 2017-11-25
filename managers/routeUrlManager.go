@@ -61,6 +61,13 @@ func (db *GatewayDB) UpdateRouteURL(ru *RouteURL) *GatewayResponse {
 	success := db.DbConfig.UpdateRouteURL(a...)
 	if success == true {
 		fmt.Println("update record")
+		var rr RestRoute
+		rr.ID = ru.RouteID
+		rr.ClientID = ru.ClientID
+		route := db.GetRestRoute(&rr)
+		if route != nil {
+			db.clearCache(ru.ClientID, route.Route)
+		}
 	}
 	rtn.ID = ru.ID
 	rtn.Success = success
@@ -83,6 +90,13 @@ func (db *GatewayDB) ActivateRouteURL(ru *RouteURL) *GatewayResponse {
 		successd := db.DbConfig.DeactivateOtherRouteURLs(a...)
 		if successd == true {
 			fmt.Println("deactivated other urls")
+			var rr RestRoute
+			rr.ID = ru.RouteID
+			rr.ClientID = ru.ClientID
+			route := db.GetRestRoute(&rr)
+			if route != nil {
+				db.clearCache(ru.ClientID, route.Route)
+			}
 		}
 	}
 	rtn.ID = ru.ID
@@ -135,6 +149,13 @@ func (db *GatewayDB) DeleteRouteURL(ru *RouteURL) *GatewayResponse {
 	success := db.DbConfig.DeleteRouteURL(a...)
 	if success == true {
 		fmt.Println("deleted record")
+		var rr RestRoute
+		rr.ID = ru.RouteID
+		rr.ClientID = ru.ClientID
+		route := db.GetRestRoute(&rr)
+		if route != nil {
+			db.clearCache(ru.ClientID, route.Route)
+		}
 	}
 	rtn.ID = ru.ID
 	rtn.Success = success

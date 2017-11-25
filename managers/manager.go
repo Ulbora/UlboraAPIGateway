@@ -25,8 +25,10 @@
 package managers
 
 import (
+	ch "UlboraApiGateway/cache"
 	db "UlboraApiGateway/database"
 	"fmt"
+	"strconv"
 )
 
 //GatewayResponse res
@@ -72,7 +74,8 @@ type GatewayRouteURL struct {
 
 //GatewayDB db config
 type GatewayDB struct {
-	DbConfig db.DbConfig
+	DbConfig    db.DbConfig
+	GwCacheHost string
 }
 
 //GatewayRoutes gateway routes
@@ -100,4 +103,12 @@ func (db *GatewayDB) CloseDb() bool {
 		fmt.Println("db connect closed")
 	}
 	return rtn
+}
+
+func (db *GatewayDB) clearCache(clientID int64, route string) {
+	var cp ch.CProxy
+	cp.Host = db.GwCacheHost
+	var cid = strconv.FormatInt(clientID, 10)
+	var key = cid + ":" + route
+	cp.Delete(key)
 }
