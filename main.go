@@ -27,11 +27,12 @@ package main
 
 //build command "go build -o main *.go"
 import (
+	gwerr "UlboraApiGateway/gwerrors"
+	mgr "UlboraApiGateway/managers"
+	gwmon "UlboraApiGateway/monitor"
 	"fmt"
 	"net/http"
 	"os"
-
-	mgr "UlboraApiGateway/managers"
 
 	"github.com/gorilla/mux"
 )
@@ -44,6 +45,8 @@ type authHeader struct {
 }
 
 var gatewayDB mgr.GatewayDB
+var errDB gwerr.GatewayErrorMonitor
+var monDB gwmon.GatewayPerformanceMonitor
 
 //var gwr mgr.GatewayRoutes
 
@@ -77,6 +80,10 @@ func main() {
 	gatewayDB.ConnectDb()
 	defer gatewayDB.CloseDb()
 	//gwr.GwDB = gatewayDB
+	errDB.DbConfig = gatewayDB.DbConfig
+	monDB.CacheHost = getCacheHost()
+	monDB.CallBatchSize = 10 //size of cache batch saved. normal should be 100
+	monDB.DbConfig = gatewayDB.DbConfig
 
 	fmt.Println("Api Gateway running!")
 	router := mux.NewRouter()

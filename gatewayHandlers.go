@@ -26,21 +26,25 @@
 package main
 
 import (
-	gwerr "UlboraApiGateway/gwerrors"
 	mgr "UlboraApiGateway/managers"
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
 
 func handleGwRoute(w http.ResponseWriter, r *http.Request) {
+	var sTime1 = time.Now()
+	var sTime2 = time.Now()
+	var eTime1 time.Time
+	var eTime2 time.Time
+
 	var gwr mgr.GatewayRoutes
-	var errDB gwerr.GatewayErrorMonitor
-	errDB.DbConfig = gatewayDB.DbConfig
+
 	cid := r.Header.Get("clientId")
 	gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
 	gwr.APIKey = r.Header.Get("apiKey")
@@ -105,7 +109,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 			} else {
 				buildHeaders(r, req)
 				client := &http.Client{}
+				eTime1 = time.Now()
 				resp, cErr := client.Do(req)
+				sTime2 = time.Now()
 				if cErr != nil {
 					fmt.Print("Gateway err: ")
 					fmt.Println(cErr)
@@ -120,6 +126,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						//fmt.Print("Resp Body: ")
@@ -145,7 +152,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 			} else {
 				buildHeaders(r, req)
 				client := &http.Client{}
+				eTime1 = time.Now()
 				resp, cErr := client.Do(req)
+				sTime2 = time.Now()
 				if cErr != nil {
 					fmt.Print("Request err: ")
 					fmt.Println(cErr)
@@ -163,6 +172,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						//fmt.Print("Resp Body: ")
@@ -190,7 +200,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 			} else {
 				buildHeaders(r, req)
 				client := &http.Client{}
+				eTime1 = time.Now()
 				resp, cErr := client.Do(req)
+				sTime2 = time.Now()
 				if cErr != nil {
 					fmt.Print("Request err: ")
 					fmt.Println(cErr)
@@ -205,6 +217,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						//fmt.Print("Resp Body: ")
@@ -225,7 +238,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 				fmt.Println(rErr)
 			} else {
 				client := &http.Client{}
+				eTime1 = time.Now()
 				resp, cErr := client.Do(req)
+				sTime2 = time.Now()
 				if cErr != nil {
 					fmt.Print("Request err: ")
 					fmt.Println(cErr)
@@ -239,6 +254,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
+						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						fmt.Print("Resp Body: ")
@@ -257,6 +273,20 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	eTime2 = time.Now()
+	dif1 := eTime1.Sub(sTime1)
+	dif2 := eTime2.Sub(sTime2)
+	tots := dif1.Seconds() + dif2.Seconds()
+	//sec := dif.Seconds()
+	//fmt.Print("latency sec: ")
+	//fmt.Println(tots)
+	pms := (tots * 1000000)
+	//fmt.Print("latency micros: ")
+	//fmt.Println(pms)
+	rms := int64(pms + .5)
+	//fmt.Print("rounded latency micros: ")
+	//fmt.Println(rms)
+	go monDB.SaveRoutePerformance(gwr.ClientID, rts.RouteID, rts.URLID, rms)
 	w.WriteHeader(rtnCode)
 	fmt.Fprint(w, rtn)
 }

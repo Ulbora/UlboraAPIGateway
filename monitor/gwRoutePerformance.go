@@ -130,8 +130,8 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 		res := cp.Get(key)
 		if res.Success == true {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
-			fmt.Print("json from cache: ")
-			fmt.Println(rJSON)
+			//fmt.Print("json from cache: ")
+			//fmt.Println(rJSON)
 			if err != nil {
 				fmt.Println(err)
 			} else {
@@ -139,28 +139,28 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 				if err != nil {
 					fmt.Println(err)
 				} else {
-					fmt.Print("cache from server: ")
-					fmt.Println(rp)
+					//fmt.Print("cache from server: ")
+					//fmt.Println(rp)
 					found = res.Success
 				}
 			}
 		} else if res.ServiceFailed == true {
 			useExCache = false
 			rp, found = perCache[key]
-			fmt.Print("cache from local after service failed: ")
-			fmt.Println(rp)
+			//fmt.Print("cache from local after service failed: ")
+			//fmt.Println(rp)
 		}
 	} else {
 		rp, found = perCache[key]
-		fmt.Print("cache from local: ")
-		fmt.Println(rp)
+		//fmt.Print("cache from local: ")
+		//fmt.Println(rp)
 	}
 	if found == true {
 		rp.Calls = rp.Calls + 1
 		rp.LatencyMsTotal = rp.LatencyMsTotal + latency
 		if rp.Calls >= g.CallBatchSize {
 			//sendToDbAndClear(rp, cp, useExCache)
-			fmt.Print("saving to database and clearing cache")
+			//fmt.Print("saving to database and clearing cache")
 			var p GwPerformance
 			p.ClientID = clientID
 			p.Calls = rp.Calls

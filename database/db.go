@@ -66,8 +66,8 @@ func (db *DbConfig) ConnectionTest(args ...interface{}) bool {
 	if rowPtr != nil {
 		foundRow := rowPtr.Row
 		int64Val, err2 := strconv.ParseInt(foundRow[0], 10, 0)
-		fmt.Print("Records found during test ")
-		fmt.Println(int64Val)
+		//fmt.Print("Records found during test ")
+		//fmt.Println(int64Val)
 		if err2 != nil {
 			fmt.Print(err2)
 		}
