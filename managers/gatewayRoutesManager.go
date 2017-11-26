@@ -26,6 +26,7 @@ package managers
 
 import (
 	ch "UlboraApiGateway/cache"
+	cb "UlboraApiGateway/circuitbreaker"
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -34,6 +35,8 @@ import (
 
 //GetGatewayRoutes route
 func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *GatewayRouteURL {
+	var cbDB cb.CircuitBreaker
+	cbDB.CacheHost = gw.GwCacheHost
 	var rtnVal GatewayRouteURL
 	var rtn = make([]GatewayRouteURL, 0)
 	// check cache for saved value---------
@@ -41,8 +44,8 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
 	var key = cid + ":" + gw.Route
-	//fmt.Print("Key Used for cache: ")
-	//fmt.Println(key)
+	fmt.Print("Key Used for cache: ")
+	fmt.Println(key)
 	res := cp.Get(key)
 	if res.Success == true {
 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
@@ -96,8 +99,8 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 			}
 		}
 	}
-	//fmt.Println("Routes: ")
-	//fmt.Println(rtn)
+	fmt.Println("Routes: ")
+	fmt.Println(rtn)
 	if len(rtn) > 0 && getActive == true {
 		for r := range rtn {
 			if rtn[r].Active == true {
@@ -112,6 +115,22 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 				break
 			}
 		}
+	}
+	fmt.Print("route being selected: ")
+	fmt.Println(rtnVal)
+	cbs := cbDB.GetStatus(gw.ClientID, rtnVal.URLID)
+	fmt.Print("Breaker: ")
+	fmt.Println(cbs)
+	if cbs.Open == true && cbs.FailoverRouteName != "" {
+		for r := range rtn {
+			if rtn[r].Name == cbs.FailoverRouteName {
+				rtnVal = rtn[r]
+				break
+			}
+		}
+	} else if cbs.Open == true {
+		rtnVal.CircuitOpen = cbs.Open
+		rtnVal.OpenFailCode = cbs.OpenFailCode
 	}
 	return &rtnVal
 }

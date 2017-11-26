@@ -62,6 +62,7 @@ type Status struct {
 	Open              bool
 	PartialOpen       bool
 	FailoverRouteName string
+	OpenFailCode      int
 }
 
 type breakerState struct {
@@ -70,6 +71,7 @@ type breakerState struct {
 	LastFailureTime        time.Time `json:"lastFailureTime"`
 	HealthCheckTimeSeconds int       `json:"healthCheckTimeSeconds"`
 	FailoverRouteName      string    `json:"failoverRouteName"`
+	OpenFailCode           int       `json:"openFailCode"`
 }
 
 var cbCache = make(map[string]breakerState)
@@ -133,14 +135,18 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 	defer mu.Unlock()
 	var s Status
 	key := strconv.FormatInt(clientID, 10) + "breaker:" + strconv.FormatInt(urlID, 10)
+	fmt.Print("cache get key: ")
+	fmt.Println(key)
 	var cs breakerState
 	var found bool
 	if c.CacheHost != "" {
+		fmt.Print("cache host: ")
+		fmt.Println(c.CacheHost)
 		var cp ch.CProxy
 		cp.Host = c.CacheHost
 		res := cp.Get(key)
-		//fmt.Print("cache read in from server in status: ")
-		//fmt.Println(res)
+		fmt.Print("cache read in from server in status: ")
+		fmt.Println(res)
 		if res.Success == true {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 			//fmt.Print("json from cache: ")
@@ -152,8 +158,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 				if err != nil {
 					fmt.Println(err)
 				} else {
-					//fmt.Print("cache from server: ")
-					//fmt.Println(cs)
+					fmt.Print("cache from server: ")
+					fmt.Println(cs)
 					found = res.Success
 				}
 			}
@@ -180,6 +186,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 			s.Warning = true
 			s.Open = true
 			s.FailoverRouteName = cs.FailoverRouteName
+			s.OpenFailCode = cs.OpenFailCode
+
 		} else if cs.FailCount > 0 {
 			fmt.Print("setting partial")
 			s.Warning = true
@@ -195,8 +203,8 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 	defer mu.Unlock()
 	//var s Status
 	key := strconv.FormatInt(b.ClientID, 10) + "breaker:" + strconv.FormatInt(b.RouteURIID, 10)
-	//fmt.Print("key: ")
-	//fmt.Println(key)
+	fmt.Print("key: ")
+	fmt.Println(key)
 	var cp ch.CProxy
 	var cs breakerState
 	var found bool
@@ -256,6 +264,7 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 		bs.Threshold = b.FailureThreshold
 		bs.FailCount = 1
 		bs.FailoverRouteName = b.FailoverRouteName
+		bs.OpenFailCode = b.OpenFailCode
 		if useExCache == true {
 			suc := saveToCasheServer(key, bs, cp)
 			if suc != true {

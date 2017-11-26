@@ -85,9 +85,15 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println("Found url: " + rts.URL)
 	if rts.URL == "" {
 		fmt.Println("No route found in gateway")
-		rtnCode = 400
+		rtnCode = rts.OpenFailCode
 		rtn = "bad route"
 		fmt.Print("found routes: ")
+		fmt.Println(rts)
+	} else if rts.CircuitOpen == true {
+		fmt.Println("Circuit breaker is open for this route")
+		rtnCode = 400
+		rtn = "Circuit open"
+		fmt.Print("found route: ")
 		fmt.Println(rts)
 	} else {
 		switch r.Method {

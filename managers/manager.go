@@ -64,12 +64,14 @@ type RouteURL struct {
 
 //GatewayRouteURL url
 type GatewayRouteURL struct {
-	RouteID int64  `json:"routeId"`
-	Route   string `json:"route"`
-	URLID   int64  `json:"urlId"`
-	Name    string `json:"name"`
-	URL     string `json:"url"`
-	Active  bool   `json:"active"`
+	RouteID      int64  `json:"routeId"`
+	Route        string `json:"route"`
+	URLID        int64  `json:"urlId"`
+	Name         string `json:"name"`
+	URL          string `json:"url"`
+	Active       bool   `json:"active"`
+	CircuitOpen  bool
+	OpenFailCode int
 }
 
 //GatewayDB db config

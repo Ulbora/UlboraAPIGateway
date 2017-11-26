@@ -1,14 +1,15 @@
 package circuitbreaker
 
 import (
-	mgr "UlboraApiGateway/managers"
+	db "UlboraApiGateway/database"
 	"fmt"
 	"testing"
 	"time"
 )
 
 var gatewayDBex CircuitBreaker
-var gatewayDB2ex mgr.GatewayDB
+var dbt3 db.DbConfig
+
 var connected1ex bool
 var connected2ex bool
 var clientIDex int64
@@ -30,66 +31,45 @@ func TestCircuitBreakerexg_ConnectDb(t *testing.T) {
 	gatewayDBex.DbConfig.DatabaseName = "ulbora_api_gateway"
 	connected1ex = gatewayDBex.ConnectDb()
 
-	gatewayDB2ex.DbConfig.Host = "localhost:3306"
-	gatewayDB2ex.DbConfig.DbUser = "admin"
-	gatewayDB2ex.DbConfig.DbPw = "admin"
-	gatewayDB2ex.DbConfig.DatabaseName = "ulbora_api_gateway"
-	connected2ex = gatewayDB2ex.ConnectDb()
+	dbt3.Host = "localhost:3306"
+	dbt3.DbUser = "admin"
+	dbt3.DbPw = "admin"
+	dbt3.DatabaseName = "ulbora_api_gateway"
+	connected2ex = dbt3.ConnectDb()
 	if connected1ex != true || connected2ex != true {
 		t.Fail()
 	}
 }
 
 func TestCircuitBreakerexg_InsertClient(t *testing.T) {
-	var c mgr.Client
-	c.APIKey = "12233hgdd333"
-	c.ClientID = clientIDex
-	c.Enabled = true
-	c.Level = "small"
 
-	res := gatewayDB2ex.InsertClient(&c)
-	if res.Success == true && res.ID != -1 {
-		fmt.Print("new client Id: ")
-		fmt.Println(clientIDex)
-	} else {
-		fmt.Println("database insert failed")
-		t.Fail()
+	var a []interface{}
+	a = append(a, clientIDex, "12233hgdd333", true, "small")
+	success, _ := dbt3.InsertClient(a...)
+	if success == true {
+		fmt.Println("inserted record")
 	}
 }
 
 func TestCircuitBreakerexg_InsertRestRoute(t *testing.T) {
-	var rr mgr.RestRoute
-	rr.Route = "content"
-	rr.ClientID = clientIDex
-
-	res := gatewayDB2ex.InsertRestRoute(&rr)
-	if res.Success == true && res.ID != -1 {
-		routeIDex = res.ID
-		fmt.Print("new route Id: ")
-		fmt.Println(routeIDex)
-	} else {
-		fmt.Println("database insert failed")
-		t.Fail()
+	var a []interface{}
+	a = append(a, "content", clientIDex)
+	success, insID := dbt3.InsertRestRoute(a...)
+	if success == true {
+		fmt.Println("inserted record")
 	}
+	routeIDex = insID
 }
 
 func TestCircuitBreakerexg_InsertRouteURL(t *testing.T) {
-	var ru mgr.RouteURL
-	ru.Name = "blue"
-	ru.URL = "http://www.apigateway.com/blue/"
-	ru.Active = false
-	ru.RouteID = routeIDex
-	ru.ClientID = clientIDex
 
-	res := gatewayDB2ex.InsertRouteURL(&ru)
-	if res.Success == true && res.ID != -1 {
-		routeURLIDex = res.ID
-		fmt.Print("new route url Id: ")
-		fmt.Println(routeURLIDex)
-	} else {
-		fmt.Println("database insert failed")
-		t.Fail()
+	var a []interface{}
+	a = append(a, "blue", "http://www.apigateway.com/blue/", false, routeIDex, clientIDex)
+	success, insID := dbt3.InsertRouteURL(a...)
+	if success == true {
+		fmt.Println("inserted record")
 	}
+	routeURLIDex = insID
 }
 
 func TestCircuitBreakerexg_InsertBreaker(t *testing.T) {
@@ -247,18 +227,17 @@ func TestCircuitBreakerexg_DeleteBreaker(t *testing.T) {
 }
 
 func TestCircuitBreakerexg_DeleteClient(t *testing.T) {
-	var c mgr.Client
-	c.ClientID = clientIDex
-	res := gatewayDB2ex.DeleteClient(&c)
-	if res.Success != true {
-		fmt.Println("database delete failed")
-		t.Fail()
+	var a []interface{}
+	a = append(a, clientIDex)
+	success := dbt3.DeleteClient(a...)
+	if success == true {
+		fmt.Println("deleted record")
 	}
 }
 
 func TestCircuitBreakerexg_TestCloseDb(t *testing.T) {
-	success := gatewayDBex.CloseDb()
-	success2 := gatewayDB2ex.CloseDb()
+	success := gatewayDB.CloseDb()
+	success2 := dbt3.CloseDb()
 	if success != true || success2 != true {
 		t.Fail()
 	}

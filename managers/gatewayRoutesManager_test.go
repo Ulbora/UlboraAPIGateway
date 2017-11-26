@@ -1,6 +1,8 @@
 package managers
 
 import (
+	ch "UlboraApiGateway/cache"
+	cb "UlboraApiGateway/circuitbreaker"
 	"fmt"
 	"strconv"
 	"testing"
@@ -9,6 +11,7 @@ import (
 var gatewayRoutes GatewayRoutes
 
 var gatewayDB4 GatewayDB
+var cbDB cb.CircuitBreaker
 var connected4 bool
 var clientID4 int64
 var insertID4 int64
@@ -16,6 +19,7 @@ var routeID4 int64
 
 var routeURLID4 int64
 var routeURLID44 int64
+var cp ch.CProxy
 
 func TestGatewayRoutes_ConnectDb4(t *testing.T) {
 	clientID4 = 8
@@ -27,6 +31,8 @@ func TestGatewayRoutes_ConnectDb4(t *testing.T) {
 	if connected4 != true {
 		t.Fail()
 	}
+	cbDB.DbConfig = gatewayDB4.DbConfig
+	cp.Host = "http://localhost:3010"
 }
 
 func TestGatewayRoutes_InsertClient4(t *testing.T) {
@@ -128,7 +134,63 @@ func TestGatewayRoutes_GetGatewayRoutes(t *testing.T) {
 	res := gatewayRoutes.GetGatewayRoutes(true, "")
 	fmt.Println("Route: ")
 	fmt.Println(res)
-	if res.Active != true && res.Name != "green" {
+	if res.Active != true || res.Name != "green" {
+		fmt.Println("route not found")
+		t.Fail()
+	}
+}
+
+func TestGatewayRoutes_circuit(t *testing.T) {
+
+	cbDB.CacheHost = "http://localhost:3010"
+	var b cb.Breaker
+	b.ClientID = clientID4
+	b.RestRouteID = routeID4
+	b.RouteURIID = routeURLID44
+	b.FailureThreshold = 3
+	b.HealthCheckTimeSeconds = 3
+	b.OpenFailCode = 501
+	fmt.Println("circuit being tripped ")
+	fmt.Println(b)
+	cbDB.InsertBreaker(&b)
+	cbDB.Trip(&b)
+	cbDB.Trip(&b)
+	cbDB.Trip(&b)
+	// var cid = strconv.FormatInt(gatewayRoutes.ClientID, 10) // string(gatewayRoutes.ClientID)
+	// fmt.Print("cid: ")
+	// fmt.Println(cid)
+	// var keyused = cid + ":" + gatewayRoutes.Route
+	// fmt.Print("Key Used: ")
+	// fmt.Println(keyused)
+	// res := gatewayRoutes.GetGatewayRoutes(true, "")
+	// fmt.Println("Route: ")
+	// fmt.Println(res)
+	// if res.Active != true && res.Name != "green" {
+	// 	fmt.Println("route not found")
+	// 	t.Fail()
+	// }
+}
+
+func TestGatewayRoutes_GetGatewayRoutescir(t *testing.T) {
+	gatewayRoutes.GwDB = gatewayDB4
+	gatewayRoutes.ClientID = clientID4
+	gatewayRoutes.APIKey = "12233hgdd333"
+	gatewayRoutes.Route = "content"
+	gatewayRoutes.GwCacheHost = "http://localhost:3010"
+	var cid = strconv.FormatInt(gatewayRoutes.ClientID, 10) // string(gatewayRoutes.ClientID)
+	fmt.Print("cid: ")
+	fmt.Println(cid)
+	var keyused = cid + ":" + gatewayRoutes.Route
+	fmt.Print("Key Used: ")
+	fmt.Println(keyused)
+	res := gatewayRoutes.GetGatewayRoutes(true, "")
+	fmt.Println("Route circuit: ")
+	fmt.Println(res)
+	fmt.Println("Route circuit active: ")
+	fmt.Println(res.Active)
+	fmt.Println("Route circuit open: ")
+	fmt.Println(res.CircuitOpen)
+	if res.Active != true || res.Name != "green" || res.CircuitOpen != true {
 		fmt.Println("route not found")
 		t.Fail()
 	}
@@ -156,6 +218,10 @@ func TestGatewayRoutes_GetGatewayRoutes2(t *testing.T) {
 }
 
 func TestGatewayRoutes_DeleteClient(t *testing.T) {
+	var cid = strconv.FormatInt(clientID4, 10)
+	var key = cid + ":" + "content"
+	fmt.Println("deleting key: " + key)
+	cp.Delete(key)
 	var c Client
 	c.ClientID = clientID4
 	res := gatewayDB.DeleteClient(&c)
