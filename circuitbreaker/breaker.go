@@ -123,6 +123,7 @@ func (c *CircuitBreaker) UpdateBreaker(b *Breaker) (bool, error) {
 	suc := c.DbConfig.UpdateRouteBreakerConfig(a...)
 	if suc == true {
 		success = suc
+		c.Reset(b.ClientID, b.RouteURIID)
 	} else {
 		err = fmt.Errorf("Failed to update circuit breaker config Record")
 	}
@@ -182,14 +183,14 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 			}
 		}
 		if cs.FailCount >= cs.Threshold && timeExpired != true {
-			fmt.Print("setting open")
+			fmt.Println("setting open")
 			s.Warning = true
 			s.Open = true
 			s.FailoverRouteName = cs.FailoverRouteName
 			s.OpenFailCode = cs.OpenFailCode
 
 		} else if cs.FailCount > 0 {
-			fmt.Print("setting partial")
+			fmt.Println("setting partial")
 			s.Warning = true
 			s.PartialOpen = true
 		}
@@ -255,7 +256,7 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 		} else {
 			cbCache[key] = cs
 		}
-	} else {
+	} else if b.ClientID != 0 && b.RouteURIID != 0 {
 		//fmt.Print("cache found in Trip: ")
 		//fmt.Println(found)
 		var bs breakerState
@@ -314,6 +315,7 @@ func (c *CircuitBreaker) DeleteBreaker(b *Breaker) bool {
 	suc := c.DbConfig.DeleteBreaker(a...)
 	if suc == true {
 		success = suc
+		c.Reset(b.ClientID, b.RouteURIID)
 	} else {
 		fmt.Println("Failed to delete breaker Record")
 	}

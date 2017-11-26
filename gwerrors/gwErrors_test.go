@@ -25,13 +25,19 @@ func TestGatewayErrorMonitor_ConnectDb(t *testing.T) {
 	gatewayDB.DbConfig.DbPw = "admin"
 	gatewayDB.DbConfig.DatabaseName = "ulbora_api_gateway"
 	connected1 = gatewayDB.ConnectDb()
+	if connected1 != true {
+		t.Fail()
+	}
+}
+
+func TestGatewayErrorMonitor_ConnectDb2(t *testing.T) {
 
 	gatewayDB2.DbConfig.Host = "localhost:3306"
 	gatewayDB2.DbConfig.DbUser = "admin"
 	gatewayDB2.DbConfig.DbPw = "admin"
 	gatewayDB2.DbConfig.DatabaseName = "ulbora_api_gateway"
 	connected2 = gatewayDB2.ConnectDb()
-	if connected1 != true || connected2 != true {
+	if connected2 != true {
 		t.Fail()
 	}
 }
@@ -152,8 +158,14 @@ func TestGatewayErrorMonitor_DeleteClient(t *testing.T) {
 
 func TestGatewayErrorMonitor_TestCloseDb(t *testing.T) {
 	success := gatewayDB.CloseDb()
+	if success != true {
+		t.Fail()
+	}
+}
+
+func TestGatewayErrorMonitor_TestCloseDb2(t *testing.T) {
 	success2 := gatewayDB2.CloseDb()
-	if success != true || success2 != true {
+	if success2 != true {
 		t.Fail()
 	}
 }

@@ -95,6 +95,7 @@ func handleRouteURLSuperChange(w http.ResponseWriter, r *http.Request) {
 					resOut := gatewayDB.UpdateRouteURL(rt)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
+					gatewayDB.Cb.Reset(rt.ClientID, rt.ID)
 					resJSON, err := json.Marshal(resOut)
 					if err != nil {
 						log.Println(error.Error())
@@ -135,6 +136,7 @@ func handleRouteURLActivateSuper(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "bad request in update", http.StatusBadRequest)
 				} else {
 					resOut := gatewayDB.ActivateRouteURL(rt)
+					gatewayDB.Cb.Reset(rt.ClientID, rt.ID)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
@@ -207,6 +209,7 @@ func handleRouteURLSuper(w http.ResponseWriter, r *http.Request) {
 			rt.RouteID = routeID
 			rt.ClientID = clientID
 			resOut := gatewayDB.DeleteRouteURL(rt)
+			gatewayDB.Cb.Reset(rt.ClientID, rt.ID)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(resOut)

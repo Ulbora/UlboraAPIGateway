@@ -51,7 +51,7 @@ type GwError struct {
 func (g *GatewayErrorMonitor) ConnectDb() bool {
 	rtn := g.DbConfig.ConnectDb()
 	if rtn == true {
-		fmt.Println("db connect")
+		fmt.Println("db connect in errors")
 	}
 	return rtn
 }
@@ -126,7 +126,7 @@ func (g *GatewayErrorMonitor) DeleteRouteError() bool {
 func (g *GatewayErrorMonitor) CloseDb() bool {
 	rtn := g.DbConfig.CloseDb()
 	if rtn == true {
-		fmt.Println("db connect closed")
+		fmt.Println("db connect closed in errors")
 	}
 	return rtn
 }

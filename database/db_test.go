@@ -16,6 +16,7 @@ var routeURLID int64
 var routeURLID2 int64
 
 func TestDbConfig_ConnectDb(t *testing.T) {
+	//time.Sleep(time.Second * 10)
 	//var dbConfig DbConfig
 	dbConfig.Host = "localhost:3306"
 	dbConfig.DbUser = "admin"
@@ -24,6 +25,8 @@ func TestDbConfig_ConnectDb(t *testing.T) {
 	connected = dbConfig.ConnectDb()
 	if connected != true {
 		t.Fail()
+	} else {
+		fmt.Println("database opened in database package")
 	}
 }
 
@@ -542,6 +545,8 @@ func TestDbConfig_CloseDb(t *testing.T) {
 		if rtn != true {
 			fmt.Println("database close failed")
 			t.Fail()
+		} else {
+			fmt.Println("database close in database package")
 		}
 	}
 }

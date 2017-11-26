@@ -15,10 +15,13 @@ var routeURLID int64
 var routeURLID2 int64
 
 func TestConnectDb(t *testing.T) {
+	time.Sleep(time.Second * 10)
 	connected = ConnectDb("localhost:3306", "admin", "admin", "ulbora_api_gateway")
 	if connected != true {
 		fmt.Println("database init failed")
 		t.Fail()
+	} else {
+		fmt.Println("database opened in mysqldb package")
 	}
 }
 
@@ -406,9 +409,11 @@ func TestInsertRouteError(t *testing.T) {
 		fmt.Println("database insert failed")
 		t.Fail()
 	}
+	//time.Sleep(time.Second * 2)
 }
 
 func TestGetRouteError(t *testing.T) {
+	//time.Sleep(time.Second * 2)
 	a := []interface{}{routeURLID, routeID, clientID}
 	rowsPtr := GetRouteError(a...)
 	if rowsPtr != nil {
@@ -582,6 +587,8 @@ func TestCloseDb(t *testing.T) {
 		if rtn != true {
 			fmt.Println("database close failed")
 			t.Fail()
+		} else {
+			fmt.Println("database close in mysqldb package")
 		}
 	}
 }

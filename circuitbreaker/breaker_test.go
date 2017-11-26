@@ -200,9 +200,39 @@ func TestCircuitBreaker_Trip4(t *testing.T) {
 	}
 }
 
+var badBreaker *Breaker
+
+func TestCircuitBreaker_GetRouteBreakerBad(t *testing.T) {
+	var b Breaker
+	b.ClientID = clientID
+	b.RestRouteID = 44444
+	b.RouteURIID = 77777
+	res := gatewayDB.GetBreaker(&b)
+	badBreaker = res
+	fmt.Println("")
+	fmt.Print("found bad breaker: ")
+	fmt.Println(res)
+	bid = res.ID
+	if res.ID != 0 {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestCircuitBreaker_TripBad(t *testing.T) {
+	gatewayDB.Trip(badBreaker)
+	res := gatewayDB.GetStatus(clientID, 77777)
+	fmt.Println(res)
+	if res.Open == true || res.Warning == true || res.PartialOpen == true || res.FailoverRouteName != "" {
+		fmt.Println("bad circuit breaker should do nothing")
+		t.Fail()
+	}
+}
+
 func TestCircuitBreaker_Reset(t *testing.T) {
 	gatewayDB.Reset(clientID, routeURLID)
 	res := gatewayDB.GetStatus(clientID, routeURLID)
+	fmt.Println("status of bad circuit breaker: ")
 	fmt.Println(res)
 	if res.Open == true || res.Warning == true || res.PartialOpen == true || res.FailoverRouteName != "" {
 		fmt.Println("circuit breaker should be closed")

@@ -95,6 +95,7 @@ func handleRouteURLChange(w http.ResponseWriter, r *http.Request) {
 				} else {
 					rt.ClientID = auth.ClientID
 					resOut := gatewayDB.UpdateRouteURL(rt)
+					gatewayDB.Cb.Reset(rt.ClientID, rt.ID)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
@@ -138,6 +139,7 @@ func handleRouteURLActivate(w http.ResponseWriter, r *http.Request) {
 				} else {
 					rt.ClientID = auth.ClientID
 					resOut := gatewayDB.ActivateRouteURL(rt)
+					gatewayDB.Cb.Reset(rt.ClientID, rt.ID)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
@@ -207,6 +209,7 @@ func handleRouteURL(w http.ResponseWriter, r *http.Request) {
 			rt.RouteID = routeID
 			rt.ClientID = auth.ClientID
 			resOut := gatewayDB.DeleteRouteURL(rt)
+			gatewayDB.Cb.Reset(rt.ClientID, rt.ID)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(resOut)

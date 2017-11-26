@@ -89,6 +89,7 @@ func main() {
 	cbDB.DbConfig = gatewayDB.DbConfig
 	cbDB.CacheHost = getCacheHost()
 	gatewayDB.GwCacheHost = getCacheHost()
+	gatewayDB.Cb = cbDB
 
 	fmt.Println("Api Gateway running!")
 	router := mux.NewRouter()

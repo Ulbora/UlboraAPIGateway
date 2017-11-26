@@ -54,7 +54,7 @@ type Rows struct {
 func (db *DbConfig) ConnectDb() bool {
 	rtn := routeDb.ConnectDb(db.Host, db.DbUser, db.DbPw, db.DatabaseName)
 	if rtn == true {
-		fmt.Println("db connect")
+		fmt.Println("db connect in db")
 	}
 	return rtn
 }
@@ -358,7 +358,7 @@ func (db *DbConfig) GetRouteURLs(args ...interface{}) *Rows {
 func (db *DbConfig) CloseDb() bool {
 	rtn := routeDb.CloseDb()
 	if rtn == true {
-		fmt.Println("db connection closed")
+		fmt.Println("db connection closed in db")
 	}
 	return rtn
 }

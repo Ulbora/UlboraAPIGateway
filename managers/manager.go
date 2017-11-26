@@ -26,6 +26,7 @@ package managers
 
 import (
 	ch "UlboraApiGateway/cache"
+	cb "UlboraApiGateway/circuitbreaker"
 	db "UlboraApiGateway/database"
 	"fmt"
 	"strconv"
@@ -78,6 +79,7 @@ type GatewayRouteURL struct {
 type GatewayDB struct {
 	DbConfig    db.DbConfig
 	GwCacheHost string
+	Cb          cb.CircuitBreaker
 }
 
 //GatewayRoutes gateway routes

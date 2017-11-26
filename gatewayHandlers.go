@@ -91,7 +91,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(rts)
 	} else if rts.CircuitOpen == true {
 		fmt.Println("Circuit breaker is open for this route")
-		rtnCode = 400
+		rtnCode = rts.OpenFailCode
 		rtn = "Circuit open"
 		fmt.Print("found route: ")
 		fmt.Println(rts)

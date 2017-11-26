@@ -64,6 +64,7 @@ func (db *GatewayDB) UpdateRouteURL(ru *RouteURL) *GatewayResponse {
 		var rr RestRoute
 		rr.ID = ru.RouteID
 		rr.ClientID = ru.ClientID
+		db.Cb.Reset(ru.ClientID, ru.ID)
 		route := db.GetRestRoute(&rr)
 		if route != nil {
 			db.clearCache(ru.ClientID, route.Route)
@@ -93,6 +94,7 @@ func (db *GatewayDB) ActivateRouteURL(ru *RouteURL) *GatewayResponse {
 			var rr RestRoute
 			rr.ID = ru.RouteID
 			rr.ClientID = ru.ClientID
+			db.Cb.Reset(ru.ClientID, ru.ID)
 			route := db.GetRestRoute(&rr)
 			if route != nil {
 				db.clearCache(ru.ClientID, route.Route)
@@ -152,6 +154,7 @@ func (db *GatewayDB) DeleteRouteURL(ru *RouteURL) *GatewayResponse {
 		var rr RestRoute
 		rr.ID = ru.RouteID
 		rr.ClientID = ru.ClientID
+		db.Cb.Reset(ru.ClientID, ru.ID)
 		route := db.GetRestRoute(&rr)
 		if route != nil {
 			db.clearCache(ru.ClientID, route.Route)
