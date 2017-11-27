@@ -130,6 +130,12 @@ func main() {
 	router.HandleFunc("/rs/gwRouteUrl/delete/{id}/{routeId}", handleRouteURL)
 	router.HandleFunc("/rs/gwRouteUrl/activate", handleRouteURLActivate)
 
+	//super performance service
+	router.HandleFunc("/rs/gwPerformanceSuper", handlePeformanceSuper)
+
+	//super errors service
+	router.HandleFunc("/rs/gwErrorsSuper", handleErrorsSuper)
+
 	//gateway routes
 	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)
 	router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)

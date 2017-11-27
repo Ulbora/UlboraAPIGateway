@@ -112,6 +112,7 @@ func (g *GatewayPerformanceMonitor) GetRoutePerformance(e *GwPerformance) *[]GwP
 
 //SaveRoutePerformance updates route performance in cache
 func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID int64, urlID int64, latency int64) bool {
+	g.DeleteRoutePerformance()
 	mu.Lock()
 	defer mu.Unlock()
 	var rtn bool
