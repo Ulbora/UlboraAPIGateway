@@ -487,6 +487,154 @@ Example Response
 
 ```
 
+
+
+## Add Breaker
+
+```
+POST:
+URL: http://localhost:3011/rs/gwBreakerSuper/add
+
+Example Request
+{
+   "failureThreshold":3,
+   "healthCheckTimeSeconds":60,
+   "failoverRouteName":"red",
+   "openFailCode":501,
+   "routeId":22,
+   "routeUriId":33,
+   "clientId":403
+}
+  
+```
+
+```
+Example Response   
+
+{
+    "success": true,
+    "id": 19
+}
+
+```
+
+
+## Update Breaker
+
+```
+PUT:
+URL: http://localhost:3011/rs/gwBreakerSuper/update
+
+Example Request
+{
+   "id": 620,
+   "failureThreshold":3,
+   "healthCheckTimeSeconds":120,
+   "failoverRouteName":"red",
+   "openFailCode":501,
+   "routeId":22,
+   "routeUriId":33,
+   "clientId":403
+}
+  
+```
+
+```
+Example Response   
+
+{
+    "success": true,
+    "id": 84
+}
+
+```
+
+
+## Get Breaker
+
+```
+GET:
+URL: http://localhost:3011/rs/gwBreakerSuper/get/33/22/403
+  
+```
+
+```
+Example Response   
+
+{  
+   "id": 84,
+   "clientId":4,
+   "route":"mail"
+}
+
+```
+
+
+## Delete Breaker
+
+```
+DELETE:
+URL: http://localhost:3011/rs/gwBreakerSuper/delete/33/22/403
+  
+```
+
+```
+Example Response   
+
+{
+    "success": true
+    
+}
+
+```
+
+
+
+
+## Get Errors
+
+```
+GET:
+URL: http://localhost:3011/rs/gwErrorsSuper
+  
+```
+
+```
+Example Response   
+
+{
+   "routeId":22,
+   "routeUriId":33,
+   "clientId":403
+}
+
+```
+
+
+
+
+## Get Performance
+
+```
+GET:
+URL: http://localhost:3011/rs/gwPerformanceSuper
+  
+```
+
+```
+Example Response   
+
+{
+   "routeId":22,
+   "routeUriId":33,
+   "clientId":403
+}
+
+```
+
+
+
+
 # Admin REST Services (User Portal)
 
 ## Headers
@@ -765,6 +913,146 @@ Example Response
 {
     "success": true,
     "id": 190
+}
+
+```
+
+
+## Add Breaker
+
+```
+POST:
+URL: http://localhost:3011/rs/gwBreaker/add
+
+Example Request
+{
+   "failureThreshold":3,
+   "healthCheckTimeSeconds":60,
+   "failoverRouteName":"red",
+   "openFailCode":501,
+   "routeId":22,
+   "routeUriId":33
+}
+  
+```
+
+```
+Example Response   
+
+{
+    "success": true,
+    "id": 19
+}
+
+```
+
+
+## Update Breaker
+
+```
+PUT:
+URL: http://localhost:3011/rs/gwBreaker/update
+
+Example Request
+{
+   "id": 620,
+   "failureThreshold":3,
+   "healthCheckTimeSeconds":120,
+   "failoverRouteName":"red",
+   "openFailCode":501,
+   "routeId":22,
+   "routeUriId":33
+}
+  
+```
+
+```
+Example Response   
+
+{
+    "success": true,
+    "id": 84
+}
+
+```
+
+
+## Get Breaker
+
+```
+GET:
+URL: http://localhost:3011/rs/gwBreaker/get/33/22
+  
+```
+
+```
+Example Response   
+
+{  
+   "id": 84,
+   "clientId":4,
+   "route":"mail"
+}
+
+```
+
+
+## Delete Breaker
+
+```
+DELETE:
+URL: http://localhost:3011/rs/gwBreaker/delete/33/22
+  
+```
+
+```
+Example Response   
+
+{
+    "success": true
+    
+}
+
+```
+
+
+
+
+## Get Errors
+
+```
+GET:
+URL: http://localhost:3011/rs/gwErrors
+  
+```
+
+```
+Example Response   
+
+{
+   "routeId":22,
+   "routeUriId":33
+}
+
+```
+
+
+
+
+## Get Performance
+
+```
+GET:
+URL: http://localhost:3011/rs/gwPerformance
+  
+```
+
+```
+Example Response   
+
+{
+   "routeId":22,
+   "routeUriId":33
 }
 
 ```

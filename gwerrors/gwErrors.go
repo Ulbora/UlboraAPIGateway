@@ -38,13 +38,13 @@ type GatewayErrorMonitor struct {
 
 //GwError GwError
 type GwError struct {
-	ID          int64
-	Code        int
-	Message     string
-	Entered     time.Time
-	RouteURIID  int64
-	RestRouteID int64
-	ClientID    int64
+	ID          int64     `json:"id"`
+	Code        int       `json:"code"`
+	Message     string    `json:"message"`
+	Entered     time.Time `json:"entered"`
+	RouteURIID  int64     `json:"routeUriId"`
+	RestRouteID int64     `json:"routeId"`
+	ClientID    int64     `json:"clientId"`
 }
 
 //ConnectDb to database

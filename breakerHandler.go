@@ -26,22 +26,21 @@
 package main
 
 import (
+	cb "UlboraApiGateway/circuitbreaker"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
-	mng "UlboraApiGateway/managers"
-
 	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 	"github.com/gorilla/mux"
 )
 
-func handleRestRouteChange(w http.ResponseWriter, r *http.Request) {
+func handleBreakerChange(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
-	me.Role = "admin"
+	me.Role = "superAdmin"
 	me.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
@@ -50,56 +49,70 @@ func handleRestRouteChange(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwRestRoute/add"
+			me.URI = "/rs/gwBreakerSuper/add"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
-				rt := new(mng.RestRoute)
+				bk := new(cb.Breaker)
 				decoder := json.NewDecoder(r.Body)
-				error := decoder.Decode(&rt)
+				error := decoder.Decode(&bk)
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if rt.Route == "" {
+				} else if bk.RestRouteID == 0 || bk.RouteURIID == 0 {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
-					rt.ClientID = auth.ClientID
-					resOut := gatewayDB.InsertRestRoute(rt)
+					bk.ClientID = auth.ClientID
+					suc, err := cbDB.InsertBreaker(bk)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
-					resJSON, err := json.Marshal(resOut)
+					var res BreakerResponse
+					res.Success = suc
 					if err != nil {
-						log.Println(error.Error())
-						http.Error(w, "json output failed", http.StatusInternalServerError)
+						res.Error = err.Error()
+						log.Println(err.Error())
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
+					}
+					resJSON, cerr := json.Marshal(res)
+					if cerr != nil {
+						log.Println(cerr.Error())
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
 		case "PUT":
-			me.URI = "/rs/gwRestRoute/update"
+			me.URI = "/rs/gwBreakerSuper/update"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
-				rt := new(mng.RestRoute)
+				bk := new(cb.Breaker)
 				decoder := json.NewDecoder(r.Body)
-				error := decoder.Decode(&rt)
+				error := decoder.Decode(&bk)
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if rt.ID == 0 || rt.Route == "" {
+				} else if bk.ID == 0 || bk.RestRouteID == 0 || bk.RouteURIID == 0 {
 					http.Error(w, "bad request in update", http.StatusBadRequest)
 				} else {
-					rt.ClientID = auth.ClientID
-					resOut := gatewayDB.UpdateRestRoute(rt)
+					bk.ClientID = auth.ClientID
+					suc, err := cbDB.UpdateBreaker(bk)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
-					resJSON, err := json.Marshal(resOut)
+					var res BreakerResponse
+					res.Success = suc
 					if err != nil {
+						res.Error = err.Error()
 						log.Println(error.Error())
 						http.Error(w, "json output failed", http.StatusInternalServerError)
+					}
+					resJSON, cerr := json.Marshal(res)
+					if cerr != nil {
+						log.Println(cerr.Error())
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
 					fmt.Fprint(w, string(resJSON))
@@ -109,31 +122,37 @@ func handleRestRouteChange(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleRestRoute(w http.ResponseWriter, r *http.Request) {
+func handleBreaker(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
-	me.Role = "admin"
+	me.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	id, errID := strconv.ParseInt(vars["id"], 10, 0)
-	if errID != nil {
+
+	routeID, errRID := strconv.ParseInt(vars["routeId"], 10, 0)
+	if errRID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+	UID, errUID := strconv.ParseInt(vars["urlId"], 10, 0)
+	if errUID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 	//fmt.Print("id is: ")
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwRestRoute/get"
+		me.URI = "/rs/gwBreakerSuper/get"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
-			rt := new(mng.RestRoute)
-			rt.ID = id
-			rt.ClientID = auth.ClientID
-			resOut := gatewayDB.GetRestRoute(rt)
+			bk := new(cb.Breaker)
+			bk.ClientID = auth.ClientID
+			bk.RestRouteID = routeID
+			bk.RouteURIID = UID
+			resOut := cbDB.GetBreaker(bk)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(resOut)
@@ -146,19 +165,22 @@ func handleRestRoute(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
-		me.URI = "/rs/gwRestRoute/delete"
+		me.URI = "/rs/gwBreakerSuper/delete"
 		me.Scope = "write"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
-			rt := new(mng.RestRoute)
-			rt.ID = id
-			rt.ClientID = auth.ClientID
-			resOut := gatewayDB.DeleteRestRoute(rt)
+			bk := new(cb.Breaker)
+			bk.ClientID = auth.ClientID
+			bk.RestRouteID = routeID
+			bk.RouteURIID = UID
+			suc := cbDB.DeleteBreaker(bk)
+			var res BreakerResponse
+			res.Success = suc
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
-			resJSON, err := json.Marshal(resOut)
+			resJSON, err := json.Marshal(res)
 			if err != nil {
 				log.Println(err.Error())
 				//http.Error(w, "json output failed", http.StatusInternalServerError)
@@ -169,37 +191,42 @@ func handleRestRoute(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleRestRouteList(w http.ResponseWriter, r *http.Request) {
-	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "admin"
-	me.Scope = "read"
-	w.Header().Set("Content-Type", "application/json")
-	switch r.Method {
-	case "GET":
-		me.URI = "/rs/gwRestRoute/list"
-		valid := auth.Authorize(me)
-		if valid != true {
-			w.WriteHeader(http.StatusUnauthorized)
-		} else {
-			rt := new(mng.RestRoute)
-			rt.ClientID = auth.ClientID
-			resOut := gatewayDB.GetRestRouteList(rt)
-			//fmt.Print("response: ")
-			//fmt.Println(resOut)
-			resJSON, err := json.Marshal(resOut)
-			//fmt.Print("response json: ")
-			//fmt.Println(string(resJSON))
-			if err != nil {
-				log.Println(err.Error())
-				//http.Error(w, "json output failed", http.StatusInternalServerError)
-			}
-			w.WriteHeader(http.StatusOK)
-			if string(resJSON) == "null" {
-				fmt.Fprint(w, "[]")
-			} else {
-				fmt.Fprint(w, string(resJSON))
-			}
-		}
-	}
-}
+// func handleRestRouteSuperList(w http.ResponseWriter, r *http.Request) {
+// 	auth := getAuth(r)
+// 	me := new(uoauth.Claim)
+// 	me.Role = "superAdmin"
+// 	me.Scope = "read"
+// 	w.Header().Set("Content-Type", "application/json")
+// 	vars := mux.Vars(r)
+// 	clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
+// 	if errCID != nil {
+// 		http.Error(w, "bad request", http.StatusBadRequest)
+// 	}
+// 	switch r.Method {
+// 	case "GET":
+// 		me.URI = "/rs/gwRestRouteSuper/list"
+// 		valid := auth.Authorize(me)
+// 		if valid != true {
+// 			w.WriteHeader(http.StatusUnauthorized)
+// 		} else {
+// 			rt := new(mng.RestRoute)
+// 			rt.ClientID = clientID
+// 			resOut := gatewayDB.GetRestRouteList(rt)
+// 			//fmt.Print("response: ")
+// 			//fmt.Println(resOut)
+// 			resJSON, err := json.Marshal(resOut)
+// 			//fmt.Print("response json: ")
+// 			//fmt.Println(string(resJSON))
+// 			if err != nil {
+// 				log.Println(err.Error())
+// 				http.Error(w, "json output failed", http.StatusInternalServerError)
+// 			}
+// 			w.WriteHeader(http.StatusOK)
+// 			if string(resJSON) == "null" {
+// 				fmt.Fprint(w, "[]")
+// 			} else {
+// 				fmt.Fprint(w, string(resJSON))
+// 			}
+// 		}
+// 	}
+// }

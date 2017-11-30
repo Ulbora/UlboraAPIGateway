@@ -44,16 +44,16 @@ type CircuitBreaker struct {
 
 //Breaker Breaker
 type Breaker struct {
-	ID                     int64
-	FailureThreshold       int
-	FailureCount           int
-	LastFailureTime        time.Time
-	HealthCheckTimeSeconds int
-	FailoverRouteName      string
-	OpenFailCode           int
-	RouteURIID             int64
-	RestRouteID            int64
-	ClientID               int64
+	ID                     int64     `json:"id"`
+	FailureThreshold       int       `json:"failureThreshold"`
+	FailureCount           int       `json:"failureCount"`
+	LastFailureTime        time.Time `json:"lastFailureTime"`
+	HealthCheckTimeSeconds int       `json:"healthCheckTimeSeconds"`
+	FailoverRouteName      string    `json:"failoverRouteName"`
+	OpenFailCode           int       `json:"openFailCode"`
+	RouteURIID             int64     `json:"routeUriId"`
+	RestRouteID            int64     `json:"routeId"`
+	ClientID               int64     `json:"clientId"`
 }
 
 //Status of the circuit breaker

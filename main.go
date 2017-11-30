@@ -115,6 +115,20 @@ func main() {
 	router.HandleFunc("/rs/gwRouteUrlSuper/delete/{id}/{routeId}/{clientId}", handleRouteURLSuper)
 	router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
+	//super performance service
+	router.HandleFunc("/rs/gwPerformanceSuper", handlePeformanceSuper)
+
+	//super errors service
+	router.HandleFunc("/rs/gwErrorsSuper", handleErrorsSuper)
+
+	// super Breaker services
+	router.HandleFunc("/rs/gwBreakerSuper/add", handleBreakerSuperChange)
+	router.HandleFunc("/rs/gwBreakerSuper/update", handleBreakerSuperChange)
+	router.HandleFunc("/rs/gwBreakerSuper/get/{urlId}/{routeId}/{clientId}", handleBreakerSuper)
+	//router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
+	router.HandleFunc("/rs/gwBreakerSuper/delete/{urlId}/{routeId}/{clientId}", handleBreakerSuper)
+	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
+
 	// admin restRoute services
 	router.HandleFunc("/rs/gwRestRoute/add", handleRestRouteChange)
 	router.HandleFunc("/rs/gwRestRoute/update", handleRestRouteChange)
@@ -130,11 +144,19 @@ func main() {
 	router.HandleFunc("/rs/gwRouteUrl/delete/{id}/{routeId}", handleRouteURL)
 	router.HandleFunc("/rs/gwRouteUrl/activate", handleRouteURLActivate)
 
-	//super performance service
-	router.HandleFunc("/rs/gwPerformanceSuper", handlePeformanceSuper)
+	//admin performance service
+	router.HandleFunc("/rs/gwPerformance", handlePeformance)
 
-	//super errors service
-	router.HandleFunc("/rs/gwErrorsSuper", handleErrorsSuper)
+	//admin errors service
+	router.HandleFunc("/rs/gwErrors", handleErrors)
+
+	// admin Breaker services
+	router.HandleFunc("/rs/gwBreaker/add", handleBreakerChange)
+	router.HandleFunc("/rs/gwBreaker/update", handleBreakerChange)
+	router.HandleFunc("/rs/gwBreaker/get/{urlId}/{routeId}", handleBreaker)
+	//router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
+	router.HandleFunc("/rs/gwBreaker/delete/{urlId}/{routeId}", handleBreaker)
+	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	//gateway routes
 	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)

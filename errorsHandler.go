@@ -62,15 +62,70 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
 					resOut := errDB.GetRouteError(e)
-					//fmt.Print("response: ")
-					//fmt.Println(resOut)
+					fmt.Print("response: ")
+					fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
+					fmt.Print("response json: ")
+					fmt.Println(resJSON)
 					if err != nil {
 						log.Println(error.Error())
-						http.Error(w, "json output failed", http.StatusInternalServerError)
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
-					fmt.Fprint(w, string(resJSON))
+					if string(resJSON) == "null" {
+						fmt.Fprint(w, "[]")
+					} else {
+						fmt.Fprint(w, string(resJSON))
+					}
+				}
+			}
+		}
+	}
+}
+
+func handleErrors(w http.ResponseWriter, r *http.Request) {
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "superAdmin"
+	me.Scope = "write"
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
+		case "POST":
+			me.URI = "/rs/gwErrorsSuper"
+			valid := auth.Authorize(me)
+			if valid != true {
+				w.WriteHeader(http.StatusUnauthorized)
+			} else {
+				e := new(gwerr.GwError)
+				decoder := json.NewDecoder(r.Body)
+				error := decoder.Decode(&e)
+				if error != nil {
+					log.Println(error.Error())
+					http.Error(w, error.Error(), http.StatusBadRequest)
+				} else if e.RestRouteID == 0 || e.RouteURIID == 0 {
+					http.Error(w, "bad request", http.StatusBadRequest)
+				} else {
+					e.ClientID = auth.ClientID
+					resOut := errDB.GetRouteError(e)
+					fmt.Print("response: ")
+					fmt.Println(resOut)
+					resJSON, err := json.Marshal(resOut)
+					fmt.Print("response json: ")
+					fmt.Println(resJSON)
+					if err != nil {
+						log.Println(error.Error())
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					if string(resJSON) == "null" {
+						fmt.Fprint(w, "[]")
+					} else {
+						fmt.Fprint(w, string(resJSON))
+					}
 				}
 			}
 		}

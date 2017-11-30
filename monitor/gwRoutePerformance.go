@@ -44,13 +44,13 @@ type GatewayPerformanceMonitor struct {
 
 //GwPerformance GwPerformance
 type GwPerformance struct {
-	ID             int64
-	Calls          int64
-	LatencyMsTotal int64
-	Entered        time.Time
-	RouteURIID     int64
-	RestRouteID    int64
-	ClientID       int64
+	ID             int64     `json:"id"`
+	Calls          int64     `json:"calls"`
+	LatencyMsTotal int64     `json:"latencyMsTotal"`
+	Entered        time.Time `json:"entered"`
+	RouteURIID     int64     `json:"routeUriId"`
+	RestRouteID    int64     `json:"routeId"`
+	ClientID       int64     `json:"clientId"`
 }
 
 type routePerformance struct {

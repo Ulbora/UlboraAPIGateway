@@ -70,7 +70,7 @@ func handleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
 					resJSON, err := json.Marshal(resOut)
 					if err != nil {
 						log.Println(error.Error())
-						http.Error(w, "json output failed", http.StatusInternalServerError)
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
 					fmt.Fprint(w, string(resJSON))
@@ -97,7 +97,7 @@ func handleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
 					resJSON, err := json.Marshal(resOut)
 					if err != nil {
 						log.Println(error.Error())
-						http.Error(w, "json output failed", http.StatusInternalServerError)
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
 					fmt.Fprint(w, string(resJSON))
@@ -141,7 +141,7 @@ func handleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
 			resJSON, err := json.Marshal(resOut)
 			if err != nil {
 				log.Println(err.Error())
-				http.Error(w, "json output failed", http.StatusInternalServerError)
+				//http.Error(w, "json output failed", http.StatusInternalServerError)
 			}
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
@@ -163,7 +163,7 @@ func handleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
 			resJSON, err := json.Marshal(resOut)
 			if err != nil {
 				log.Println(err.Error())
-				http.Error(w, "json output failed", http.StatusInternalServerError)
+				//http.Error(w, "json output failed", http.StatusInternalServerError)
 			}
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
@@ -199,7 +199,7 @@ func handleRestRouteSuperList(w http.ResponseWriter, r *http.Request) {
 			//fmt.Println(string(resJSON))
 			if err != nil {
 				log.Println(err.Error())
-				http.Error(w, "json output failed", http.StatusInternalServerError)
+				//http.Error(w, "json output failed", http.StatusInternalServerError)
 			}
 			w.WriteHeader(http.StatusOK)
 			if string(resJSON) == "null" {

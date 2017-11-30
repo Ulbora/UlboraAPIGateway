@@ -70,7 +70,60 @@ func handlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 						http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
-					fmt.Fprint(w, string(resJSON))
+					//fmt.Fprint(w, string(resJSON))
+					if string(resJSON) == "null" {
+						fmt.Fprint(w, "[]")
+					} else {
+						fmt.Fprint(w, string(resJSON))
+					}
+				}
+			}
+		}
+	}
+}
+
+func handlePeformance(w http.ResponseWriter, r *http.Request) {
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "superAdmin"
+	me.Scope = "write"
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
+		case "POST":
+			me.URI = "/rs/gwPerformanceSuper"
+			valid := auth.Authorize(me)
+			if valid != true {
+				w.WriteHeader(http.StatusUnauthorized)
+			} else {
+				p := new(gwmon.GwPerformance)
+				decoder := json.NewDecoder(r.Body)
+				error := decoder.Decode(&p)
+				if error != nil {
+					log.Println(error.Error())
+					http.Error(w, error.Error(), http.StatusBadRequest)
+				} else if p.RestRouteID == 0 || p.RouteURIID == 0 {
+					http.Error(w, "bad request", http.StatusBadRequest)
+				} else {
+					p.ClientID = auth.ClientID
+					resOut := monDB.GetRoutePerformance(p)
+					//fmt.Print("response: ")
+					//fmt.Println(resOut)
+					resJSON, err := json.Marshal(resOut)
+					if err != nil {
+						log.Println(error.Error())
+						http.Error(w, "json output failed", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					//fmt.Fprint(w, string(resJSON))
+					if string(resJSON) == "null" {
+						fmt.Fprint(w, "[]")
+					} else {
+						fmt.Fprint(w, string(resJSON))
+					}
 				}
 			}
 		}
