@@ -1027,7 +1027,7 @@ URL: http://localhost:3011/rs/gwErrors
 ```
 
 ```
-Example Response   
+Example Request   
 
 {
    "routeId":22,
@@ -1048,7 +1048,7 @@ URL: http://localhost:3011/rs/gwPerformance
 ```
 
 ```
-Example Response   
+Example Request   
 
 {
    "routeId":22,
