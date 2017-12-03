@@ -40,7 +40,7 @@ import (
 func handleBreakerChange(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	me.Role = "admin"
 	me.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
@@ -49,7 +49,7 @@ func handleBreakerChange(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwBreakerSuper/add"
+			me.URI = "/rs/gwBreaker/add"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -84,7 +84,7 @@ func handleBreakerChange(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case "PUT":
-			me.URI = "/rs/gwBreakerSuper/update"
+			me.URI = "/rs/gwBreaker/update"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -122,10 +122,55 @@ func handleBreakerChange(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleBreakerReset(w http.ResponseWriter, r *http.Request) {
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "admin"
+	me.Scope = "write"
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
+		case "POST":
+			me.URI = "/rs/gwBreaker/reset"
+			valid := auth.Authorize(me)
+			if valid != true {
+				w.WriteHeader(http.StatusUnauthorized)
+			} else {
+				bk := new(cb.Breaker)
+				decoder := json.NewDecoder(r.Body)
+				error := decoder.Decode(&bk)
+				if error != nil {
+					log.Println(error.Error())
+					http.Error(w, error.Error(), http.StatusBadRequest)
+				} else if bk.RestRouteID == 0 || bk.RouteURIID == 0 {
+					http.Error(w, "bad request", http.StatusBadRequest)
+				} else {
+					bk.ClientID = auth.ClientID
+					cbDB.Reset(bk.ClientID, bk.RouteURIID)
+					//fmt.Print("response: ")
+					//fmt.Println(resOut)
+					var res BreakerResponse
+					res.Success = true
+					resJSON, cerr := json.Marshal(res)
+					if cerr != nil {
+						log.Println(cerr.Error())
+						//http.Error(w, "json output failed", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					fmt.Fprint(w, string(resJSON))
+				}
+			}
+		}
+	}
+}
+
 func handleBreaker(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	me.Role = "admin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -142,7 +187,7 @@ func handleBreaker(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwBreakerSuper/get"
+		me.URI = "/rs/gwBreaker/get"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -165,7 +210,7 @@ func handleBreaker(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
-		me.URI = "/rs/gwBreakerSuper/delete"
+		me.URI = "/rs/gwBreaker/delete"
 		me.Scope = "write"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -181,6 +226,54 @@ func handleBreaker(w http.ResponseWriter, r *http.Request) {
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(res)
+			if err != nil {
+				log.Println(err.Error())
+				//http.Error(w, "json output failed", http.StatusInternalServerError)
+			}
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, string(resJSON))
+		}
+	}
+}
+
+func handleBreakerStatus(w http.ResponseWriter, r *http.Request) {
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "admin"
+
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+
+	// clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
+	// if errCID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
+	// routeID, errRID := strconv.ParseInt(vars["routeId"], 10, 0)
+	// if errRID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
+	UID, errUID := strconv.ParseInt(vars["urlId"], 10, 0)
+	if errUID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+	//fmt.Print("id is: ")
+	//fmt.Println(id)
+	switch r.Method {
+	case "GET":
+		me.URI = "/rs/gwBreaker/status"
+		me.Scope = "read"
+		valid := auth.Authorize(me)
+		if valid != true {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else {
+			// bk := new(cb.Breaker)
+			// bk.ClientID = clientID
+			// bk.RestRouteID = routeID
+			// bk.RouteURIID = UID
+			resOut := cbDB.GetStatus(auth.ClientID, UID)
+			//fmt.Print("response: ")
+			//fmt.Println(resOut)
+			resJSON, err := json.Marshal(resOut)
 			if err != nil {
 				log.Println(err.Error())
 				//http.Error(w, "json output failed", http.StatusInternalServerError)

@@ -58,11 +58,11 @@ type Breaker struct {
 
 //Status of the circuit breaker
 type Status struct {
-	Warning           bool
-	Open              bool
-	PartialOpen       bool
-	FailoverRouteName string
-	OpenFailCode      int
+	Warning           bool   `json:"warning"`
+	Open              bool   `json:"open"`
+	PartialOpen       bool   `json:"partialOpen"`
+	FailoverRouteName string `json:"failoverRouteName"`
+	OpenFailCode      int    `json:"openFailCode"`
 }
 
 type breakerState struct {

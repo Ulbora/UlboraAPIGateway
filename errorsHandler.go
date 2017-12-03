@@ -39,7 +39,7 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
-	me.Scope = "write"
+	me.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -86,8 +86,8 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 func handleErrors(w http.ResponseWriter, r *http.Request) {
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	me.Role = "admin"
+	me.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -95,7 +95,7 @@ func handleErrors(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwErrorsSuper"
+			me.URI = "/rs/gwErrors"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
