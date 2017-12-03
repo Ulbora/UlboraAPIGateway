@@ -78,7 +78,7 @@ const (
 	InsertRestRouteQuery  = "INSERT INTO rest_route (route, client_id) VALUES (?, ?) "
 	UpdateRestRouteQuery  = "UPDATE rest_route set route = ? WHERE id = ? and client_id = ? "
 	RestRouteGetQuery     = "select * from rest_route WHERE id = ? and client_id = ?"
-	RestRouteGetListQuery = "select * from rest_route WHERE client_id = ?"
+	RestRouteGetListQuery = "select * from rest_route WHERE client_id = ? order by route "
 	RestRouteDeleteQuery  = "delete from rest_route WHERE id = ? and client_id = ?"
 
 	// rest route
@@ -87,7 +87,7 @@ const (
 	ActivateRouteURLQuery         = "UPDATE route_url set active = 1 WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
 	DeactivateOtherRouteURLsQuery = "UPDATE route_url set active = 0 WHERE id != ? and rest_route_id = ? and rest_route_client_id = ? "
 	RouteURLGetQuery              = "select * from route_url WHERE id = ? and rest_route_id = ? and rest_route_client_id = ? "
-	RouteURLGetListQuery          = "select * from route_url WHERE rest_route_id = ? and rest_route_client_id = ? "
+	RouteURLGetListQuery          = "select * from route_url WHERE rest_route_id = ? and rest_route_client_id = ? order by name "
 	RouteNameURLGetListQuery      = "select rr.id as route_id, rr.route, ru.id as url_id, ru.name, ru.url, ru.active " +
 		"from route_url ru " +
 		"inner join rest_route rr " +
