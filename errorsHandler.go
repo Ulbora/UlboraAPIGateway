@@ -62,11 +62,11 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
 					resOut := errDB.GetRouteError(e)
-					fmt.Print("response: ")
-					fmt.Println(resOut)
+					//fmt.Print("response: ")
+					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
-					fmt.Print("response json: ")
-					fmt.Println(resJSON)
+					//fmt.Print("response json: ")
+					//fmt.Println(resJSON)
 					if err != nil {
 						log.Println(error.Error())
 						//http.Error(w, "json output failed", http.StatusInternalServerError)
@@ -111,11 +111,11 @@ func handleErrors(w http.ResponseWriter, r *http.Request) {
 				} else {
 					e.ClientID = auth.ClientID
 					resOut := errDB.GetRouteError(e)
-					fmt.Print("response: ")
-					fmt.Println(resOut)
+					//fmt.Print("response: ")
+					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
-					fmt.Print("response json: ")
-					fmt.Println(resJSON)
+					//fmt.Print("response json: ")
+					//fmt.Println(resJSON)
 					if err != nil {
 						log.Println(error.Error())
 						//http.Error(w, "json output failed", http.StatusInternalServerError)

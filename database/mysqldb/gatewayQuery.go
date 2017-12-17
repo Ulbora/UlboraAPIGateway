@@ -49,7 +49,8 @@ const (
 		"route_url_rest_route_id, route_url_rest_route_client_id) " +
 		"VALUES(?, ?, ?, ?, ?, ?) "
 	RouteErrorGetQuery = "SELECT * FROM route_error WHERE route_url_id = ? and route_url_rest_route_id = ? " +
-		"and route_url_rest_route_client_id = ? "
+		"and route_url_rest_route_client_id = ? " +
+		"order by entered DESC "
 	RouteErrorRemoveOldQuery = "DELETE FROM route_error " +
 		"WHERE entered < (NOW()- INTERVAL 90 DAY)"
 
