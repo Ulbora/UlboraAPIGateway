@@ -132,6 +132,8 @@ func main() {
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	// admin restRoute services
+	router.HandleFunc("/rs/gwClientUser/get", handleUserClient)
+
 	router.HandleFunc("/rs/gwRestRoute/add", handleRestRouteChange)
 	router.HandleFunc("/rs/gwRestRoute/update", handleRestRouteChange)
 	router.HandleFunc("/rs/gwRestRoute/get/{id}", handleRestRoute)
