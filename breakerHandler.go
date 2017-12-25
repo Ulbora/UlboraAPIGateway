@@ -145,7 +145,7 @@ func handleBreakerReset(w http.ResponseWriter, r *http.Request) {
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if bk.RestRouteID == 0 || bk.RouteURIID == 0 {
+				} else if bk.RouteURIID == 0 {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
 					bk.ClientID = auth.ClientID
