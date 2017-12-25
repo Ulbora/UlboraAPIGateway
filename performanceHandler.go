@@ -47,7 +47,7 @@ func handlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwPerformanceSuper"
+			me.URI = "/ulbora/rs/gwPerformanceSuper"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -94,7 +94,7 @@ func handlePeformance(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwPerformance"
+			me.URI = "/ulbora/rs/gwPerformance"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)

@@ -55,7 +55,7 @@ func handleBreakerSuperChange(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwBreakerSuper/add"
+			me.URI = "/ulbora/rs/gwBreakerSuper/add"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -89,7 +89,7 @@ func handleBreakerSuperChange(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case "PUT":
-			me.URI = "/rs/gwBreakerSuper/update"
+			me.URI = "/ulbora/rs/gwBreakerSuper/update"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -138,7 +138,7 @@ func handleBreakerSuperReset(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwBreakerSuper/reset"
+			me.URI = "/ulbora/rs/gwBreakerSuper/reset"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -194,7 +194,7 @@ func handleBreakerSuper(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwBreakerSuper/get"
+		me.URI = "/ulbora/rs/gwBreakerSuper/get"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -217,7 +217,7 @@ func handleBreakerSuper(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
-		me.URI = "/rs/gwBreakerSuper/delete"
+		me.URI = "/ulbora/rs/gwBreakerSuper/delete"
 		me.Scope = "write"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -269,7 +269,7 @@ func handleBreakerStatusSuper(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwBreakerSuper/status"
+		me.URI = "/ulbora/rs/gwBreakerSuper/status"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {

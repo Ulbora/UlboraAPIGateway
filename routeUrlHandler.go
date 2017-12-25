@@ -50,7 +50,7 @@ func handleRouteURLChange(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwRouteUrl/add"
+			me.URI = "/ulbora/rs/gwRouteUrl/add"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -79,7 +79,7 @@ func handleRouteURLChange(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case "PUT":
-			me.URI = "/rs/gwRouteUrl/update"
+			me.URI = "/ulbora/rs/gwRouteUrl/update"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -123,7 +123,7 @@ func handleRouteURLActivate(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "PUT":
-			me.URI = "/rs/gwRouteUrl/activate"
+			me.URI = "/ulbora/rs/gwRouteUrl/activate"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -175,7 +175,7 @@ func handleRouteURL(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwRouteUrl/get"
+		me.URI = "/ulbora/rs/gwRouteUrl/get"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -198,7 +198,7 @@ func handleRouteURL(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
-		me.URI = "/rs/gwRouteUrl/delete"
+		me.URI = "/ulbora/rs/gwRouteUrl/delete"
 		me.Scope = "write"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -236,7 +236,7 @@ func handleRouteURLList(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwRouteUrl/list"
+		me.URI = "/ulbora/rs/gwRouteUrl/list"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)

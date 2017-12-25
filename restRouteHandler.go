@@ -50,7 +50,7 @@ func handleRestRouteChange(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwRestRoute/add"
+			me.URI = "/ulbora/rs/gwRestRoute/add"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -78,7 +78,7 @@ func handleRestRouteChange(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case "PUT":
-			me.URI = "/rs/gwRestRoute/update"
+			me.URI = "/ulbora/rs/gwRestRoute/update"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -124,7 +124,7 @@ func handleRestRoute(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwRestRoute/get"
+		me.URI = "/ulbora/rs/gwRestRoute/get"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -146,7 +146,7 @@ func handleRestRoute(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
-		me.URI = "/rs/gwRestRoute/delete"
+		me.URI = "/ulbora/rs/gwRestRoute/delete"
 		me.Scope = "write"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -177,7 +177,7 @@ func handleRestRouteList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwRestRoute/list"
+		me.URI = "/ulbora/rs/gwRestRoute/list"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)

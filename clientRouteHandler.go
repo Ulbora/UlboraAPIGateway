@@ -50,7 +50,7 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwClient/add"
+			me.URI = "/ulbora/rs/gwClient/add"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -77,7 +77,7 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case "PUT":
-			me.URI = "/rs/gwClient/update"
+			me.URI = "/ulbora/rs/gwClient/update"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -122,7 +122,7 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwClient/get"
+		me.URI = "/ulbora/rs/gwClient/get"
 		me.Scope = "read"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -143,7 +143,7 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
-		me.URI = "/rs/gwClient/delete"
+		me.URI = "/ulbora/rs/gwClient/delete"
 		me.Scope = "write"
 		valid := auth.Authorize(me)
 		if valid != true {
@@ -173,7 +173,7 @@ func handleClientList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "GET":
-		me.URI = "/rs/gwClient/list"
+		me.URI = "/ulbora/rs/gwClient/list"
 		valid := auth.Authorize(me)
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)

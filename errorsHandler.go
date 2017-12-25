@@ -47,7 +47,7 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwErrorsSuper"
+			me.URI = "/ulbora/rs/gwErrorsSuper"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -95,7 +95,7 @@ func handleErrors(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/rs/gwErrors"
+			me.URI = "/ulbora/rs/gwErrors"
 			valid := auth.Authorize(me)
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
