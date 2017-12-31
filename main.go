@@ -91,7 +91,7 @@ func main() {
 	gatewayDB.GwCacheHost = getCacheHost()
 	gatewayDB.Cb = cbDB
 
-	fmt.Println("Api Gateway running!")
+	fmt.Println("Api Gateway running on port 3011!")
 	router := mux.NewRouter()
 	//super admin client services
 	router.HandleFunc("/rs/gwClient/add", handleClientChange)
