@@ -134,7 +134,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
-					respbody, err := ioutil.ReadAll(resp.Body)
+					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
 					if err != nil {
 						fmt.Print("Resp Body err: ")
 						fmt.Println(err)
@@ -153,7 +153,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						} else {
 							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
-						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+						buildRespHeaders(resp, w)
+						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
 				}
 			}
@@ -188,33 +189,18 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					//fmt.Print("Resp Body: ")
 					//fmt.Println(resp.Body)
 					defer resp.Body.Close()
-					respbody, bdyErr := processResponse(resp)
-					// var respbody []byte
-					// var bdyErr error
+					respbody, err := processResponse(resp)
+					//fmt.Println("respbody: ")
+					//fmt.Println(respbody)
 
-					// fmt.Print("Content-Encoding header: ")
-					// fmt.Println(resp.Header.Get("Content-Encoding"))
-					// switch resp.Header.Get("Content-Encoding") {
-					// case "gzip":
-					// 	fmt.Println("found body to be gzip")
-					// 	gz, err := gzip.NewReader(resp.Body)
-					// 	if err != nil {
-					// 		fmt.Print("gzip error: ")
-					// 		fmt.Println(err)
-					// 	}
-					// 	defer gz.Close()
-					// 	respbody, bdyErr = ioutil.ReadAll(gz)
-					// default:
-					// 	respbody, bdyErr = ioutil.ReadAll(resp.Body)
-					// }
-					if bdyErr != nil {
-						fmt.Print("Resp Body err: ")
-						fmt.Println(bdyErr)
+					if err != nil {
+						//fmt.Print("Resp Body err: ")
+						//fmt.Println(err)
 						rtnCode = 500
-						rtn = bdyErr.Error()
+						rtn = err.Error()
 						cbk := cbDB.GetBreaker(&b)
 						cbDB.Trip(cbk)
-						go errDB.SaveRouteError(gwr.ClientID, 500, bdyErr.Error(), rts.RouteID, rts.URLID)
+						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						//fmt.Println("Resp Body: ")
@@ -229,7 +215,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						} else {
 							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
-						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+						buildRespHeaders(resp, w)
+						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
 				}
 			}
@@ -261,7 +248,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
-					respbody, err := ioutil.ReadAll(resp.Body)
+					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
 					if err != nil {
 						fmt.Print("Resp Body err: ")
 						fmt.Println(err)
@@ -280,7 +267,8 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						} else {
 							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
-						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+						buildRespHeaders(resp, w)
+						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
 				}
 			}
@@ -307,7 +295,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
-					respbody, err := ioutil.ReadAll(resp.Body)
+					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
 					if err != nil {
 						fmt.Println(err)
 						rtnCode = 500
@@ -325,11 +313,12 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						} else {
 							go cbDB.Reset(gwr.ClientID, rts.URLID)
 						}
-						w.Header().Set("access-control-allow-headers", resp.Header.Get("access-control-allow-headers"))
-						w.Header().Set("access-control-allow-methods", resp.Header.Get("access-control-allow-methods"))
-						w.Header().Set("access-control-allow-origin", resp.Header.Get("access-control-allow-origin"))
-						w.Header().Set("connection", resp.Header.Get("connection"))
-						w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+						buildRespHeaders(resp, w)
+						//w.Header().Set("access-control-allow-headers", resp.Header.Get("access-control-allow-headers"))
+						//w.Header().Set("access-control-allow-methods", resp.Header.Get("access-control-allow-methods"))
+						//w.Header().Set("access-control-allow-origin", resp.Header.Get("access-control-allow-origin"))
+						//w.Header().Set("connection", resp.Header.Get("connection"))
+						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 					}
 				}
 			}

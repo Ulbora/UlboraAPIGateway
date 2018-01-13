@@ -71,6 +71,22 @@ func buildHeaders(pr *http.Request, sr *http.Request) {
 	}
 }
 
+func buildRespHeaders(pw *http.Response, sw http.ResponseWriter) {
+	h := pw.Header
+	//var cnt = 0
+	for hn, v := range h {
+		// cnt++
+		// fmt.Print("header: ")
+		// fmt.Print(hn)
+		// fmt.Print(" value: ")
+		// fmt.Println(v[0])
+		// if cnt > 5 {
+		// 	break
+		// }
+		sw.Header().Set(hn, v[0])
+	}
+}
+
 func getAuth(req *http.Request) *uoauth.Oauth {
 	changeHeader := getHeaders(req)
 	auth := new(uoauth.Oauth)

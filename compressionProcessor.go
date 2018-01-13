@@ -46,11 +46,13 @@ func processResponse(resp *http.Response) ([]byte, error) {
 			fmt.Println(err)
 		}
 		defer gz.Close()
+		resp.Header.Del("Content-Encoding")
 		respbody, bdyErr = ioutil.ReadAll(gz)
 	case "deflate":
 		fmt.Println("found body to be deflate")
 		fz := flate.NewReader(resp.Body)
 		defer fz.Close()
+		resp.Header.Del("Content-Encoding")
 		respbody, bdyErr = ioutil.ReadAll(fz)
 	default:
 		respbody, bdyErr = ioutil.ReadAll(resp.Body)
