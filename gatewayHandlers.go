@@ -29,6 +29,7 @@ import (
 	cb "UlboraApiGateway/circuitbreaker"
 	mgr "UlboraApiGateway/managers"
 	"bytes"
+	//"compress/gzip"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -184,21 +185,45 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 				} else {
 					//fmt.Print("res: ")
 					//fmt.Println(resp)
+					//fmt.Print("Resp Body: ")
+					//fmt.Println(resp.Body)
 					defer resp.Body.Close()
-					respbody, err := ioutil.ReadAll(resp.Body)
-					if err != nil {
+					respbody, bdyErr := processResponse(resp)
+					// var respbody []byte
+					// var bdyErr error
+
+					// fmt.Print("Content-Encoding header: ")
+					// fmt.Println(resp.Header.Get("Content-Encoding"))
+					// switch resp.Header.Get("Content-Encoding") {
+					// case "gzip":
+					// 	fmt.Println("found body to be gzip")
+					// 	gz, err := gzip.NewReader(resp.Body)
+					// 	if err != nil {
+					// 		fmt.Print("gzip error: ")
+					// 		fmt.Println(err)
+					// 	}
+					// 	defer gz.Close()
+					// 	respbody, bdyErr = ioutil.ReadAll(gz)
+					// default:
+					// 	respbody, bdyErr = ioutil.ReadAll(resp.Body)
+					// }
+					if bdyErr != nil {
 						fmt.Print("Resp Body err: ")
-						fmt.Println(err)
+						fmt.Println(bdyErr)
 						rtnCode = 500
-						rtn = err.Error()
+						rtn = bdyErr.Error()
 						cbk := cbDB.GetBreaker(&b)
 						cbDB.Trip(cbk)
-						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
+						go errDB.SaveRouteError(gwr.ClientID, 500, bdyErr.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
-						//fmt.Print("Resp Body: ")
+						//fmt.Println("Resp Body: ")
 						//fmt.Println(rtn)
 						rtnCode = resp.StatusCode
+						//fmt.Print("Status Code: ")
+						//fmt.Println(rtnCode)
+						//fmt.Print("Resp Body: ")
+						//fmt.Println(rtn)
 						if rtnCode != http.StatusOK {
 							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
 						} else {

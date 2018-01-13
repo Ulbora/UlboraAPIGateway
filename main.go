@@ -166,6 +166,8 @@ func main() {
 
 	//gateway routes
 	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)
-	router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
+	router.HandleFunc("/{route}/{fpath:[^ ]+}", handleGwRoute)
+	//disgard -- router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
+	router.HandleFunc("/{route}", handleGwRoute)
 	http.ListenAndServe(":3011", router)
 }
