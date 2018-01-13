@@ -29,7 +29,6 @@ import (
 	cb "UlboraApiGateway/circuitbreaker"
 	mgr "UlboraApiGateway/managers"
 	"bytes"
-	//"compress/gzip"
 	"fmt"
 	"io/ioutil"
 	"net/http"
