@@ -47,9 +47,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 
 	var gwr mgr.GatewayRoutes
 
-	cid := r.Header.Get("clientId")
+	cid := r.Header.Get("u-client-id")
 	gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
-	gwr.APIKey = r.Header.Get("apiKey")
+	gwr.APIKey = r.Header.Get("u-api-key")
 	//fmt.Print("apiKey: ")
 	//fmt.Println(gwr.APIKey)
 	gwr.GwCacheHost = getCacheHost()
