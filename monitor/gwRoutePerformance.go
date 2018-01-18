@@ -242,9 +242,9 @@ func (g *GatewayPerformanceMonitor) DeleteRoutePerformance() bool {
 	suc := g.DbConfig.DeleteRoutePerformance(a...)
 	if suc == true {
 		success = suc
-	} else {
-		fmt.Println("Failed to delete performance Record")
-	}
+	} // else {
+	//fmt.Println("Failed to delete performance Record")
+	//}
 	return success
 }
 
