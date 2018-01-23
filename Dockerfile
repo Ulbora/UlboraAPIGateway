@@ -1,6 +1,6 @@
 FROM ubuntu
 
-RUN sudo apt-get update
+#RUN sudo apt-get update
 ADD main /main
 ADD entrypoint.sh /entrypoint.sh
 WORKDIR /
