@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/Ulbora/UlboraAPIGateway)](https://goreportcard.com/report/github.com/Ulbora/UlboraAPIGateway)
+
 Ulbora API Gateway
 ==============
 
