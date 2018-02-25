@@ -92,6 +92,11 @@ type GatewayRoutes struct {
 	GwCacheHost string
 }
 
+//GateStatusResponse GateStatusResponse
+type GateStatusResponse struct {
+	RouteModified bool `json:"routeModified"`
+}
+
 //ConnectDb to database
 func (db *GatewayDB) ConnectDb() bool {
 	rtn := db.DbConfig.ConnectDb()
