@@ -94,6 +94,7 @@ type GatewayRoutes struct {
 
 //GateStatusResponse GateStatusResponse
 type GateStatusResponse struct {
+	Success       bool `json:"success"`
 	RouteModified bool `json:"routeModified"`
 }
 

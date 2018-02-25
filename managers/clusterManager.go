@@ -39,7 +39,9 @@ func (gw *GatewayRoutes) SetGatewayRouteStatus() bool {
 	var cp ch.CProxy
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
-	var key = cid + ":status:" + gw.Route
+	var key = cid + ":status:" + gw.Route + ":" + gw.APIKey
+	//fmt.Print("key: ")
+	//fmt.Println(key)
 	var rs GateStatusResponse
 	rs.RouteModified = true
 	aJSON, err := json.Marshal(rs)
@@ -66,7 +68,9 @@ func (gw *GatewayRoutes) GetGatewayRouteStatus() *GateStatusResponse {
 	var cp ch.CProxy
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
-	var key = cid + ":status:" + gw.Route
+	var key = cid + ":status:" + gw.Route + ":" + gw.APIKey
+	//fmt.Print("key: ")
+	//fmt.Println(key)
 	res := cp.Get(key)
 	if res.Success == true {
 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
@@ -76,9 +80,12 @@ func (gw *GatewayRoutes) GetGatewayRouteStatus() *GateStatusResponse {
 			err := json.Unmarshal([]byte(rJSON), &rtn)
 			if err != nil {
 				fmt.Println(err)
+			} else {
+				rtn.Success = true
+				//fmt.Println("Found Gateway route in cache for key: " + key)
 			}
 		}
-		//fmt.Println("Found Gateway route in cache for key: " + key)
+
 	}
 	return &rtn
 }

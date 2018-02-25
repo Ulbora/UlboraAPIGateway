@@ -29,6 +29,7 @@ package main
 import (
 	cb "UlboraApiGateway/circuitbreaker"
 	gwerr "UlboraApiGateway/gwerrors"
+	hdlr "UlboraApiGateway/handlers"
 	mgr "UlboraApiGateway/managers"
 	gwmon "UlboraApiGateway/monitor"
 	"fmt"
@@ -153,6 +154,9 @@ func main() {
 
 	//admin errors service
 	router.HandleFunc("/rs/gwErrors", handleErrors)
+
+	//cluster route status
+	router.HandleFunc("/rs/cluster/routestatus/{route}", hdlr.HandleGetRouteStatus).Methods("GET")
 
 	// admin Breaker services
 	router.HandleFunc("/rs/gwBreaker/add", handleBreakerChange)
