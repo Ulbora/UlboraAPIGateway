@@ -62,3 +62,22 @@ func Test_handleGetRouteStatus2(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func Test_handleGetRouteStatus3(t *testing.T) {
+	r, _ := http.NewRequest("DELETE", "/test?route=testroute", nil)
+	r.Header.Set("u-client-id", "999")
+	r.Header.Set("u-api-key", "12345")
+
+	w := httptest.NewRecorder()
+	HandleGetRouteStatus(w, r)
+	var bdy mgr.GateStatusResponse
+	b, _ := ioutil.ReadAll(w.Body)
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("code: ")
+	fmt.Println(w.Code)
+	fmt.Print("body: ")
+	fmt.Println(w.Body)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
