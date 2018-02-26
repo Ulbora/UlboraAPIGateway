@@ -108,7 +108,7 @@ func TestGatewayRoutes_DeleteGatewayRouteStatus(t *testing.T) {
 	gwRoutes.GwCacheHost = "http://localhost:3010"
 	res := gwRoutes.DeleteGatewayRouteStatus()
 	fmt.Println(res)
-	if res == true {
+	if res.Success == true {
 		t.Fail()
 	}
 }
@@ -121,7 +121,7 @@ func TestGatewayRoutes_DeleteGatewayRouteStatus2(t *testing.T) {
 	gwRoutes.GwCacheHost = "http://localhost:3010"
 	res := gwRoutes.DeleteGatewayRouteStatus()
 	fmt.Println(res)
-	if res != true {
+	if res.Success != true {
 		t.Fail()
 	}
 }

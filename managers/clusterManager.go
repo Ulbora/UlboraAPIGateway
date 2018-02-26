@@ -33,6 +33,11 @@ import (
 	"strconv"
 )
 
+//ClusterResponse ClusterResponse
+type ClusterResponse struct {
+	Success bool `json:"success"`
+}
+
 //SetGatewayRouteStatus SetGatewayRouteStatus
 func (gw *GatewayRoutes) SetGatewayRouteStatus() bool {
 	var rtn bool
@@ -91,8 +96,8 @@ func (gw *GatewayRoutes) GetGatewayRouteStatus() *GateStatusResponse {
 }
 
 //DeleteGatewayRouteStatus DeleteGatewayRouteStatus
-func (gw *GatewayRoutes) DeleteGatewayRouteStatus() bool {
-	var rtn bool
+func (gw *GatewayRoutes) DeleteGatewayRouteStatus() *ClusterResponse {
+	var rtn ClusterResponse
 	var clt = new(Client)
 	var a []interface{}
 	a = append(a, gw.ClientID)
@@ -110,11 +115,10 @@ func (gw *GatewayRoutes) DeleteGatewayRouteStatus() bool {
 		fmt.Println(key)
 		res := cp.Delete(key)
 		if res.Success == true {
-			rtn = true
+			rtn.Success = true
 		}
 	} else {
 		fmt.Println("Failed to delete gateway route from cache because api key was wrong: ")
 	}
-
-	return rtn
+	return &rtn
 }

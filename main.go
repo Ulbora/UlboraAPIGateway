@@ -156,7 +156,8 @@ func main() {
 	router.HandleFunc("/rs/gwErrors", handleErrors)
 
 	//cluster route status
-	router.HandleFunc("/rs/cluster/routestatus/{route}", hdlr.HandleGetRouteStatus) //.Methods("GET")
+	router.HandleFunc("/rs/cluster/routestatus/{route}", hdlr.HandleGetRouteStatus)
+	router.HandleFunc("/rs/cluster/routestatus/delete/{route}", hdlr.HandleDeleteRouteStatus)
 
 	// admin Breaker services
 	router.HandleFunc("/rs/gwBreaker/add", handleBreakerChange)
