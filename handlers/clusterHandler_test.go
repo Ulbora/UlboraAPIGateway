@@ -16,7 +16,7 @@ func Test_Initialize(t *testing.T) {
 	var gwRoutes mgr.GatewayRoutes
 	gwRoutes.ClientID = clustCid
 	gwRoutes.Route = "testroute"
-	gwRoutes.APIKey = "12345"
+	//gwRoutes.APIKey = "12345"
 	gwRoutes.GwCacheHost = env.GetCacheHost() // "http://localhost:3010"
 
 	res := gwRoutes.SetGatewayRouteStatus()
@@ -28,7 +28,7 @@ func Test_Initialize(t *testing.T) {
 func Test_handleGetRouteStatus(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "99")
-	r.Header.Set("u-api-key", "12345")
+	//r.Header.Set("u-api-key", "12345")
 
 	w := httptest.NewRecorder()
 	HandleGetRouteStatus(w, r)
@@ -47,7 +47,7 @@ func Test_handleGetRouteStatus(t *testing.T) {
 func Test_handleGetRouteStatus2(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "999")
-	r.Header.Set("u-api-key", "12345")
+	//r.Header.Set("u-api-key", "12345")
 
 	w := httptest.NewRecorder()
 	HandleGetRouteStatus(w, r)
@@ -66,7 +66,7 @@ func Test_handleGetRouteStatus2(t *testing.T) {
 func Test_handleGetRouteStatus3(t *testing.T) {
 	r, _ := http.NewRequest("DELETE", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "999")
-	r.Header.Set("u-api-key", "12345")
+	//r.Header.Set("u-api-key", "12345")
 
 	w := httptest.NewRecorder()
 	HandleGetRouteStatus(w, r)

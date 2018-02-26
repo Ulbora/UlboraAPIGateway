@@ -26,6 +26,7 @@ package managers
 */
 
 import (
+	env "UlboraApiGateway/environment"
 	"fmt"
 	"strconv"
 )
@@ -57,12 +58,29 @@ func (db *GatewayDB) UpdateRestRoute(rr *RestRoute) *GatewayResponse {
 		fmt.Println("reconnection to closed database")
 		db.DbConfig.ConnectDb()
 	}
+	var ag []interface{}
+	ag = append(ag, rr.ID, rr.ClientID)
+	rtp := db.DbConfig.GetRestRoute(ag...)
+	var rt = new(RestRoute)
+	if rtp != nil {
+		print("content row: ")
+		println(rtp.Row)
+		foundRow := rtp.Row
+		rt = parseRestRouteRow(&foundRow)
+		print("content: ")
+		println(rt.Route)
+	}
 	var a []interface{}
 	a = append(a, rr.Route, rr.ID, rr.ClientID)
 	success := db.DbConfig.UpdateRestRoute(a...)
 	if success == true {
 		fmt.Println("update record")
-		db.clearCache(rr.ClientID, rr.Route)
+		db.clearCache(rr.ClientID, rt.Route)
+		var gwr GatewayRoutes
+		gwr.ClientID = rr.ClientID
+		gwr.Route = rt.Route
+		gwr.GwCacheHost = env.GetCacheHost()
+		gwr.SetGatewayRouteStatus()
 	}
 	rtn.ID = rr.ID
 	rtn.Success = success
@@ -109,12 +127,29 @@ func (db *GatewayDB) DeleteRestRoute(rr *RestRoute) *GatewayResponse {
 		fmt.Println("reconnection to closed database")
 		db.DbConfig.ConnectDb()
 	}
+	var ag []interface{}
+	ag = append(ag, rr.ID, rr.ClientID)
+	rtp := db.DbConfig.GetRestRoute(ag...)
+	var rt = new(RestRoute)
+	if rtp != nil {
+		print("content row: ")
+		println(rtp.Row)
+		foundRow := rtp.Row
+		rt = parseRestRouteRow(&foundRow)
+		print("content: ")
+		println(rt.Route)
+	}
 	var a []interface{}
 	a = append(a, rr.ID, rr.ClientID)
 	success := db.DbConfig.DeleteRestRoute(a...)
 	if success == true {
 		fmt.Println("deleted record")
 		db.clearCache(rr.ClientID, rr.Route)
+		var gwr GatewayRoutes
+		gwr.ClientID = rr.ClientID
+		gwr.Route = rt.Route
+		gwr.GwCacheHost = env.GetCacheHost()
+		gwr.SetGatewayRouteStatus()
 	}
 	rtn.ID = rr.ID
 	rtn.Success = success

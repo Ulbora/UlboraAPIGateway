@@ -43,7 +43,7 @@ func HandleGetRouteStatus(w http.ResponseWriter, r *http.Request) {
 		var gwr mgr.GatewayRoutes
 		cid := r.Header.Get("u-client-id")
 		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
-		gwr.APIKey = r.Header.Get("u-api-key")
+		//gwr.APIKey = r.Header.Get("u-api-key")
 		gwr.GwCacheHost = env.GetCacheHost()
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)

@@ -26,6 +26,7 @@ package managers
 */
 
 import (
+	env "UlboraApiGateway/environment"
 	"fmt"
 	"strconv"
 )
@@ -69,6 +70,11 @@ func (db *GatewayDB) UpdateRouteURL(ru *RouteURL) *GatewayResponse {
 		route := db.GetRestRoute(&rr)
 		if route != nil {
 			db.clearCache(ru.ClientID, route.Route)
+			var gwr GatewayRoutes
+			gwr.ClientID = rr.ClientID
+			gwr.Route = route.Route
+			gwr.GwCacheHost = env.GetCacheHost()
+			gwr.SetGatewayRouteStatus()
 		}
 	}
 	rtn.ID = ru.ID
@@ -99,6 +105,11 @@ func (db *GatewayDB) ActivateRouteURL(ru *RouteURL) *GatewayResponse {
 			route := db.GetRestRoute(&rr)
 			if route != nil {
 				db.clearCache(ru.ClientID, route.Route)
+				var gwr GatewayRoutes
+				gwr.ClientID = rr.ClientID
+				gwr.Route = route.Route
+				gwr.GwCacheHost = env.GetCacheHost()
+				gwr.SetGatewayRouteStatus()
 			}
 		}
 	}
@@ -159,6 +170,11 @@ func (db *GatewayDB) DeleteRouteURL(ru *RouteURL) *GatewayResponse {
 		route := db.GetRestRoute(&rr)
 		if route != nil {
 			db.clearCache(ru.ClientID, route.Route)
+			var gwr GatewayRoutes
+			gwr.ClientID = rr.ClientID
+			gwr.Route = route.Route
+			gwr.GwCacheHost = env.GetCacheHost()
+			gwr.SetGatewayRouteStatus()
 		}
 	}
 	rtn.ID = ru.ID

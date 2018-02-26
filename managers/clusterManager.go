@@ -39,9 +39,9 @@ func (gw *GatewayRoutes) SetGatewayRouteStatus() bool {
 	var cp ch.CProxy
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
-	var key = cid + ":status:" + gw.Route + ":" + gw.APIKey
-	//fmt.Print("key: ")
-	//fmt.Println(key)
+	var key = cid + ":status:" + gw.Route // + ":" + gw.APIKey
+	fmt.Print("key: ")
+	fmt.Println(key)
 	var rs GateStatusResponse
 	rs.RouteModified = true
 	aJSON, err := json.Marshal(rs)
@@ -54,7 +54,7 @@ func (gw *GatewayRoutes) SetGatewayRouteStatus() bool {
 		i.Value = cval
 		res := cp.Set(&i)
 		if res.Success != true {
-			fmt.Println("Routes status cached for key " + key + ".")
+			fmt.Println("Routes status not cached for key " + key + ".")
 		} else {
 			rtn = true
 		}
@@ -68,9 +68,9 @@ func (gw *GatewayRoutes) GetGatewayRouteStatus() *GateStatusResponse {
 	var cp ch.CProxy
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
-	var key = cid + ":status:" + gw.Route + ":" + gw.APIKey
-	//fmt.Print("key: ")
-	//fmt.Println(key)
+	var key = cid + ":status:" + gw.Route // + ":" + gw.APIKey
+	fmt.Print("key: ")
+	fmt.Println(key)
 	res := cp.Get(key)
 	if res.Success == true {
 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
@@ -88,4 +88,33 @@ func (gw *GatewayRoutes) GetGatewayRouteStatus() *GateStatusResponse {
 
 	}
 	return &rtn
+}
+
+//DeleteGatewayRouteStatus DeleteGatewayRouteStatus
+func (gw *GatewayRoutes) DeleteGatewayRouteStatus() bool {
+	var rtn bool
+	var clt = new(Client)
+	var a []interface{}
+	a = append(a, gw.ClientID)
+	rowPtr := gw.GwDB.DbConfig.GetClient(a...)
+	if rowPtr != nil {
+		foundRow := rowPtr.Row
+		clt = parseClientRow(&foundRow)
+	}
+	if gw.APIKey == clt.APIKey {
+		var cp ch.CProxy
+		cp.Host = gw.GwCacheHost
+		var cid = strconv.FormatInt(gw.ClientID, 10)
+		var key = cid + ":status:" + gw.Route // + ":" + gw.APIKey
+		fmt.Print("key: ")
+		fmt.Println(key)
+		res := cp.Delete(key)
+		if res.Success == true {
+			rtn = true
+		}
+	} else {
+		fmt.Println("Failed to delete gateway route from cache because api key was wrong: ")
+	}
+
+	return rtn
 }
