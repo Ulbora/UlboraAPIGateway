@@ -122,3 +122,48 @@ func (gw *GatewayRoutes) DeleteGatewayRouteStatus() *ClusterResponse {
 	}
 	return &rtn
 }
+
+//GetClusterGwRoutes GetClusterGwRoutes
+func (gw *GatewayRoutes) GetClusterGwRoutes(getActive bool, routeName string) *GatewayRouteURL {
+	var rtnVal GatewayRouteURL
+	var rtn = make([]GatewayRouteURL, 0)
+	dbConnected := gw.GwDB.DbConfig.ConnectionTest()
+	if !dbConnected {
+		fmt.Println("reconnection to closed database")
+		gw.GwDB.DbConfig.ConnectDb()
+	}
+	var a []interface{}
+	a = append(a, gw.Route, gw.ClientID, gw.APIKey)
+	rowsPtr := gw.GwDB.DbConfig.GetRouteNameURLList(a...)
+	//fmt.Print("rows")
+	//fmt.Println(rowsPtr)
+	if rowsPtr != nil {
+		foundRows := rowsPtr.Rows
+		for r := range foundRows {
+			foundRow := foundRows[r]
+			rowContent := parseGatewayRoutesRow(&foundRow)
+			rtn = append(rtn, *rowContent)
+		}
+
+	}
+
+	//fmt.Println("Routes: ")
+	//fmt.Println(rtn)
+	if len(rtn) > 0 && getActive == true {
+		for r := range rtn {
+			if rtn[r].Active == true {
+				rtnVal = rtn[r]
+				break
+			}
+		}
+	} else if len(rtn) > 0 {
+		for r := range rtn {
+			if rtn[r].Name == routeName {
+				rtnVal = rtn[r]
+				break
+			}
+		}
+	}
+
+	return &rtnVal
+}
