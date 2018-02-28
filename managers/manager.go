@@ -72,8 +72,8 @@ type GatewayRouteURL struct {
 	Name         string `json:"name"`
 	URL          string `json:"url"`
 	Active       bool   `json:"active"`
-	CircuitOpen  bool
-	OpenFailCode int
+	CircuitOpen  bool   `json:"circuitOpen"`
+	OpenFailCode int    `json:"openFailCode"`
 }
 
 //GatewayDB db config

@@ -101,3 +101,37 @@ func HandleDeleteRouteStatus(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	}
 }
+
+//HandleGetClusterGwRoutes HandleGetClusterGwRoutes
+func HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		var gwr mgr.GatewayRoutes
+		cid := r.Header.Get("u-client-id")
+		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
+		gwr.APIKey = r.Header.Get("u-api-key")
+
+		//gwr.GwCacheHost = env.GetCacheHost()
+		w.Header().Set("Content-Type", "application/json")
+		vars := mux.Vars(r)
+		var route string
+		if vars != nil {
+			route = vars["route"]
+		} else {
+			route = r.URL.Query().Get("route")
+		}
+		gwr.Route = route
+		res := gwr.GetClusterGwRoutes()
+		resJSON, err := json.Marshal(res)
+		fmt.Print("json out: ")
+		fmt.Println(res)
+		if err != nil {
+			log.Println(err.Error())
+			//http.Error(w, "json output failed", http.StatusInternalServerError)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, string(resJSON))
+	default:
+		w.WriteHeader(http.StatusNotFound)
+	}
+}

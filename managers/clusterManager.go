@@ -124,8 +124,8 @@ func (gw *GatewayRoutes) DeleteGatewayRouteStatus() *ClusterResponse {
 }
 
 //GetClusterGwRoutes GetClusterGwRoutes
-func (gw *GatewayRoutes) GetClusterGwRoutes(getActive bool, routeName string) *GatewayRouteURL {
-	var rtnVal GatewayRouteURL
+func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayRouteURL {
+	//var rtnVal GatewayRouteURL
 	var rtn = make([]GatewayRouteURL, 0)
 	dbConnected := gw.GwDB.DbConfig.ConnectionTest()
 	if !dbConnected {
@@ -149,21 +149,22 @@ func (gw *GatewayRoutes) GetClusterGwRoutes(getActive bool, routeName string) *G
 
 	//fmt.Println("Routes: ")
 	//fmt.Println(rtn)
-	if len(rtn) > 0 && getActive == true {
-		for r := range rtn {
-			if rtn[r].Active == true {
-				rtnVal = rtn[r]
-				break
-			}
-		}
-	} else if len(rtn) > 0 {
-		for r := range rtn {
-			if rtn[r].Name == routeName {
-				rtnVal = rtn[r]
-				break
-			}
-		}
-	}
+	// if len(rtn) > 0 && getActive == true {
+	// 	for r := range rtn {
+	// 		if rtn[r].Active == true {
+	// 			rtnVal = rtn[r]
+	// 			break
+	// 		}
+	// 	}
+	// } else if len(rtn) > 0 {
+	// 	for r := range rtn {
+	// 		if rtn[r].Name == routeName {
+	// 			rtnVal = rtn[r]
+	// 			break
+	// 		}
+	// 	}
+	// }
 
-	return &rtnVal
+	//return &rtnVal
+	return &rtn
 }
