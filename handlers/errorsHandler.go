@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -35,7 +35,12 @@ import (
 	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 )
 
-func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
+var testMode bool
+
+//HandleErrorsSuper HandleErrorsSuper
+func (h Handler) HandleErrorsSuper(w http.ResponseWriter, r *http.Request) {
+	var errDB gwerr.GatewayErrorMonitor
+	errDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
@@ -48,7 +53,12 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			me.URI = "/ulbora/rs/gwErrorsSuper"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -83,7 +93,10 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleErrors(w http.ResponseWriter, r *http.Request) {
+//HandleErrors HandleErrors
+func (h Handler) HandleErrors(w http.ResponseWriter, r *http.Request) {
+	var errDB gwerr.GatewayErrorMonitor
+	errDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
@@ -96,7 +109,12 @@ func handleErrors(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			me.URI = "/ulbora/rs/gwErrors"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {

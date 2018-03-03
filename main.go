@@ -48,6 +48,7 @@ type authHeader struct {
 
 var gatewayDB mgr.GatewayDB
 var errDB gwerr.GatewayErrorMonitor
+var h hdlr.Handler
 var monDB gwmon.GatewayPerformanceMonitor
 var cbDB cb.CircuitBreaker
 
@@ -82,8 +83,10 @@ func main() {
 	}
 	gatewayDB.ConnectDb()
 	defer gatewayDB.CloseDb()
+
 	//gwr.GwDB = gatewayDB
 	errDB.DbConfig = gatewayDB.DbConfig
+	h.DbConfig = gatewayDB.DbConfig
 	monDB.CacheHost = getCacheHost()
 	monDB.CallBatchSize = 10 //size of cache batch saved. normal should be 100
 	monDB.DbConfig = gatewayDB.DbConfig
@@ -120,7 +123,7 @@ func main() {
 	router.HandleFunc("/rs/gwPerformanceSuper", handlePeformanceSuper)
 
 	//super errors service
-	router.HandleFunc("/rs/gwErrorsSuper", handleErrorsSuper)
+	router.HandleFunc("/rs/gwErrorsSuper", h.HandleErrorsSuper)
 
 	// super Breaker services
 	router.HandleFunc("/rs/gwBreakerSuper/add", handleBreakerSuperChange)
@@ -153,7 +156,7 @@ func main() {
 	router.HandleFunc("/rs/gwPerformance", handlePeformance)
 
 	//admin errors service
-	router.HandleFunc("/rs/gwErrors", handleErrors)
+	router.HandleFunc("/rs/gwErrors", h.HandleErrors)
 
 	//cluster route status
 	router.HandleFunc("/rs/cluster/routestatus/{route}", hdlr.HandleGetRouteStatus)
