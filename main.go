@@ -120,7 +120,7 @@ func main() {
 	router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	//super performance service
-	router.HandleFunc("/rs/gwPerformanceSuper", handlePeformanceSuper)
+	router.HandleFunc("/rs/gwPerformanceSuper", h.HandlePeformanceSuper)
 
 	//super errors service
 	router.HandleFunc("/rs/gwErrorsSuper", h.HandleErrorsSuper)
@@ -153,7 +153,7 @@ func main() {
 	router.HandleFunc("/rs/gwRouteUrl/activate", handleRouteURLActivate)
 
 	//admin performance service
-	router.HandleFunc("/rs/gwPerformance", handlePeformance)
+	router.HandleFunc("/rs/gwPerformance", h.HandlePeformance)
 
 	//admin errors service
 	router.HandleFunc("/rs/gwErrors", h.HandleErrors)

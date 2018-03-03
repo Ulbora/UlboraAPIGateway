@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -35,7 +35,10 @@ import (
 	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 )
 
-func handlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
+//HandlePeformanceSuper HandlePeformanceSuper
+func (h Handler) HandlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
+	var monDB gwmon.GatewayPerformanceMonitor
+	monDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
@@ -48,7 +51,12 @@ func handlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			me.URI = "/ulbora/rs/gwPerformanceSuper"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -82,7 +90,10 @@ func handlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handlePeformance(w http.ResponseWriter, r *http.Request) {
+//HandlePeformance HandlePeformance
+func (h Handler) HandlePeformance(w http.ResponseWriter, r *http.Request) {
+	var monDB gwmon.GatewayPerformanceMonitor
+	monDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
@@ -95,7 +106,12 @@ func handlePeformance(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			me.URI = "/ulbora/rs/gwPerformance"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
