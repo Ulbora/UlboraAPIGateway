@@ -110,6 +110,20 @@ func TestErr_InsertRouteURL(t *testing.T) {
 	}
 }
 
+func TestErr_InsertRouteError(t *testing.T) {
+	var e gwerr.GwError
+	e.ClientID = clustCidErr
+	e.Code = 500
+	e.Entered = time.Now()
+	e.Message = "internal error"
+	e.RestRouteID = routeErr
+	e.RouteURIID = routeURLErrID
+	suc, err := edb.InsertRouteError(&e)
+	if suc != true || err != nil {
+		t.Fail()
+	}
+}
+
 func TestErr_HandleErrorsSuperMedia(t *testing.T) {
 	var e gwerr.GwError
 	e.ClientID = clustCidErr
@@ -162,7 +176,7 @@ func TestErr_HandleErrorsSuper(t *testing.T) {
 	e.RouteURIID = routeURLErrID
 	aJSON, _ := json.Marshal(e)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "99")
+	r.Header.Set("clientId", "99")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -172,9 +186,9 @@ func TestErr_HandleErrorsSuper(t *testing.T) {
 	b, _ := ioutil.ReadAll(w.Body)
 	var bdy []gwerr.GwError
 	json.Unmarshal([]byte(b), &bdy)
-	fmt.Print("Resp: ")
+	fmt.Print("Resp sup: ")
 	fmt.Println(bdy)
-	if w.Code != http.StatusOK && len(bdy) != 0 {
+	if w.Code != http.StatusOK || len(bdy) != 1 {
 		t.Fail()
 	}
 }
@@ -231,7 +245,7 @@ func TestErr_HandleErrors(t *testing.T) {
 	e.RouteURIID = routeURLErrID
 	aJSON, _ := json.Marshal(e)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "99")
+	r.Header.Set("clientId", "99")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -243,7 +257,7 @@ func TestErr_HandleErrors(t *testing.T) {
 	json.Unmarshal([]byte(b), &bdy)
 	fmt.Print("Resp: ")
 	fmt.Println(bdy)
-	if w.Code != http.StatusOK && len(bdy) != 0 {
+	if w.Code != http.StatusOK || len(bdy) != 1 {
 		t.Fail()
 	}
 }

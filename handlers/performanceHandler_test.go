@@ -39,7 +39,7 @@ func TestPer_ConnectFor(t *testing.T) {
 	//gwRoutes.GwDB.DbConfig = gwRoutes.GwDB.DbConfig
 	//cp.Host = "http://localhost:3010"
 	testMode = true
-	hPer.DbConfig = edb.DbConfig
+	hPer.DbConfig = edbPer.DbConfig
 }
 
 // func TestErr_SetManager(t *testing.T) {
@@ -115,6 +115,20 @@ func TestPer_InsertRouteURL(t *testing.T) {
 	}
 }
 
+func TestPer_InsertRoutePerformance(t *testing.T) {
+	var p gwmon.GwPerformance
+	p.ClientID = clustCidPer
+	p.Calls = 500
+	p.Entered = time.Now()
+	p.LatencyMsTotal = 10000
+	p.RestRouteID = routePer
+	p.RouteURIID = routeURLPerID
+	suc, err := edbPer.InsertRoutePerformance(&p)
+	if suc != true || err != nil {
+		t.Fail()
+	}
+}
+
 func TestPer_HandlePerSuperMedia(t *testing.T) {
 	var p gwmon.GwPerformance
 	p.ClientID = clustCidPer
@@ -166,6 +180,7 @@ func TestPer_HandleErrorsSuper(t *testing.T) {
 	aJSON, _ := json.Marshal(p)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
 	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -177,7 +192,7 @@ func TestPer_HandleErrorsSuper(t *testing.T) {
 	json.Unmarshal([]byte(b), &bdy)
 	fmt.Print("Resp: ")
 	fmt.Println(bdy)
-	if w.Code != http.StatusOK && len(bdy) != 0 {
+	if w.Code != http.StatusOK || len(bdy) != 1 {
 		t.Fail()
 	}
 }
@@ -233,6 +248,7 @@ func TestPer_HandleErrors(t *testing.T) {
 	aJSON, _ := json.Marshal(p)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
 	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -244,7 +260,7 @@ func TestPer_HandleErrors(t *testing.T) {
 	json.Unmarshal([]byte(b), &bdy)
 	fmt.Print("Resp: ")
 	fmt.Println(bdy)
-	if w.Code != http.StatusOK && len(bdy) != 0 {
+	if w.Code != http.StatusOK || len(bdy) != 1 {
 		t.Fail()
 	}
 }
