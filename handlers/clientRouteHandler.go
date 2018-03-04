@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -38,7 +38,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func handleClientChange(w http.ResponseWriter, r *http.Request) {
+//HandleClientPost HandleClientPost
+func (h Handler) HandleClientPost(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
@@ -51,7 +56,12 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			me.URI = "/ulbora/rs/gwClient/add"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -76,9 +86,36 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+}
+
+//HandleClientPut HandleClientPut
+func (h Handler) HandleClientPut(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "superAdmin"
+	me.Scope = "write"
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
 		case "PUT":
 			me.URI = "/ulbora/rs/gwClient/update"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -103,28 +140,53 @@ func handleClientChange(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
 
-func handleClient(w http.ResponseWriter, r *http.Request) {
+//HandleClientGet HandleClientGet
+func (h Handler) HandleClientGet(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	clientID, errID := strconv.ParseInt(vars["clientId"], 10, 0)
-	if errID != nil {
+
+	var clientID int64
+	var errCID error
+
+	//var UID int64
+	//var errUID error
+
+	if vars != nil {
+		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		var clientIDStr = r.URL.Query().Get("clientId")
+		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
+	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
+
 	//fmt.Print("id is: ")
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
 		me.URI = "/ulbora/rs/gwClient/get"
 		me.Scope = "read"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -141,11 +203,52 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
 
+//HandleClientDelete HandleClientDelete
+func (h Handler) HandleClientDelete(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "superAdmin"
+
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+
+	var clientID int64
+	var errCID error
+
+	//var UID int64
+	//var errUID error
+
+	if vars != nil {
+		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		var clientIDStr = r.URL.Query().Get("clientId")
+		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
+	if errCID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+
+	//fmt.Print("id is: ")
+	//fmt.Println(id)
+	switch r.Method {
 	case "DELETE":
 		me.URI = "/ulbora/rs/gwClient/delete"
 		me.Scope = "write"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -162,10 +265,17 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }
 
-func handleClientList(w http.ResponseWriter, r *http.Request) {
+//HandleClientList HandleClientList
+func (h Handler) HandleClientList(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
@@ -174,7 +284,12 @@ func handleClientList(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		me.URI = "/ulbora/rs/gwClient/list"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -196,5 +311,7 @@ func handleClientList(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprint(w, string(resJSON))
 			}
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }

@@ -98,11 +98,11 @@ func main() {
 	fmt.Println("Api Gateway running on port 3011!")
 	router := mux.NewRouter()
 	//super admin client services
-	router.HandleFunc("/rs/gwClient/add", handleClientChange)
-	router.HandleFunc("/rs/gwClient/update", handleClientChange)
-	router.HandleFunc("/rs/gwClient/get/{clientId}", handleClient)
-	router.HandleFunc("/rs/gwClient/list", handleClientList)
-	router.HandleFunc("/rs/gwClient/delete/{clientId}", handleClient)
+	router.HandleFunc("/rs/gwClient/add", h.HandleClientPost)
+	router.HandleFunc("/rs/gwClient/update", h.HandleClientPut)
+	router.HandleFunc("/rs/gwClient/get/{clientId}", h.HandleClientGet)
+	router.HandleFunc("/rs/gwClient/list", h.HandleClientList)
+	router.HandleFunc("/rs/gwClient/delete/{clientId}", h.HandleClientDelete)
 
 	// super admin restRoute services
 	router.HandleFunc("/rs/gwRestRouteSuper/add", handleRestRouteSuperChange)
