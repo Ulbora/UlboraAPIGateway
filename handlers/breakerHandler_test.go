@@ -20,63 +20,57 @@ import (
 	//"time"
 )
 
-var clustCidBks int64 = 69
-var routeBks int64
-var routeURLBksID int64
-var connectedForBks bool
-var edbBks cb.CircuitBreaker
-var gwRoutesBks mgr.GatewayRoutes
-var hBks Handler
-var bksID int64
+var clustCidBk int64 = 79
+var routeBk int64
+var routeURLBkID int64
+var connectedForBk bool
+var edbBk cb.CircuitBreaker
+var gwRoutesBk mgr.GatewayRoutes
+var hBk Handler
+var bkID int64
 
-func TestBks_ConnectFor(t *testing.T) {
-	edbBks.DbConfig.Host = "localhost:3306"
-	edbBks.DbConfig.DbUser = "admin"
-	edbBks.DbConfig.DbPw = "admin"
-	edbBks.DbConfig.DatabaseName = "ulbora_api_gateway"
-	connectedForBks = edbBks.ConnectDb()
-	if connectedForBks != true {
+func TestBkn_ConnectFor(t *testing.T) {
+	edbBk.DbConfig.Host = "localhost:3306"
+	edbBk.DbConfig.DbUser = "admin"
+	edbBk.DbConfig.DbPw = "admin"
+	edbBk.DbConfig.DatabaseName = "ulbora_api_gateway"
+	connectedForBk = edbBk.ConnectDb()
+	if connectedForBk != true {
 		t.Fail()
 	}
-	edbBks.CacheHost = getCacheHost()
-	fmt.Print("cache host: ")
-	fmt.Println(edbBks.CacheHost)
-	gwRoutesBks.GwDB.DbConfig = edbBks.DbConfig
+	edbBk.CacheHost = getCacheHost()
+	gwRoutesBk.GwDB.DbConfig = edbBk.DbConfig
 	//gwRoutes.GwDB.DbConfig = gwRoutes.GwDB.DbConfig
 	//cp.Host = "http://localhost:3010"
 	testMode = true
-	hBks.DbConfig = edbBks.DbConfig
+	hBk.DbConfig = edbBk.DbConfig
 }
 
-// func TestErr_SetManager(t *testing.T) {
-// 	SetManager(edb)
-// }
-
-func TestBks_InsertClient(t *testing.T) {
+func TestBkn2_InsertClient(t *testing.T) {
 	var c mgr.Client
 	c.APIKey = "12233hgdd333"
-	c.ClientID = clustCidBks
+	c.ClientID = clustCidBk
 	c.Enabled = true
 	c.Level = "small"
 
-	res := gwRoutesBks.GwDB.InsertClient(&c)
+	res := gwRoutesBk.GwDB.InsertClient(&c)
 	if res.Success == true && res.ID != -1 {
 		fmt.Print("new client Id: ")
-		fmt.Println(clustCidBks)
+		fmt.Println(clustCidBk)
 	} else {
 		fmt.Println("database insert failed")
 		t.Fail()
 	}
 }
 
-func TestBks_InsertRestRoute(t *testing.T) {
+func TestBkn2_InsertRestRoute(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.Route = "content"
-	rr.ClientID = clustCidBks
+	rr.ClientID = clustCidBk
 
-	res := gwRoutesBks.GwDB.InsertRestRoute(&rr)
+	res := gwRoutesBk.GwDB.InsertRestRoute(&rr)
 	if res.Success == true && res.ID != -1 {
-		routeBks = res.ID
+		routeBk = res.ID
 		fmt.Print("new route Id: ")
 		fmt.Println(routeErr)
 	} else {
@@ -85,17 +79,17 @@ func TestBks_InsertRestRoute(t *testing.T) {
 	}
 }
 
-func TestBks_InsertRouteURL(t *testing.T) {
+func TestBkn2_InsertRouteURL(t *testing.T) {
 	var ru mgr.RouteURL
 	ru.Name = "blue"
 	ru.URL = "http://www.apigateway.com/blue/"
 	ru.Active = false
-	ru.RouteID = routeBks
-	ru.ClientID = clustCidBks
+	ru.RouteID = routeBk
+	ru.ClientID = clustCidBk
 
-	res := gwRoutesBks.GwDB.InsertRouteURL(&ru)
+	res := gwRoutesBk.GwDB.InsertRouteURL(&ru)
 	if res.Success == true && res.ID != -1 {
-		routeURLBksID = res.ID
+		routeURLBkID = res.ID
 		fmt.Print("new route url Id: ")
 		fmt.Println(res.ID)
 	} else {
@@ -107,10 +101,10 @@ func TestBks_InsertRouteURL(t *testing.T) {
 	ru2.Name = "sideb"
 	ru2.URL = "http://www.apigateway.com/blue/"
 	ru2.Active = false
-	ru2.RouteID = routeBks
-	ru2.ClientID = clustCidBks
+	ru2.RouteID = routeBk
+	ru2.ClientID = clustCidBk
 
-	res2 := gwRoutesBks.GwDB.InsertRouteURL(&ru2)
+	res2 := gwRoutesBk.GwDB.InsertRouteURL(&ru2)
 	if res2.Success == true && res2.ID != -1 {
 		//routeURLID33 = res2.ID
 		fmt.Print("new route url Id: ")
@@ -121,22 +115,22 @@ func TestBks_InsertRouteURL(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperMedia(t *testing.T) {
+func TestBkn2_HandleMedia(t *testing.T) {
 	var c cb.Breaker
-	c.ClientID = clustCidPer
+	//c.ClientID = clustCidBk
 	c.FailoverRouteName = "test"
 	c.FailureCount = 1
 	c.FailureThreshold = 3
 	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPost(w, r)
+	hBk.HandleBreakerPost(w, r)
 	fmt.Print("Media Code: ")
 	fmt.Println(w.Code)
 	if w.Code != http.StatusUnsupportedMediaType {
@@ -144,23 +138,22 @@ func TestBks_HandleSuperMedia(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperReq(t *testing.T) {
+func TestBkn2_HandleReq(t *testing.T) {
 	var c cb.Breaker
-	//c.ClientID = clustCidPer
 	c.FailoverRouteName = "test"
 	c.FailureCount = 1
 	c.FailureThreshold = 3
 	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
+	//c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPost(w, r)
+	hBk.HandleBreakerPost(w, r)
 	fmt.Print("Req Code: ")
 	fmt.Println(w.Code)
 	if w.Code != http.StatusBadRequest {
@@ -168,23 +161,21 @@ func TestBks_HandleSuperReq(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperMethod(t *testing.T) {
+func TestBkn2_HandleMethod(t *testing.T) {
 	var c cb.Breaker
-	c.ClientID = clustCidPer
 	c.FailoverRouteName = "test"
-	//c.FailureCount = 1
 	c.FailureThreshold = 3
 	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r, _ := http.NewRequest("GET", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPost(w, r)
+	hBk.HandleBreakerPost(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -197,23 +188,21 @@ func TestBks_HandleSuperMethod(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuper(t *testing.T) {
+func TestBkn2_Handle(t *testing.T) {
 	var c cb.Breaker
-	c.ClientID = clustCidPer
 	c.FailoverRouteName = "test"
-	//c.FailureCount = 1
 	c.FailureThreshold = 3
 	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPost(w, r)
+	hBk.HandleBreakerPost(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -226,58 +215,16 @@ func TestBks_HandleSuper(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperGetReq(t *testing.T) {
-	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId=r&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleGet(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperGet(w, r)
-	fmt.Print("Media Code: ")
-	fmt.Println(w.Code)
-	b, _ := ioutil.ReadAll(w.Body)
-	var bdy cb.Breaker
-	json.Unmarshal([]byte(b), &bdy)
-	fmt.Print("Resp: ")
-	fmt.Println(bdy)
-	if w.Code != http.StatusBadRequest {
-		t.Fail()
-	}
-}
-
-func TestBks_HandleSuperGetMethod(t *testing.T) {
-	var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("DELETE", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
-	r.Header.Set("u-api-key", "12233hgdd3335")
-	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperGet(w, r)
-	fmt.Print("Media Code: ")
-	fmt.Println(w.Code)
-	b, _ := ioutil.ReadAll(w.Body)
-	var bdy cb.Breaker
-	json.Unmarshal([]byte(b), &bdy)
-	fmt.Print("Resp: ")
-	fmt.Println(bdy)
-	if w.Code != http.StatusNotFound {
-		t.Fail()
-	}
-}
-
-func TestBks_HandleSuperGet(t *testing.T) {
-	var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
-	r.Header.Set("u-api-key", "12233hgdd3335")
-	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperGet(w, r)
-	fmt.Print("Media Code: ")
+	hBk.HandleBreakerGet(w, r)
+	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
 	var bdy cb.Breaker
@@ -287,58 +234,47 @@ func TestBks_HandleSuperGet(t *testing.T) {
 	if w.Code != http.StatusOK || bdy.ID == 0 {
 		t.Fail()
 	} else {
-		bksID = bdy.ID
+		bkID = bdy.ID
 	}
 }
 
-func TestBks_HandleSuperPutReq(t *testing.T) {
-	var c cb.Breaker
-	//c.ID = bksID
-	c.ClientID = clustCidPer
-	c.FailoverRouteName = "test2"
-	c.FailureCount = 1
-	c.FailureThreshold = 3
-	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
-	aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleGetMethod(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("PUT", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
-	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPut(w, r)
-	fmt.Print("Status Code: ")
+	hBk.HandleBreakerGet(w, r)
+	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
-	var bdy BreakerResponse
+	var bdy cb.Breaker
 	json.Unmarshal([]byte(b), &bdy)
 	fmt.Print("Resp: ")
 	fmt.Println(bdy)
-	if w.Code != http.StatusBadRequest {
+	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
 }
 
-func TestBks_HandleSuperPutMedia(t *testing.T) {
+func TestBkn2_HandlePutMedia(t *testing.T) {
 	var c cb.Breaker
-	c.ID = bksID
-	c.ClientID = clustCidPer
 	c.FailoverRouteName = "test2"
-	//c.FailureCount = 4
-	c.FailureThreshold = 1
+	c.FailureCount = 1
+	c.FailureThreshold = 3
 	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	//r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPut(w, r)
+	hBk.HandleBreakerPut(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -351,24 +287,50 @@ func TestBks_HandleSuperPutMedia(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperPutMethos(t *testing.T) {
+func TestBkn2_HandlePutReq(t *testing.T) {
 	var c cb.Breaker
-	c.ID = bksID
-	c.ClientID = clustCidPer
 	c.FailoverRouteName = "test2"
-	//c.FailureCount = 4
-	c.FailureThreshold = 1
+	c.FailureCount = 1
+	c.FailureThreshold = 3
 	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
+	//c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPut(w, r)
+	hBk.HandleBreakerPut(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestBkn2_HandlePutMethod(t *testing.T) {
+	var c cb.Breaker
+	c.FailoverRouteName = "test2"
+	c.FailureCount = 1
+	c.FailureThreshold = 3
+	c.HealthCheckTimeSeconds = 120
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("GET", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerPut(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -381,24 +343,22 @@ func TestBks_HandleSuperPutMethos(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperPut(t *testing.T) {
+func TestBkn2_HandlePut(t *testing.T) {
 	var c cb.Breaker
-	c.ID = bksID
-	c.ClientID = clustCidPer
+	c.ID = bkID
 	c.FailoverRouteName = "test2"
-	//c.FailureCount = 4
 	c.FailureThreshold = 1
 	c.HealthCheckTimeSeconds = 120
-	c.RestRouteID = routeBks
-	c.RouteURIID = routeURLBksID
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperPut(w, r)
+	hBk.HandleBreakerPut(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -411,15 +371,15 @@ func TestBks_HandleSuperPut(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperGet2(t *testing.T) {
-	var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleGet2(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperGet(w, r)
+	hBk.HandleBreakerGet(w, r)
 	fmt.Print("Media Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -429,68 +389,28 @@ func TestBks_HandleSuperGet2(t *testing.T) {
 	fmt.Println(bdy)
 	if w.Code != http.StatusOK || bdy.ID == 0 || bdy.FailoverRouteName != "test2" {
 		t.Fail()
+	} else {
+		bksID = bdy.ID
 	}
 }
 
-func TestBks_CircuitBreakerTrip(t *testing.T) {
+func TestBkn2_CircuitBreakerTrip(t *testing.T) {
 	bk := new(cb.Breaker)
-	bk.ClientID = clustCidPer
-	bk.RouteURIID = routeURLBksID
-	edbBks.Trip(bk)
-	edbBks.Trip(bk)
+	bk.ClientID = clustCidBk
+	bk.RouteURIID = routeURLBkID
+	edbBk.Trip(bk)
+	edbBk.Trip(bk)
 }
 
-func TestBks_HandleSuperStatusReq(t *testing.T) {
+func TestBkn2_HandleStatus(t *testing.T) {
 	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=f&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerStatusSuper(w, r)
-	fmt.Print("Status Code: ")
-	fmt.Println(w.Code)
-	b, _ := ioutil.ReadAll(w.Body)
-	var bdy cb.Status
-	json.Unmarshal([]byte(b), &bdy)
-	fmt.Print("Status Resp: ")
-	fmt.Println(bdy)
-	if w.Code != http.StatusBadRequest {
-		t.Fail()
-	}
-}
-
-func TestBks_HandleSuperStatusMethod(t *testing.T) {
-	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("POST", "/test?clientId=69&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
-	r.Header.Set("u-api-key", "12233hgdd3335")
-	w := httptest.NewRecorder()
-	hBks.HandleBreakerStatusSuper(w, r)
-	fmt.Print("Status Code: ")
-	fmt.Println(w.Code)
-	b, _ := ioutil.ReadAll(w.Body)
-	var bdy cb.Status
-	json.Unmarshal([]byte(b), &bdy)
-	fmt.Print("Status Resp: ")
-	fmt.Println(bdy)
-	if w.Code != http.StatusNotFound {
-		t.Fail()
-	}
-}
-
-func TestBks_HandleSuperStatus(t *testing.T) {
-	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=69&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
-	r.Header.Set("u-api-key", "12233hgdd3335")
-	w := httptest.NewRecorder()
-	hBks.HandleBreakerStatusSuper(w, r)
+	hBk.HandleBreakerStatus(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -503,42 +423,59 @@ func TestBks_HandleSuperStatus(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperResetReq(t *testing.T) {
-	var c cb.Breaker
-	c.ClientID = clustCidPer
-	//c.RouteURIID = routeURLBksID
-	aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleStatusReq(t *testing.T) {
+	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	//var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?urlId=e", nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
-	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperReset(w, r)
+	hBk.HandleBreakerStatus(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
-	var bdy BreakerResponse
+	var bdy cb.Status
 	json.Unmarshal([]byte(b), &bdy)
-	fmt.Print("Resp: ")
+	fmt.Print("Status Resp: ")
 	fmt.Println(bdy)
 	if w.Code != http.StatusBadRequest {
 		t.Fail()
 	}
 }
 
-func TestBks_HandleSuperResetMedia(t *testing.T) {
+func TestBkn2_HandleStatusMedia(t *testing.T) {
+	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("PUT", "/test?urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerStatus(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Status
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Status Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
+func TestBkn2_HandleResetMedia(t *testing.T) {
 	var c cb.Breaker
-	c.ClientID = clustCidPer
-	c.RouteURIID = routeURLBksID
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	//r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperReset(w, r)
+	hBk.HandleBreakerReset(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -551,18 +488,40 @@ func TestBks_HandleSuperResetMedia(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperResetMethod(t *testing.T) {
+func TestBkn2_HandleResetReq(t *testing.T) {
 	var c cb.Breaker
-	c.ClientID = clustCidPer
-	c.RouteURIID = routeURLBksID
+	//c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperReset(w, r)
+	hBk.HandleBreakerReset(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestBkn2_HandleResetMethod(t *testing.T) {
+	var c cb.Breaker
+	c.RouteURIID = routeURLBkID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("GET", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerReset(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -575,18 +534,17 @@ func TestBks_HandleSuperResetMethod(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperReset(t *testing.T) {
+func TestBkn2_HandleReset(t *testing.T) {
 	var c cb.Breaker
-	c.ClientID = clustCidPer
-	c.RouteURIID = routeURLBksID
+	c.RouteURIID = routeURLBkID
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperReset(w, r)
+	hBk.HandleBreakerReset(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -599,15 +557,15 @@ func TestBks_HandleSuperReset(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperStatus2(t *testing.T) {
+func TestBkn2_HandleStatus2(t *testing.T) {
 	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=69&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerStatusSuper(w, r)
+	hBk.HandleBreakerStatus(w, r)
 	fmt.Print("Status Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -620,15 +578,15 @@ func TestBks_HandleSuperStatus2(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperDelReq(t *testing.T) {
-	var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("DELETE", "/test?clientId=e&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleDelReq(t *testing.T) {
+	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?routeId=w&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperDelete(w, r)
+	hBk.HandleBreakerDelete(w, r)
 	fmt.Print("Media Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -641,15 +599,15 @@ func TestBks_HandleSuperDelReq(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperDelMethod(t *testing.T) {
-	var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleDelMethod(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperDelete(w, r)
+	hBk.HandleBreakerDelete(w, r)
 	fmt.Print("Media Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -662,15 +620,15 @@ func TestBks_HandleSuperDelMethod(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperDel(t *testing.T) {
-	var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("DELETE", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleDel(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperDelete(w, r)
+	hBk.HandleBreakerDelete(w, r)
 	fmt.Print("Media Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -683,15 +641,15 @@ func TestBks_HandleSuperDel(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperGet3(t *testing.T) {
-	var routeBksStr string = strconv.FormatInt(routeBks, 10)
-	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
-	r.Header.Set("u-client-id", "69")
-	r.Header.Set("clientId", "69")
+func TestBkn2_HandleGet3(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hBks.HandleBreakerSuperGet(w, r)
+	hBk.HandleBreakerGet(w, r)
 	fmt.Print("Media Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -704,18 +662,18 @@ func TestBks_HandleSuperGet3(t *testing.T) {
 	}
 }
 
-func TestBks_DeleteClient(t *testing.T) {
+func TestBkn2_DeleteClient(t *testing.T) {
 	var c mgr.Client
-	c.ClientID = clustCidBks
-	res := gwRoutesBks.GwDB.DeleteClient(&c)
+	c.ClientID = clustCidBk
+	res := gwRoutesBk.GwDB.DeleteClient(&c)
 	if res.Success != true {
 		fmt.Println("database delete failed")
 		t.Fail()
 	}
 }
 
-func TestBks_TestCloseDb(t *testing.T) {
-	success := gwRoutesBks.GwDB.CloseDb()
+func TestBkn2_TestCloseDb(t *testing.T) {
+	success := gwRoutesBk.GwDB.CloseDb()
 	if success != true {
 		t.Fail()
 	}

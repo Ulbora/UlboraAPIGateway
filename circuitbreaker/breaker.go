@@ -146,8 +146,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 		var cp ch.CProxy
 		cp.Host = c.CacheHost
 		res := cp.Get(key)
-		//fmt.Print("cache read in from server in status: ")
-		//fmt.Println(res)
+		fmt.Print("cache read in from server in status: ")
+		fmt.Println(res)
 		if res.Success == true {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 			//fmt.Print("json from cache: ")
@@ -211,6 +211,8 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 	var found bool
 	var useExCache bool
 	//cs, found = cbCache[key]
+	//fmt.Print("CacheHost: ")
+	//fmt.Println(c.CacheHost)
 	if c.CacheHost != "" {
 		useExCache = true
 		//var cp ch.CProxy

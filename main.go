@@ -126,13 +126,13 @@ func main() {
 	router.HandleFunc("/rs/gwErrorsSuper", h.HandleErrorsSuper)
 
 	// super Breaker services
-	router.HandleFunc("/rs/gwBreakerSuper/add", h.HandleBreakerSuperChange)
-	router.HandleFunc("/rs/gwBreakerSuper/update", h.HandleBreakerSuperChange)
+	router.HandleFunc("/rs/gwBreakerSuper/add", h.HandleBreakerSuperPost)
+	router.HandleFunc("/rs/gwBreakerSuper/update", h.HandleBreakerSuperPut)
 	router.HandleFunc("/rs/gwBreakerSuper/reset", h.HandleBreakerSuperReset)
-	router.HandleFunc("/rs/gwBreakerSuper/get/{urlId}/{routeId}/{clientId}", h.HandleBreakerSuper)
+	router.HandleFunc("/rs/gwBreakerSuper/get/{urlId}/{routeId}/{clientId}", h.HandleBreakerSuperGet)
 	router.HandleFunc("/rs/gwBreakerSuper/status/{urlId}/{clientId}", h.HandleBreakerStatusSuper)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
-	router.HandleFunc("/rs/gwBreakerSuper/delete/{urlId}/{routeId}/{clientId}", h.HandleBreakerSuper)
+	router.HandleFunc("/rs/gwBreakerSuper/delete/{urlId}/{routeId}/{clientId}", h.HandleBreakerSuperDelete)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	// admin restRoute services
@@ -164,13 +164,13 @@ func main() {
 	router.HandleFunc("/rs/cluster/routes/{route}", hdlr.HandleGetClusterGwRoutes)
 
 	// admin Breaker services
-	router.HandleFunc("/rs/gwBreaker/add", handleBreakerChange)
-	router.HandleFunc("/rs/gwBreaker/update", handleBreakerChange)
-	router.HandleFunc("/rs/gwBreaker/reset", handleBreakerReset)
-	router.HandleFunc("/rs/gwBreaker/get/{urlId}/{routeId}", handleBreaker)
-	router.HandleFunc("/rs/gwBreaker/status/{urlId}", handleBreakerStatus)
+	router.HandleFunc("/rs/gwBreaker/add", h.HandleBreakerPost)
+	router.HandleFunc("/rs/gwBreaker/update", h.HandleBreakerPut)
+	router.HandleFunc("/rs/gwBreaker/reset", h.HandleBreakerReset)
+	router.HandleFunc("/rs/gwBreaker/get/{urlId}/{routeId}", h.HandleBreakerGet)
+	router.HandleFunc("/rs/gwBreaker/status/{urlId}", h.HandleBreakerStatus)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
-	router.HandleFunc("/rs/gwBreaker/delete/{urlId}/{routeId}", handleBreaker)
+	router.HandleFunc("/rs/gwBreaker/delete/{urlId}/{routeId}", h.HandleBreakerDelete)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	//gateway routes
