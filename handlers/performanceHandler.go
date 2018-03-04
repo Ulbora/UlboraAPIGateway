@@ -86,6 +86,8 @@ func (h Handler) HandlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
@@ -142,6 +144,8 @@ func (h Handler) HandlePeformance(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }

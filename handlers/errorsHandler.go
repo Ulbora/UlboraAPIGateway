@@ -89,6 +89,8 @@ func (h Handler) HandleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
@@ -146,6 +148,8 @@ func (h Handler) HandleErrors(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
