@@ -26,7 +26,7 @@ package handlers
 */
 
 import (
-	env "UlboraApiGateway/environment"
+	//env "UlboraApiGateway/environment"
 	mgr "UlboraApiGateway/managers"
 	"encoding/json"
 	"fmt"
@@ -37,14 +37,15 @@ import (
 )
 
 //HandleGetRouteStatus HandleGetRouteStatus
-func HandleGetRouteStatus(w http.ResponseWriter, r *http.Request) {
+func (h Handler) HandleGetRouteStatus(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		var gwr mgr.GatewayRoutes
+		gwr.GwDB.DbConfig = h.DbConfig
 		cid := r.Header.Get("u-client-id")
 		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
 		//gwr.APIKey = r.Header.Get("u-api-key")
-		gwr.GwCacheHost = env.GetCacheHost()
+		gwr.GwCacheHost = getCacheHost()
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		var route string
@@ -70,14 +71,15 @@ func HandleGetRouteStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 //HandleDeleteRouteStatus HandleDeleteRouteStatus
-func HandleDeleteRouteStatus(w http.ResponseWriter, r *http.Request) {
+func (h Handler) HandleDeleteRouteStatus(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "DELETE":
 		var gwr mgr.GatewayRoutes
+		gwr.GwDB.DbConfig = h.DbConfig
 		cid := r.Header.Get("u-client-id")
 		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
 		gwr.APIKey = r.Header.Get("u-api-key")
-		gwr.GwCacheHost = env.GetCacheHost()
+		gwr.GwCacheHost = getCacheHost()
 		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		var route string
@@ -103,10 +105,12 @@ func HandleDeleteRouteStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 //HandleGetClusterGwRoutes HandleGetClusterGwRoutes
-func HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request) {
+func (h Handler) HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		var gwr mgr.GatewayRoutes
+		gwr.GwDB.DbConfig = h.DbConfig
+		gwr.GwCacheHost = getCacheHost()
 		cid := r.Header.Get("u-client-id")
 		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
 		gwr.APIKey = r.Header.Get("u-api-key")

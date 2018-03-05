@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -36,7 +36,12 @@ import (
 	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 )
 
-func handleUserClient(w http.ResponseWriter, r *http.Request) {
+//HandleUserClient HandleUserClient
+func (h Handler) HandleUserClient(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
@@ -53,7 +58,12 @@ func handleUserClient(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		me.URI = "/ulbora/rs/gwClientUser/get"
 		me.Scope = "read"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -70,5 +80,7 @@ func handleUserClient(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }

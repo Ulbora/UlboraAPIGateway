@@ -136,7 +136,7 @@ func main() {
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	// admin restRoute services
-	router.HandleFunc("/rs/gwClientUser/get", handleUserClient)
+	router.HandleFunc("/rs/gwClientUser/get", h.HandleUserClient)
 
 	router.HandleFunc("/rs/gwRestRoute/add", handleRestRouteChange)
 	router.HandleFunc("/rs/gwRestRoute/update", handleRestRouteChange)
@@ -159,9 +159,9 @@ func main() {
 	router.HandleFunc("/rs/gwErrors", h.HandleErrors)
 
 	//cluster route status
-	router.HandleFunc("/rs/cluster/routestatus/{route}", hdlr.HandleGetRouteStatus)
-	router.HandleFunc("/rs/cluster/routestatus/delete/{route}", hdlr.HandleDeleteRouteStatus)
-	router.HandleFunc("/rs/cluster/routes/{route}", hdlr.HandleGetClusterGwRoutes)
+	router.HandleFunc("/rs/cluster/routestatus/{route}", h.HandleGetRouteStatus)
+	router.HandleFunc("/rs/cluster/routestatus/delete/{route}", h.HandleDeleteRouteStatus)
+	router.HandleFunc("/rs/cluster/routes/{route}", h.HandleGetClusterGwRoutes)
 
 	// admin Breaker services
 	router.HandleFunc("/rs/gwBreaker/add", h.HandleBreakerPost)

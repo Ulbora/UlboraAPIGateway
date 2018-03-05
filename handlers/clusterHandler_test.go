@@ -15,8 +15,9 @@ var gwRoutes mgr.GatewayRoutes
 var clustCid int64 = 97
 var routeClust int64
 var connectedForCache bool
+var hcc Handler
 
-func Test_ConnectForCache(t *testing.T) {
+func TestClus_ConnectForCache(t *testing.T) {
 	gwRoutes.GwDB.DbConfig.Host = "localhost:3306"
 	gwRoutes.GwDB.DbConfig.DbUser = "admin"
 	gwRoutes.GwDB.DbConfig.DbPw = "admin"
@@ -25,11 +26,12 @@ func Test_ConnectForCache(t *testing.T) {
 	if connectedForCache != true {
 		t.Fail()
 	}
+	hcc.DbConfig = gwRoutes.GwDB.DbConfig
 	//gwRoutes.GwDB.DbConfig = gwRoutes.GwDB.DbConfig
 	//cp.Host = "http://localhost:3010"
 }
 
-func Test_InsertClientForCache(t *testing.T) {
+func TestClus_InsertClientForCache(t *testing.T) {
 	var c mgr.Client
 	c.APIKey = "12233hgdd333"
 	c.ClientID = clustCid
@@ -45,7 +47,7 @@ func Test_InsertClientForCache(t *testing.T) {
 		t.Fail()
 	}
 }
-func Test_Initialize(t *testing.T) {
+func TestClus_Initialize(t *testing.T) {
 
 	gwRoutes.ClientID = clustCid
 	gwRoutes.Route = "testroute"
@@ -58,7 +60,7 @@ func Test_Initialize(t *testing.T) {
 	}
 }
 
-func Test_InsertRestRoute(t *testing.T) {
+func TestClus_InsertRestRoute(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.Route = "content"
 	rr.ClientID = clustCid
@@ -74,7 +76,7 @@ func Test_InsertRestRoute(t *testing.T) {
 	}
 }
 
-func Test_InsertRouteURL(t *testing.T) {
+func TestClus_InsertRouteURL(t *testing.T) {
 	var ru mgr.RouteURL
 	ru.Name = "blue"
 	ru.URL = "http://www.apigateway.com/blue/"
@@ -110,13 +112,13 @@ func Test_InsertRouteURL(t *testing.T) {
 	}
 }
 
-func Test_handleGetRouteStatus(t *testing.T) {
+func TestClus_handleGetRouteStatus(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "97")
 	//r.Header.Set("u-api-key", "12345")
 
 	w := httptest.NewRecorder()
-	HandleGetRouteStatus(w, r)
+	hcc.HandleGetRouteStatus(w, r)
 	var bdy mgr.GateStatusResponse
 	b, _ := ioutil.ReadAll(w.Body)
 	json.Unmarshal([]byte(b), &bdy)
@@ -129,13 +131,13 @@ func Test_handleGetRouteStatus(t *testing.T) {
 	}
 }
 
-func Test_handleGetRouteStatus2(t *testing.T) {
+func TestClus_handleGetRouteStatus2(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "999")
 	//r.Header.Set("u-api-key", "12345")
 
 	w := httptest.NewRecorder()
-	HandleGetRouteStatus(w, r)
+	hcc.HandleGetRouteStatus(w, r)
 	var bdy mgr.GateStatusResponse
 	b, _ := ioutil.ReadAll(w.Body)
 	json.Unmarshal([]byte(b), &bdy)
@@ -148,13 +150,13 @@ func Test_handleGetRouteStatus2(t *testing.T) {
 	}
 }
 
-func Test_handleGetRouteStatus3(t *testing.T) {
+func TestClus_handleGetRouteStatus3(t *testing.T) {
 	r, _ := http.NewRequest("DELETE", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "999")
 	//r.Header.Set("u-api-key", "12345")
 
 	w := httptest.NewRecorder()
-	HandleGetRouteStatus(w, r)
+	hcc.HandleGetRouteStatus(w, r)
 	var bdy mgr.GateStatusResponse
 	b, _ := ioutil.ReadAll(w.Body)
 	json.Unmarshal([]byte(b), &bdy)
@@ -167,13 +169,13 @@ func Test_handleGetRouteStatus3(t *testing.T) {
 	}
 }
 
-func Test_handleDeleteRouteStatus(t *testing.T) {
+func TestClus_handleDeleteRouteStatus(t *testing.T) {
 	r, _ := http.NewRequest("DELETE", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "97")
 	r.Header.Set("u-api-key", "12233hgdd333")
 
 	w := httptest.NewRecorder()
-	HandleDeleteRouteStatus(w, r)
+	hcc.HandleDeleteRouteStatus(w, r)
 	var bdy mgr.ClusterResponse
 	b, _ := ioutil.ReadAll(w.Body)
 	json.Unmarshal([]byte(b), &bdy)
@@ -186,13 +188,13 @@ func Test_handleDeleteRouteStatus(t *testing.T) {
 	}
 }
 
-func Test_handleDeleteRouteStatus2(t *testing.T) {
+func TestClus_handleDeleteRouteStatus2(t *testing.T) {
 	r, _ := http.NewRequest("DELETE", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "97")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 
 	w := httptest.NewRecorder()
-	HandleDeleteRouteStatus(w, r)
+	hcc.HandleDeleteRouteStatus(w, r)
 	var bdy mgr.ClusterResponse
 	b, _ := ioutil.ReadAll(w.Body)
 	json.Unmarshal([]byte(b), &bdy)
@@ -205,13 +207,13 @@ func Test_handleDeleteRouteStatus2(t *testing.T) {
 	}
 }
 
-func Test_handleGetClusterGwRoutes(t *testing.T) {
+func TestClus_handleGetClusterGwRoutes(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/test?route=content", nil)
 	r.Header.Set("u-client-id", "97")
 	r.Header.Set("u-api-key", "12233hgdd333")
 
 	w := httptest.NewRecorder()
-	HandleGetClusterGwRoutes(w, r)
+	hcc.HandleGetClusterGwRoutes(w, r)
 	var bdy = make([]mgr.GatewayRouteURL, 0)
 	b, _ := ioutil.ReadAll(w.Body)
 	json.Unmarshal([]byte(b), &bdy)
@@ -224,7 +226,7 @@ func Test_handleGetClusterGwRoutes(t *testing.T) {
 	}
 }
 
-func Test_DeleteClientForCache(t *testing.T) {
+func TestClus_DeleteClientForCache(t *testing.T) {
 	var c mgr.Client
 	c.ClientID = clustCid
 	res := gwRoutes.GwDB.DeleteClient(&c)
@@ -234,7 +236,7 @@ func Test_DeleteClientForCache(t *testing.T) {
 	}
 }
 
-func Test_TestCloseDb2(t *testing.T) {
+func TestClus_TestCloseDb2(t *testing.T) {
 	success := gwRoutes.GwDB.CloseDb()
 	if success != true {
 		t.Fail()
