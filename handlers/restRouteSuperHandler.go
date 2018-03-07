@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -38,7 +38,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func handleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
+//HandleRestRouteSuperChange HandleRestRouteSuperChange
+func (h Handler) HandleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
@@ -51,7 +56,12 @@ func handleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			me.URI = "/ulbora/rs/gwRestRouteSuper/add"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -78,7 +88,12 @@ func handleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
 			}
 		case "PUT":
 			me.URI = "/ulbora/rs/gwRestRouteSuper/update"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -103,32 +118,67 @@ func handleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
 
-func handleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
+//HandleRestRouteSuper HandleRestRouteSuper
+func (h Handler) HandleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	id, errID := strconv.ParseInt(vars["id"], 10, 0)
+
+	var id int64
+	var clientID int64
+	var errID error
+	var errCID error
+
+	if vars != nil {
+		id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		var idStr = r.URL.Query().Get("id")
+		id, errID = strconv.ParseInt(idStr, 10, 0)
+
+		var clientIDStr = r.URL.Query().Get("clientId")
+		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
 	if errID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
-	clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
 	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
+
+	// id, errID := strconv.ParseInt(vars["id"], 10, 0)
+	// if errID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
+	// clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
+	// if errCID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
 	//fmt.Print("id is: ")
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
 		me.URI = "/ulbora/rs/gwRestRouteSuper/get"
 		me.Scope = "read"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -150,7 +200,12 @@ func handleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		me.URI = "/ulbora/rs/gwRestRouteSuper/delete"
 		me.Scope = "write"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -168,24 +223,59 @@ func handleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }
 
-func handleRestRouteSuperList(w http.ResponseWriter, r *http.Request) {
+//HandleRestRouteSuperList HandleRestRouteSuperList
+func (h Handler) HandleRestRouteSuperList(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
 	me.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
+
+	//var id int64
+	var clientID int64
+	//var errID error
+	var errCID error
+
+	if vars != nil {
+		//id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		//var idStr = r.URL.Query().Get("id")
+		//id, errID = strconv.ParseInt(idStr, 10, 0)
+
+		var clientIDStr = r.URL.Query().Get("clientId")
+		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
+	//if errID != nil {
+	//	http.Error(w, "bad request", http.StatusBadRequest)
+	//}
 	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
+
+	// clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
+	// if errCID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
 	switch r.Method {
 	case "GET":
 		me.URI = "/ulbora/rs/gwRestRouteSuper/list"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -208,5 +298,7 @@ func handleRestRouteSuperList(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprint(w, string(resJSON))
 			}
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }
