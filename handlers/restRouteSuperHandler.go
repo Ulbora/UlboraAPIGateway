@@ -38,8 +38,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//HandleRestRouteSuperChange HandleRestRouteSuperChange
-func (h Handler) HandleRestRouteSuperChange(w http.ResponseWriter, r *http.Request) {
+//HandleRestRouteSuperPost HandleRestRouteSuperPost
+func (h Handler) HandleRestRouteSuperPost(w http.ResponseWriter, r *http.Request) {
 	var gatewayDB mng.GatewayDB
 	gatewayDB.DbConfig = h.DbConfig
 	gatewayDB.GwCacheHost = getCacheHost()
@@ -86,6 +86,28 @@ func (h Handler) HandleRestRouteSuperChange(w http.ResponseWriter, r *http.Reque
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+}
+
+//HandleRestRouteSuperPut HandleRestRouteSuperPut
+func (h Handler) HandleRestRouteSuperPut(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "superAdmin"
+	me.Scope = "write"
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
 		case "PUT":
 			me.URI = "/ulbora/rs/gwRestRouteSuper/update"
 			var valid bool
@@ -124,8 +146,8 @@ func (h Handler) HandleRestRouteSuperChange(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-//HandleRestRouteSuper HandleRestRouteSuper
-func (h Handler) HandleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
+//HandleRestRouteSuperGet HandleRestRouteSuperGet
+func (h Handler) HandleRestRouteSuperGet(w http.ResponseWriter, r *http.Request) {
 	var gatewayDB mng.GatewayDB
 	gatewayDB.DbConfig = h.DbConfig
 	gatewayDB.GwCacheHost = getCacheHost()
@@ -158,15 +180,6 @@ func (h Handler) HandleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
 	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
-
-	// id, errID := strconv.ParseInt(vars["id"], 10, 0)
-	// if errID != nil {
-	// 	http.Error(w, "bad request", http.StatusBadRequest)
-	// }
-	// clientID, errCID := strconv.ParseInt(vars["clientId"], 10, 0)
-	// if errCID != nil {
-	// 	http.Error(w, "bad request", http.StatusBadRequest)
-	// }
 	//fmt.Print("id is: ")
 	//fmt.Println(id)
 	switch r.Method {
@@ -196,7 +209,48 @@ func (h Handler) HandleRestRouteSuper(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
 
+//HandleRestRouteSuperDelete HandleRestRouteSuperDelete
+func (h Handler) HandleRestRouteSuperDelete(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "superAdmin"
+
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+
+	var id int64
+	var clientID int64
+	var errID error
+	var errCID error
+
+	if vars != nil {
+		id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		var idStr = r.URL.Query().Get("id")
+		id, errID = strconv.ParseInt(idStr, 10, 0)
+
+		var clientIDStr = r.URL.Query().Get("clientId")
+		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
+	if errID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+	if errCID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+	//fmt.Print("id is: ")
+	//fmt.Println(id)
+	switch r.Method {
 	case "DELETE":
 		me.URI = "/ulbora/rs/gwRestRouteSuper/delete"
 		me.Scope = "write"

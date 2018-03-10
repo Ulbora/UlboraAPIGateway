@@ -105,11 +105,11 @@ func main() {
 	router.HandleFunc("/rs/gwClient/delete/{clientId}", h.HandleClientDelete)
 
 	// super admin restRoute services
-	router.HandleFunc("/rs/gwRestRouteSuper/add", h.HandleRestRouteSuperChange)
-	router.HandleFunc("/rs/gwRestRouteSuper/update", h.HandleRestRouteSuperChange)
-	router.HandleFunc("/rs/gwRestRouteSuper/get/{id}/{clientId}", h.HandleRestRouteSuper)
+	router.HandleFunc("/rs/gwRestRouteSuper/add", h.HandleRestRouteSuperPost)
+	router.HandleFunc("/rs/gwRestRouteSuper/update", h.HandleRestRouteSuperPut)
+	router.HandleFunc("/rs/gwRestRouteSuper/get/{id}/{clientId}", h.HandleRestRouteSuperGet)
 	router.HandleFunc("/rs/gwRestRouteSuper/list/{clientId}", h.HandleRestRouteSuperList)
-	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", h.HandleRestRouteSuper)
+	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", h.HandleRestRouteSuperDelete)
 
 	// super admin routeUrl services
 	router.HandleFunc("/rs/gwRouteUrlSuper/add", handleRouteURLSuperChange)
