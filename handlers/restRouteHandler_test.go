@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strconv"
-	//gwerr "UlboraApiGateway/gwerrors"
 	mgr "UlboraApiGateway/managers"
 	"bytes"
 	"encoding/json"
@@ -10,50 +8,52 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 	//"time"
 )
 
-var rrHandid int64 = 26
-var rrID int64
+var rrNsHandid int64 = 36
+var rrNsID int64
 
 //var routeErr int64
 //var routeURLErrID int64
-var connectedForRR bool
-var gwRR mgr.GatewayDB
+var connectedForRRNs bool
+var gwRRNs mgr.GatewayDB
 
 //var gwRoutesErr mgr.GatewayRoutes
-var hrr Handler
+var hrrNs Handler
 
-func TestRRt_Connect(t *testing.T) {
-	gwRR.DbConfig.Host = "localhost:3306"
-	gwRR.DbConfig.DbUser = "admin"
-	gwRR.DbConfig.DbPw = "admin"
-	gwRR.DbConfig.DatabaseName = "ulbora_api_gateway"
-	connectedForRR = gwRR.ConnectDb()
-	if connectedForRR != true {
+func TestRRtNs_Connect(t *testing.T) {
+	gwRRNs.DbConfig.Host = "localhost:3306"
+	gwRRNs.DbConfig.DbUser = "admin"
+	gwRRNs.DbConfig.DbPw = "admin"
+	gwRRNs.DbConfig.DatabaseName = "ulbora_api_gateway"
+	connectedForRRNs = gwRRNs.ConnectDb()
+	if connectedForRRNs != true {
 		t.Fail()
 	}
 	//gwRoutesErr.GwDB.DbConfig = edb.DbConfig
 	//gwRoutes.GwDB.DbConfig = gwRoutes.GwDB.DbConfig
 	//cp.Host = "http://localhost:3010"
 	testMode = true
-	hrr.DbConfig = gwRR.DbConfig
+	hrrNs.DbConfig = gwRRNs.DbConfig
 }
 
-func TestRRt_HandleClientInsert(t *testing.T) {
+func TestRRtNs_HandleClientInsert(t *testing.T) {
 	var c mgr.Client
-	c.ClientID = rrHandid
+	c.ClientID = rrNsHandid
 	c.APIKey = "123456"
 	c.Enabled = true
 	c.Level = "small"
 	aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleClientPost(w, r)
+	hrrNs.HandleClientPost(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -66,17 +66,18 @@ func TestRRt_HandleClientInsert(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleRestRouteInsertMedia(t *testing.T) {
+func TestRRtNs_HandleRestRouteInsertMedia(t *testing.T) {
 	var rr mgr.RestRoute
-	rr.ClientID = rrHandid
+	//rr.ClientID = rrNsHandid
 	rr.Route = "test"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	//r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPost(w, r)
+	hrrNs.HandleRestRoutePost(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -89,17 +90,18 @@ func TestRRt_HandleRestRouteInsertMedia(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleRestRouteInsertMethod(t *testing.T) {
+func TestRRtNs_HandleRestRouteInsertMethod(t *testing.T) {
 	var rr mgr.RestRoute
-	rr.ClientID = rrHandid
+	//rr.ClientID = rrNsHandid
 	rr.Route = "test"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("GET", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPost(w, r)
+	hrrNs.HandleRestRoutePost(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -112,17 +114,17 @@ func TestRRt_HandleRestRouteInsertMethod(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleRestRouteInsertReq(t *testing.T) {
+func TestRRtNs_HandleRestRouteInsertReq(t *testing.T) {
 	var rr mgr.RestRoute
-	//rr.ClientID = rrHandid
-	rr.Route = "test"
+	//rr.Route = "test"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	//r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPost(w, r)
+	hrrNs.HandleRestRoutePost(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -135,17 +137,18 @@ func TestRRt_HandleRestRouteInsertReq(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleRestRouteInsert(t *testing.T) {
+func TestRRtNs_HandleRestRouteInsert(t *testing.T) {
 	var rr mgr.RestRoute
-	rr.ClientID = rrHandid
+	//rr.ClientID = rrHandid
 	rr.Route = "test"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPost(w, r)
+	hrrNs.HandleRestRoutePost(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -156,21 +159,22 @@ func TestRRt_HandleRestRouteInsert(t *testing.T) {
 	if w.Code != http.StatusOK || bdy.Success != true {
 		t.Fail()
 	} else {
-		rrID = bdy.ID
+		rrNsID = bdy.ID
 	}
 }
 
-func TestRRt_HandleRestRouteUpdateMedia(t *testing.T) {
+func TestRRtNs_HandleRestRouteUpdateMedia(t *testing.T) {
 	var rr mgr.RestRoute
-	rr.ClientID = rrHandid
+	//rr.ClientID = rrHandid
 	rr.Route = "test"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	//r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPut(w, r)
+	hrrNs.HandleRestRoutePut(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -183,17 +187,18 @@ func TestRRt_HandleRestRouteUpdateMedia(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleRestRouteUpdateMethod(t *testing.T) {
+func TestRRtNs_HandleRestRouteUpdateMethod(t *testing.T) {
 	var rr mgr.RestRoute
-	rr.ClientID = rrHandid
+	//rr.ClientID = rrHandid
 	rr.Route = "test"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("GET", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPut(w, r)
+	hrrNs.HandleRestRoutePut(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -206,17 +211,18 @@ func TestRRt_HandleRestRouteUpdateMethod(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleRestRouteUpdateReq(t *testing.T) {
+func TestRRtNs_HandleRestRouteUpdateReq(t *testing.T) {
 	var rr mgr.RestRoute
 	//rr.ClientID = rrHandid
-	rr.Route = "test"
+	//rr.Route = "test"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPut(w, r)
+	hrrNs.HandleRestRoutePut(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -229,18 +235,18 @@ func TestRRt_HandleRestRouteUpdateReq(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleRestRouteUpdate(t *testing.T) {
+func TestRRtNs_HandleRestRouteUpdate(t *testing.T) {
 	var rr mgr.RestRoute
-	rr.ID = rrID
-	rr.ClientID = rrHandid
+	rr.ID = rrNsID
 	rr.Route = "test2"
 	aJSON, _ := json.Marshal(rr)
 	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
-	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperPut(w, r)
+	hrrNs.HandleRestRoutePut(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -253,15 +259,14 @@ func TestRRt_HandleRestRouteUpdate(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleGetMethod(t *testing.T) {
-	var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("POST", "/test?id="+idStr+"&clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleGetMethod(t *testing.T) {
+	var idStr string = strconv.FormatInt(rrNsID, 10)
+	r, _ := http.NewRequest("POST", "/test?id="+idStr, nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperGet(w, r)
+	hrrNs.HandleRestRouteGet(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -274,15 +279,14 @@ func TestRRt_HandleGetMethod(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleGetReq(t *testing.T) {
-	var idStr string = strconv.FormatInt(rrID, 10)
-	//var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("GET", "/test?id="+idStr+"&clientId=r", nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleGetReq(t *testing.T) {
+	//var idStr string = strconv.FormatInt(rrID, 10)
+	r, _ := http.NewRequest("GET", "/test?id=w", nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperGet(w, r)
+	hrrNs.HandleRestRouteGet(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -295,15 +299,14 @@ func TestRRt_HandleGetReq(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleGet(t *testing.T) {
-	var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("GET", "/test?id="+idStr+"&clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleGet(t *testing.T) {
+	var idStr string = strconv.FormatInt(rrNsID, 10)
+	r, _ := http.NewRequest("GET", "/test?id="+idStr, nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperGet(w, r)
+	hrrNs.HandleRestRouteGet(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -311,20 +314,18 @@ func TestRRt_HandleGet(t *testing.T) {
 	json.Unmarshal([]byte(b), &bdy)
 	fmt.Print("Resp Get: ")
 	fmt.Println(bdy)
-	if w.Code != http.StatusOK || bdy.ClientID != rrHandid || bdy.ID != rrID {
+	if w.Code != http.StatusOK || bdy.ClientID != rrNsHandid || bdy.ID != rrNsID {
 		t.Fail()
 	}
 }
 
-func TestRRt_HandleGetListMethod(t *testing.T) {
-	//var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("DELETE", "/test?clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleGetListMethod(t *testing.T) {
+	r, _ := http.NewRequest("DELETE", "/test", nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperList(w, r)
+	hrrNs.HandleRestRouteList(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -337,36 +338,13 @@ func TestRRt_HandleGetListMethod(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleGetListReq(t *testing.T) {
-	//var idStr string = strconv.FormatInt(rrID, 10)
-	//var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId=w", nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleGetList(t *testing.T) {
+	r, _ := http.NewRequest("GET", "/test", nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperList(w, r)
-	fmt.Print("Code: ")
-	fmt.Println(w.Code)
-	b, _ := ioutil.ReadAll(w.Body)
-	var bdy []mgr.RestRoute
-	json.Unmarshal([]byte(b), &bdy)
-	fmt.Print("Resp Get List: ")
-	fmt.Println(bdy)
-	if w.Code != http.StatusBadRequest {
-		t.Fail()
-	}
-}
-
-func TestRRt_HandleGetList(t *testing.T) {
-	//var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("GET", "/test?clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
-	r.Header.Set("u-api-key", "12233hgdd3335")
-	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperList(w, r)
+	hrrNs.HandleRestRouteList(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -379,15 +357,14 @@ func TestRRt_HandleGetList(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleDeleteMethod(t *testing.T) {
-	var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("POST", "/test?id="+idStr+"&clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleDeleteMethod(t *testing.T) {
+	var idStr string = strconv.FormatInt(rrNsID, 10)
+	r, _ := http.NewRequest("POST", "/test?id="+idStr, nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperDelete(w, r)
+	hrrNs.HandleRestRouteDelete(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -400,15 +377,13 @@ func TestRRt_HandleDeleteMethod(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleDeleteReq(t *testing.T) {
-	//var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("DELETE", "/test?id=e"+"&clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleDeleteReq(t *testing.T) {
+	r, _ := http.NewRequest("DELETE", "/test?id=e", nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperDelete(w, r)
+	hrrNs.HandleRestRouteDelete(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -421,15 +396,14 @@ func TestRRt_HandleDeleteReq(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleDelete(t *testing.T) {
-	var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("DELETE", "/test?id="+idStr+"&clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleDelete(t *testing.T) {
+	var idStr string = strconv.FormatInt(rrNsID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?id="+idStr, nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperDelete(w, r)
+	hrrNs.HandleRestRouteDelete(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -442,15 +416,14 @@ func TestRRt_HandleDelete(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleGet2(t *testing.T) {
-	var idStr string = strconv.FormatInt(rrID, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
-	r, _ := http.NewRequest("GET", "/test?id="+idStr+"&clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "26")
-	r.Header.Set("clientId", "26")
+func TestRRtNs_HandleGet2(t *testing.T) {
+	var idStr string = strconv.FormatInt(rrNsID, 10)
+	r, _ := http.NewRequest("GET", "/test?id="+idStr, nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleRestRouteSuperGet(w, r)
+	hrrNs.HandleRestRouteGet(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -463,15 +436,15 @@ func TestRRt_HandleGet2(t *testing.T) {
 	}
 }
 
-func TestRRt_HandleDel(t *testing.T) {
+func TestRRtNs_HandleDel(t *testing.T) {
 	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
-	var CIDStr string = strconv.FormatInt(rrHandid, 10)
+	var CIDStr string = strconv.FormatInt(rrNsHandid, 10)
 	r, _ := http.NewRequest("DELETE", "/test?clientId="+CIDStr, nil)
-	r.Header.Set("u-client-id", "24")
-	r.Header.Set("clientId", "24")
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
 	r.Header.Set("u-api-key", "12233hgdd3335")
 	w := httptest.NewRecorder()
-	hrr.HandleClientDelete(w, r)
+	hrrNs.HandleClientDelete(w, r)
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
@@ -484,7 +457,7 @@ func TestRRt_HandleDel(t *testing.T) {
 	}
 }
 
-func TestRRt_TestCloseDb(t *testing.T) {
+func TestRRtNs_TestCloseDb(t *testing.T) {
 	success := gwRR.DbConfig.CloseDb()
 	if success != true {
 		t.Fail()

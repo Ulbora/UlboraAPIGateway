@@ -138,11 +138,11 @@ func main() {
 	// admin restRoute services
 	router.HandleFunc("/rs/gwClientUser/get", h.HandleUserClient)
 
-	router.HandleFunc("/rs/gwRestRoute/add", handleRestRouteChange)
-	router.HandleFunc("/rs/gwRestRoute/update", handleRestRouteChange)
-	router.HandleFunc("/rs/gwRestRoute/get/{id}", handleRestRoute)
-	router.HandleFunc("/rs/gwRestRoute/list", handleRestRouteList)
-	router.HandleFunc("/rs/gwRestRoute/delete/{id}", handleRestRoute)
+	router.HandleFunc("/rs/gwRestRoute/add", h.HandleRestRoutePost)
+	router.HandleFunc("/rs/gwRestRoute/update", h.HandleRestRoutePut)
+	router.HandleFunc("/rs/gwRestRoute/get/{id}", h.HandleRestRouteGet)
+	router.HandleFunc("/rs/gwRestRoute/list", h.HandleRestRouteList)
+	router.HandleFunc("/rs/gwRestRoute/delete/{id}", h.HandleRestRouteDelete)
 
 	// admin routeUrl services
 	router.HandleFunc("/rs/gwRouteUrl/add", handleRouteURLChange)
