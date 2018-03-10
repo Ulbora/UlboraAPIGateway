@@ -433,11 +433,11 @@ func TestRRt_HandleDelete(t *testing.T) {
 	fmt.Print("Code: ")
 	fmt.Println(w.Code)
 	b, _ := ioutil.ReadAll(w.Body)
-	var bdy mgr.RestRoute
+	var bdy mgr.GatewayResponse
 	json.Unmarshal([]byte(b), &bdy)
 	fmt.Print("Resp Get: ")
 	fmt.Println(bdy)
-	if w.Code != http.StatusOK {
+	if w.Code != http.StatusOK || bdy.Success != true {
 		t.Fail()
 	}
 }

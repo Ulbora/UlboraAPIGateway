@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -38,7 +38,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func handleRouteURLChange(w http.ResponseWriter, r *http.Request) {
+//HandleRouteURLPost HandleRouteURLPost
+func (h Handler) HandleRouteURLPost(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
@@ -51,7 +56,12 @@ func handleRouteURLChange(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			me.URI = "/ulbora/rs/gwRouteUrl/add"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -78,9 +88,36 @@ func handleRouteURLChange(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+}
+
+//HandleRouteURLPut HandleRouteURLPut
+func (h Handler) HandleRouteURLPut(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "admin"
+	me.Scope = "write"
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
 		case "PUT":
 			me.URI = "/ulbora/rs/gwRouteUrl/update"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -107,11 +144,18 @@ func handleRouteURLChange(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
 
-func handleRouteURLActivate(w http.ResponseWriter, r *http.Request) {
+//HandleRouteURLActivate HandleRouteURLActivate
+func (h Handler) HandleRouteURLActivate(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
@@ -124,7 +168,12 @@ func handleRouteURLActivate(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "PUT":
 			me.URI = "/ulbora/rs/gwRouteUrl/activate"
-			valid := auth.Authorize(me)
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
@@ -151,25 +200,64 @@ func handleRouteURLActivate(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprint(w, string(resJSON))
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
 
-func handleRouteURL(w http.ResponseWriter, r *http.Request) {
+//HandleRouteURLGet HandleRouteURLGet
+func (h Handler) HandleRouteURLGet(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	id, errID := strconv.ParseInt(vars["id"], 10, 0)
+
+	var id int64
+	//var clientID int64
+	var routeID int64
+	var errID error
+	//var errCID error
+	var errRID error
+
+	if vars != nil {
+		id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		//clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		var idStr = r.URL.Query().Get("id")
+		id, errID = strconv.ParseInt(idStr, 10, 0)
+
+		var routeIDStr = r.URL.Query().Get("routeId")
+		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+
+		//var clientIDStr = r.URL.Query().Get("clientId")
+		//clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
 	if errID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
-	routeID, errRID := strconv.ParseInt(vars["routeId"], 10, 0)
 	if errRID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
+	// if errCID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
+
+	// id, errID := strconv.ParseInt(vars["id"], 10, 0)
+	// if errID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
+	// routeID, errRID := strconv.ParseInt(vars["routeId"], 10, 0)
+	// if errRID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
 
 	//fmt.Print("id is: ")
 	//fmt.Println(id)
@@ -177,7 +265,12 @@ func handleRouteURL(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		me.URI = "/ulbora/rs/gwRouteUrl/get"
 		me.Scope = "read"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -196,11 +289,74 @@ func handleRouteURL(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 
+	}
+}
+
+//HandleRouteURLDelete HandleRouteURLDelete
+func (h Handler) HandleRouteURLDelete(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
+	auth := getAuth(r)
+	me := new(uoauth.Claim)
+	me.Role = "admin"
+
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+
+	var id int64
+	//var clientID int64
+	var routeID int64
+	var errID error
+	//var errCID error
+	var errRID error
+
+	if vars != nil {
+		id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		//clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		var idStr = r.URL.Query().Get("id")
+		id, errID = strconv.ParseInt(idStr, 10, 0)
+
+		var routeIDStr = r.URL.Query().Get("routeId")
+		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+
+		//var clientIDStr = r.URL.Query().Get("clientId")
+		//clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
+	if errID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+	if errRID != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+	}
+
+	// id, errID := strconv.ParseInt(vars["id"], 10, 0)
+	// if errID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
+	// routeID, errRID := strconv.ParseInt(vars["routeId"], 10, 0)
+	// if errRID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
+
+	//fmt.Print("id is: ")
+	//fmt.Println(id)
+	switch r.Method {
 	case "DELETE":
 		me.URI = "/ulbora/rs/gwRouteUrl/delete"
 		me.Scope = "write"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -220,24 +376,65 @@ func handleRouteURL(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(resJSON))
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }
 
-func handleRouteURLList(w http.ResponseWriter, r *http.Request) {
+//HandleRouteURLList HandleRouteURLList
+func (h Handler) HandleRouteURLList(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mng.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
 	me.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	routeID, errRID := strconv.ParseInt(vars["routeId"], 10, 0)
+
+	//var id int64
+	//var clientID int64
+	var routeID int64
+	//var errID error
+	//var errCID error
+	var errRID error
+
+	if vars != nil {
+		//id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		//clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+	} else {
+		//	var idStr = r.URL.Query().Get("id")
+		//id, errID = strconv.ParseInt(idStr, 10, 0)
+
+		var routeIDStr = r.URL.Query().Get("routeId")
+		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+
+		//var clientIDStr = r.URL.Query().Get("clientId")
+		//clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+	}
+	// if errID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
 	if errRID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
+
+	// routeID, errRID := strconv.ParseInt(vars["routeId"], 10, 0)
+	// if errRID != nil {
+	// 	http.Error(w, "bad request", http.StatusBadRequest)
+	// }
 	switch r.Method {
 	case "GET":
 		me.URI = "/ulbora/rs/gwRouteUrl/list"
-		valid := auth.Authorize(me)
+		var valid bool
+		if testMode == true {
+			valid = true
+		} else {
+			valid = auth.Authorize(me)
+		}
 		if valid != true {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
@@ -261,5 +458,7 @@ func handleRouteURLList(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprint(w, string(resJSON))
 			}
 		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }

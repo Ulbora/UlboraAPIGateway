@@ -112,12 +112,12 @@ func main() {
 	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", h.HandleRestRouteSuperDelete)
 
 	// super admin routeUrl services
-	router.HandleFunc("/rs/gwRouteUrlSuper/add", handleRouteURLSuperChange)
-	router.HandleFunc("/rs/gwRouteUrlSuper/update", handleRouteURLSuperChange)
-	router.HandleFunc("/rs/gwRouteUrlSuper/get/{id}/{routeId}/{clientId}", handleRouteURLSuper)
-	router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
-	router.HandleFunc("/rs/gwRouteUrlSuper/delete/{id}/{routeId}/{clientId}", handleRouteURLSuper)
-	router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
+	router.HandleFunc("/rs/gwRouteUrlSuper/add", h.HandleRouteURLSuperPost)
+	router.HandleFunc("/rs/gwRouteUrlSuper/update", h.HandleRouteURLSuperPut)
+	router.HandleFunc("/rs/gwRouteUrlSuper/get/{id}/{routeId}/{clientId}", h.HandleRouteURLSuperGet)
+	router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", h.HandleRouteURLSuperList)
+	router.HandleFunc("/rs/gwRouteUrlSuper/delete/{id}/{routeId}/{clientId}", h.HandleRouteURLSuperDelete)
+	router.HandleFunc("/rs/gwRouteUrlSuper/activate", h.HandleRouteURLActivateSuper)
 
 	//super performance service
 	router.HandleFunc("/rs/gwPerformanceSuper", h.HandlePeformanceSuper)
@@ -145,12 +145,12 @@ func main() {
 	router.HandleFunc("/rs/gwRestRoute/delete/{id}", h.HandleRestRouteDelete)
 
 	// admin routeUrl services
-	router.HandleFunc("/rs/gwRouteUrl/add", handleRouteURLChange)
-	router.HandleFunc("/rs/gwRouteUrl/update", handleRouteURLChange)
-	router.HandleFunc("/rs/gwRouteUrl/get/{id}/{routeId}", handleRouteURL)
-	router.HandleFunc("/rs/gwRouteUrl/list/{routeId}", handleRouteURLList)
-	router.HandleFunc("/rs/gwRouteUrl/delete/{id}/{routeId}", handleRouteURL)
-	router.HandleFunc("/rs/gwRouteUrl/activate", handleRouteURLActivate)
+	router.HandleFunc("/rs/gwRouteUrl/add", h.HandleRouteURLPost)
+	router.HandleFunc("/rs/gwRouteUrl/update", h.HandleRouteURLPut)
+	router.HandleFunc("/rs/gwRouteUrl/get/{id}/{routeId}", h.HandleRouteURLGet)
+	router.HandleFunc("/rs/gwRouteUrl/list/{routeId}", h.HandleRouteURLList)
+	router.HandleFunc("/rs/gwRouteUrl/delete/{id}/{routeId}", h.HandleRouteURLDelete)
+	router.HandleFunc("/rs/gwRouteUrl/activate", h.HandleRouteURLActivate)
 
 	//admin performance service
 	router.HandleFunc("/rs/gwPerformance", h.HandlePeformance)
