@@ -115,7 +115,7 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println(rName)
 	// fmt.Print("code: ")
 	// fmt.Println(code)
-	//fmt.Println("Found url: " + rts.URL)
+	// fmt.Println("Found url: " + rts.URL)
 	if rts.URL == "" {
 		fmt.Println("No route found in gateway")
 		rtnCode = rts.OpenFailCode
@@ -137,171 +137,23 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 			eTime1 = pppRtn.eTime1
 			sTime2 = pppRtn.sTime2
 		case "GET":
-			var spath = rts.URL + "/" + fpath + parseQueryString(code)
-			//fmt.Print("api path: ")
-			//fmt.Println(spath)
-			req, rErr := http.NewRequest(r.Method, spath, nil)
-			if rErr != nil {
-				fmt.Print("request err: ")
-				fmt.Println(rErr)
-				rtnCode = 400
-				rtn = rErr.Error()
-			} else {
-				buildHeaders(r, req)
-				client := &http.Client{}
-				eTime1 = time.Now()
-				resp, cErr := client.Do(req)
-				sTime2 = time.Now()
-				if cErr != nil {
-					fmt.Print("Gateway err: ")
-					fmt.Println(cErr)
-					rtnCode = 400
-					rtn = cErr.Error()
-					fmt.Println("Sending error to database")
-					cbk := h.CbDB.GetBreaker(&b)
-					fmt.Print("cbk: ")
-					fmt.Println(cbk)
-					h.CbDB.Trip(cbk)
-					go h.ErrDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
-				} else {
-					//fmt.Print("res: ")
-					//fmt.Println(resp)
-					//fmt.Print("Resp Body: ")
-					//fmt.Println(resp.Body)
-					defer resp.Body.Close()
-					respbody, err := processResponse(resp)
-					//fmt.Println("respbody: ")
-					//fmt.Println(respbody)
-
-					if err != nil {
-						//fmt.Print("Resp Body err: ")
-						//fmt.Println(err)
-						rtnCode = 500
-						rtn = err.Error()
-						cbk := h.CbDB.GetBreaker(&b)
-						h.CbDB.Trip(cbk)
-						go h.ErrDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
-					} else {
-						rtn = string(respbody)
-						//fmt.Println("Resp Body: ")
-						//fmt.Println(rtn)
-						rtnCode = resp.StatusCode
-						//fmt.Print("Status Code: ")
-						//fmt.Println(rtnCode)
-						//fmt.Print("Resp Body: ")
-						//fmt.Println(rtn)
-						if rtnCode != http.StatusOK {
-							go h.ErrDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
-						} else {
-							go h.CbDB.Reset(gwr.ClientID, rts.URLID)
-						}
-						buildRespHeaders(resp, w)
-						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-					}
-				}
-			}
+			pppRtn := doGet(&p)
+			rtn = pppRtn.rtn
+			rtnCode = pppRtn.rtnCode
+			eTime1 = pppRtn.eTime1
+			sTime2 = pppRtn.sTime2
 		case "DELETE":
-			var spath = rts.URL + "/" + fpath + parseQueryString(code)
-			//fmt.Print("fpath: ")
-			//fmt.Println(fpath)
-			//code := r.URL.Query()
-			//fmt.Println(code)
-			req, rErr := http.NewRequest(r.Method, spath, nil)
-			if rErr != nil {
-				fmt.Print("request err: ")
-				fmt.Println(rErr)
-				rtnCode = 400
-				rtn = rErr.Error()
-			} else {
-				buildHeaders(r, req)
-				client := &http.Client{}
-				eTime1 = time.Now()
-				resp, cErr := client.Do(req)
-				sTime2 = time.Now()
-				if cErr != nil {
-					fmt.Print("Gateway err: ")
-					fmt.Println(cErr)
-					rtnCode = 400
-					rtn = cErr.Error()
-					cbk := h.CbDB.GetBreaker(&b)
-					h.CbDB.Trip(cbk)
-					go h.ErrDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
-				} else {
-					defer resp.Body.Close()
-					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
-					if err != nil {
-						fmt.Print("Resp Body err: ")
-						fmt.Println(err)
-						rtnCode = 500
-						rtn = err.Error()
-						cbk := h.CbDB.GetBreaker(&b)
-						h.CbDB.Trip(cbk)
-						go h.ErrDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
-					} else {
-						rtn = string(respbody)
-						//fmt.Print("Resp Body: ")
-						//fmt.Println(rtn)
-						rtnCode = resp.StatusCode
-						if rtnCode != http.StatusOK {
-							go h.ErrDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
-						} else {
-							go h.CbDB.Reset(gwr.ClientID, rts.URLID)
-						}
-						buildRespHeaders(resp, w)
-						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-					}
-				}
-			}
+			pppRtn := doDelete(&p)
+			rtn = pppRtn.rtn
+			rtnCode = pppRtn.rtnCode
+			eTime1 = pppRtn.eTime1
+			sTime2 = pppRtn.sTime2
 		case "OPTIONS":
-			var spath = rts.URL + "/" + fpath + parseQueryString(code)
-			req, rErr := http.NewRequest(r.Method, spath, nil)
-			if rErr != nil {
-				fmt.Print("request err: ")
-				fmt.Println(rErr)
-				rtnCode = 400
-				rtn = rErr.Error()
-			} else {
-				client := &http.Client{}
-				eTime1 = time.Now()
-				resp, cErr := client.Do(req)
-				sTime2 = time.Now()
-				if cErr != nil {
-					fmt.Print("Gateway err: ")
-					fmt.Println(cErr)
-					rtnCode = 400
-					rtn = cErr.Error()
-					cbk := h.CbDB.GetBreaker(&b)
-					h.CbDB.Trip(cbk)
-					go h.ErrDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
-				} else {
-					defer resp.Body.Close()
-					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
-					if err != nil {
-						fmt.Println(err)
-						rtnCode = 500
-						rtn = err.Error()
-						cbk := h.CbDB.GetBreaker(&b)
-						h.CbDB.Trip(cbk)
-						go h.ErrDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
-					} else {
-						rtn = string(respbody)
-						fmt.Print("Resp Body: ")
-						fmt.Println(rtn)
-						rtnCode = resp.StatusCode
-						if rtnCode != http.StatusOK {
-							go h.ErrDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
-						} else {
-							go h.CbDB.Reset(gwr.ClientID, rts.URLID)
-						}
-						buildRespHeaders(resp, w)
-						//w.Header().Set("access-control-allow-headers", resp.Header.Get("access-control-allow-headers"))
-						//w.Header().Set("access-control-allow-methods", resp.Header.Get("access-control-allow-methods"))
-						//w.Header().Set("access-control-allow-origin", resp.Header.Get("access-control-allow-origin"))
-						//w.Header().Set("connection", resp.Header.Get("connection"))
-						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-					}
-				}
-			}
+			pppRtn := doOptions(&p)
+			rtn = pppRtn.rtn
+			rtnCode = pppRtn.rtnCode
+			eTime1 = pppRtn.eTime1
+			sTime2 = pppRtn.sTime2
 		}
 	}
 	eTime2 = time.Now()

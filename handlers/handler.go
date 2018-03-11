@@ -158,7 +158,7 @@ func getHeaders(req *http.Request) *authHeader {
 
 func paramsOK(p *passParams) bool {
 	var rtn = true
-	if p.b == nil || p.code == nil || p.fpath == "" || p.gwr == nil || p.h == nil || p.r == nil || p.rts == nil || p.w == nil {
+	if p.b == nil || p.code == nil || p.gwr == nil || p.h == nil || p.r == nil || p.rts == nil || p.w == nil {
 		rtn = false
 	}
 	return rtn
