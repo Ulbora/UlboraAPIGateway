@@ -94,6 +94,9 @@ func main() {
 	cbDB.CacheHost = getCacheHost()
 	gatewayDB.GwCacheHost = getCacheHost()
 	gatewayDB.Cb = cbDB
+	h.CbDB = cbDB
+	h.ErrDB = errDB
+	h.MonDB = monDB
 
 	fmt.Println("Api Gateway running on port 3011!")
 	router := mux.NewRouter()
@@ -174,9 +177,9 @@ func main() {
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	//gateway routes
-	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)
-	router.HandleFunc("/{route}/{fpath:[^ ]+}", handleGwRoute)
+	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", h.HandleGwRoute)
+	router.HandleFunc("/{route}/{fpath:[^ ]+}", h.HandleGwRoute)
 	//disgard -- router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
-	router.HandleFunc("/{route}", handleGwRoute)
+	router.HandleFunc("/{route}", h.HandleGwRoute)
 	http.ListenAndServe(":3011", router)
 }

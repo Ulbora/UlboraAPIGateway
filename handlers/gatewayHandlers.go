@@ -28,9 +28,9 @@ package handlers
 import (
 	cb "UlboraApiGateway/circuitbreaker"
 	mgr "UlboraApiGateway/managers"
-	"bytes"
+	//"bytes"
 	"fmt"
-	"io/ioutil"
+	//"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -44,7 +44,7 @@ type passParams struct {
 	rts   *mgr.GatewayRouteURL
 	fpath string
 	code  *url.Values
-	gwr   mgr.GatewayRoutes
+	gwr   *mgr.GatewayRoutes
 	b     *cb.Breaker
 	w     http.ResponseWriter
 	r     *http.Request
@@ -98,6 +98,15 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 	b.ClientID = gwr.ClientID
 	b.RestRouteID = rts.RouteID
 	b.RouteURIID = rts.URLID
+	var p passParams
+	p.b = &b
+	p.code = &code
+	p.fpath = fpath
+	p.gwr = &gwr
+	p.h = &h
+	p.r = r
+	p.rts = rts
+	p.w = w
 	// fmt.Print("route: ")
 	// fmt.Println(route)
 	// fmt.Print("fpath: ")
@@ -122,7 +131,11 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST", "PUT", "PATCH":
-
+			pppRtn := doPostPutPatch(&p)
+			rtn = pppRtn.rtn
+			rtnCode = pppRtn.rtnCode
+			eTime1 = pppRtn.eTime1
+			sTime2 = pppRtn.sTime2
 		case "GET":
 			var spath = rts.URL + "/" + fpath + parseQueryString(code)
 			//fmt.Print("api path: ")
@@ -146,6 +159,8 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 					rtn = cErr.Error()
 					fmt.Println("Sending error to database")
 					cbk := h.CbDB.GetBreaker(&b)
+					fmt.Print("cbk: ")
+					fmt.Println(cbk)
 					h.CbDB.Trip(cbk)
 					go h.ErrDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
@@ -305,80 +320,4 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 	go h.MonDB.SaveRoutePerformance(gwr.ClientID, rts.RouteID, rts.URLID, rms)
 	w.WriteHeader(rtnCode)
 	fmt.Fprint(w, rtn)
-}
-
-func doPostPutPatch(p *passParams) *returnVals {
-	//fmt.Print("found routes: ")
-	//fmt.Println(rts)
-	var rtnVals returnVals
-	var rtn string
-	var rtnCode int
-
-	//var sTime1 = time.Now()
-	var sTime2 time.Time
-	var eTime1 time.Time
-	//var eTime2 time.Time
-
-	var spath = p.rts.URL + "/" + p.fpath + parseQueryString(*p.code)
-	//fmt.Print("spath: ")
-	//fmt.Println(spath)
-	//body := r.Body.Read()
-	body, err := ioutil.ReadAll(p.r.Body)
-	if err != nil {
-		fmt.Println(err)
-	} //else {
-	//fmt.Print("Body: ")
-	//fmt.Println(string(body))
-	//}
-	req, rErr := http.NewRequest(p.r.Method, spath, bytes.NewBuffer(body))
-	if rErr != nil {
-		fmt.Print("request err: ")
-		fmt.Println(rErr)
-		rtnCode = 400
-		rtn = rErr.Error()
-	} else {
-		buildHeaders(p.r, req)
-		client := &http.Client{}
-		eTime1 = time.Now()
-		resp, cErr := client.Do(req)
-		sTime2 = time.Now()
-		if cErr != nil {
-			fmt.Print("Gateway err: ")
-			fmt.Println(cErr)
-			rtnCode = 400
-			rtn = cErr.Error()
-			cbk := p.h.CbDB.GetBreaker(p.b)
-			p.h.CbDB.Trip(cbk)
-			go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, 400, cErr.Error(), p.rts.RouteID, p.rts.URLID)
-		} else {
-			defer resp.Body.Close()
-			respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Print("Resp Body err: ")
-				fmt.Println(err)
-				rtnCode = 500
-				rtn = err.Error()
-				cbk := p.h.CbDB.GetBreaker(p.b)
-				p.h.CbDB.Trip(cbk)
-				go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, 500, err.Error(), p.rts.RouteID, p.rts.URLID)
-			} else {
-				rtn = string(respbody)
-				//fmt.Print("Resp Body: ")
-				//fmt.Println(rtn)
-				rtnCode = resp.StatusCode
-				if rtnCode != http.StatusOK {
-					go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, rtnCode, resp.Status, p.rts.RouteID, p.rts.URLID)
-				} else {
-					go p.h.CbDB.Reset(p.gwr.ClientID, p.rts.URLID)
-				}
-				buildRespHeaders(resp, p.w)
-				//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-			}
-		}
-	}
-	rtnVals.rtnCode = rtnCode
-	rtnVals.rtn = rtn
-	rtnVals.eTime1 = eTime1
-	rtnVals.sTime2 = sTime2
-	return &rtnVals
 }
