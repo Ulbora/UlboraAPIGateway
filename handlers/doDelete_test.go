@@ -86,9 +86,6 @@ func TestGatewayDel_doDel(t *testing.T) {
 	var q = make(url.Values, 0)
 	q.Set("p1", "param1")
 	p.code = &q
-	// var c challange
-	// c.Answer = "test"
-	// c.Key = "test"
 
 	// aJSON, _ := json.Marshal(c)
 	r, _ := http.NewRequest("DELETE", "/test", nil)
