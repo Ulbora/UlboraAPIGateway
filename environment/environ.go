@@ -1,9 +1,5 @@
 package environment
 
-import (
-	"os"
-)
-
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
  All rights reserved.
@@ -28,6 +24,11 @@ import (
  You should have received a copy of the GNU Affero General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+import (
+	"os"
+)
+
 //GetCacheHost GetCacheHost
 func GetCacheHost() string {
 	var rtn = ""

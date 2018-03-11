@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-type challange struct {
+type challenge struct {
 	Answer string `json:"answer"`
 	Key    string `json:"key"`
 }
@@ -59,9 +59,6 @@ func TestGatewayPost_doPostPutPatchReq(t *testing.T) {
 	var q = make(url.Values, 0)
 	q.Set("p1", "param1")
 	p.code = &q
-	//var c challange
-	//c.Answer = "test"
-	//c.Key = "test"
 
 	aJSON, _ := json.Marshal(nil)
 	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
@@ -94,7 +91,7 @@ func TestGatewayPost_doPostPutPatchMedia(t *testing.T) {
 	var q = make(url.Values, 0)
 	q.Set("p1", "param1")
 	p.code = &q
-	var c challange
+	var c challenge
 	c.Answer = "test"
 	c.Key = "test"
 
@@ -129,7 +126,7 @@ func TestGatewayPost_doPostPutPatch(t *testing.T) {
 	var q = make(url.Values, 0)
 	q.Set("p1", "param1")
 	p.code = &q
-	var c challange
+	var c challenge
 	c.Answer = "test"
 	c.Key = "test"
 
