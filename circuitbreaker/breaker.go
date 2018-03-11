@@ -1,3 +1,5 @@
+package circuitbreaker
+
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
  All rights reserved.
@@ -22,8 +24,6 @@
  You should have received a copy of the GNU Affero General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-package circuitbreaker
 
 import (
 	ch "UlboraApiGateway/cache"
@@ -146,8 +146,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 		var cp ch.CProxy
 		cp.Host = c.CacheHost
 		res := cp.Get(key)
-		//fmt.Print("cache read in from server in status: ")
-		//fmt.Println(res)
+		fmt.Print("cache read in from server in status: ")
+		fmt.Println(res)
 		if res.Success == true {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 			//fmt.Print("json from cache: ")
@@ -211,6 +211,8 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 	var found bool
 	var useExCache bool
 	//cs, found = cbCache[key]
+	//fmt.Print("CacheHost: ")
+	//fmt.Println(c.CacheHost)
 	if c.CacheHost != "" {
 		useExCache = true
 		//var cp ch.CProxy
@@ -298,6 +300,8 @@ func (c *CircuitBreaker) Reset(clientID int64, urlID int64) {
 
 //GetBreaker from database
 func (c *CircuitBreaker) GetBreaker(b *Breaker) *Breaker {
+	fmt.Print("b in cb: ")
+	fmt.Println(b)
 	a := []interface{}{b.RouteURIID, b.RestRouteID, b.ClientID}
 	var rtn *Breaker
 	rowPtr := c.DbConfig.GetBreaker(a...)

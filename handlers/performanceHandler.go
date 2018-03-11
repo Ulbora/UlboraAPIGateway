@@ -1,3 +1,5 @@
+package handlers
+
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
  All rights reserved.
@@ -23,10 +25,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
-
 import (
-	gwerr "UlboraApiGateway/gwerrors"
+	gwmon "UlboraApiGateway/monitor"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -35,7 +35,10 @@ import (
 	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 )
 
-func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
+//HandlePeformanceSuper HandlePeformanceSuper
+func (h Handler) HandlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
+	var monDB gwmon.GatewayPerformanceMonitor
+	monDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "superAdmin"
@@ -47,31 +50,35 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwErrorsSuper"
-			valid := auth.Authorize(me)
+			me.URI = "/ulbora/rs/gwPerformanceSuper"
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
-				e := new(gwerr.GwError)
+				p := new(gwmon.GwPerformance)
 				decoder := json.NewDecoder(r.Body)
-				error := decoder.Decode(&e)
+				error := decoder.Decode(&p)
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if e.ClientID == 0 || e.RestRouteID == 0 || e.RouteURIID == 0 {
+				} else if p.ClientID == 0 || p.RestRouteID == 0 || p.RouteURIID == 0 {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
-					resOut := errDB.GetRouteError(e)
+					resOut := monDB.GetRoutePerformance(p)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
-					//fmt.Print("response json: ")
-					//fmt.Println(resJSON)
 					if err != nil {
 						log.Println(error.Error())
-						//http.Error(w, "json output failed", http.StatusInternalServerError)
+						http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
+					//fmt.Fprint(w, string(resJSON))
 					if string(resJSON) == "null" {
 						fmt.Fprint(w, "[]")
 					} else {
@@ -79,11 +86,16 @@ func handleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }
 
-func handleErrors(w http.ResponseWriter, r *http.Request) {
+//HandlePeformance HandlePeformance
+func (h Handler) HandlePeformance(w http.ResponseWriter, r *http.Request) {
+	var monDB gwmon.GatewayPerformanceMonitor
+	monDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
 	me := new(uoauth.Claim)
 	me.Role = "admin"
@@ -95,32 +107,36 @@ func handleErrors(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwErrors"
-			valid := auth.Authorize(me)
+			me.URI = "/ulbora/rs/gwPerformance"
+			var valid bool
+			if testMode == true {
+				valid = true
+			} else {
+				valid = auth.Authorize(me)
+			}
 			if valid != true {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
-				e := new(gwerr.GwError)
+				p := new(gwmon.GwPerformance)
 				decoder := json.NewDecoder(r.Body)
-				error := decoder.Decode(&e)
+				error := decoder.Decode(&p)
 				if error != nil {
 					log.Println(error.Error())
 					http.Error(w, error.Error(), http.StatusBadRequest)
-				} else if e.RestRouteID == 0 || e.RouteURIID == 0 {
+				} else if p.RestRouteID == 0 || p.RouteURIID == 0 {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
-					e.ClientID = auth.ClientID
-					resOut := errDB.GetRouteError(e)
+					p.ClientID = auth.ClientID
+					resOut := monDB.GetRoutePerformance(p)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
 					resJSON, err := json.Marshal(resOut)
-					//fmt.Print("response json: ")
-					//fmt.Println(resJSON)
 					if err != nil {
 						log.Println(error.Error())
-						//http.Error(w, "json output failed", http.StatusInternalServerError)
+						http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
+					//fmt.Fprint(w, string(resJSON))
 					if string(resJSON) == "null" {
 						fmt.Fprint(w, "[]")
 					} else {
@@ -128,6 +144,8 @@ func handleErrors(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }

@@ -1,3 +1,5 @@
+package main
+
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
  All rights reserved.
@@ -23,12 +25,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
-
 //build command "go build -o main *.go"
 import (
 	cb "UlboraApiGateway/circuitbreaker"
 	gwerr "UlboraApiGateway/gwerrors"
+	hdlr "UlboraApiGateway/handlers"
 	mgr "UlboraApiGateway/managers"
 	gwmon "UlboraApiGateway/monitor"
 	"fmt"
@@ -47,6 +48,7 @@ type authHeader struct {
 
 var gatewayDB mgr.GatewayDB
 var errDB gwerr.GatewayErrorMonitor
+var h hdlr.Handler
 var monDB gwmon.GatewayPerformanceMonitor
 var cbDB cb.CircuitBreaker
 
@@ -81,8 +83,10 @@ func main() {
 	}
 	gatewayDB.ConnectDb()
 	defer gatewayDB.CloseDb()
+
 	//gwr.GwDB = gatewayDB
 	errDB.DbConfig = gatewayDB.DbConfig
+	h.DbConfig = gatewayDB.DbConfig
 	monDB.CacheHost = getCacheHost()
 	monDB.CallBatchSize = 10 //size of cache batch saved. normal should be 100
 	monDB.DbConfig = gatewayDB.DbConfig
@@ -90,84 +94,92 @@ func main() {
 	cbDB.CacheHost = getCacheHost()
 	gatewayDB.GwCacheHost = getCacheHost()
 	gatewayDB.Cb = cbDB
+	h.CbDB = cbDB
+	h.ErrDB = errDB
+	h.MonDB = monDB
 
 	fmt.Println("Api Gateway running on port 3011!")
 	router := mux.NewRouter()
 	//super admin client services
-	router.HandleFunc("/rs/gwClient/add", handleClientChange)
-	router.HandleFunc("/rs/gwClient/update", handleClientChange)
-	router.HandleFunc("/rs/gwClient/get/{clientId}", handleClient)
-	router.HandleFunc("/rs/gwClient/list", handleClientList)
-	router.HandleFunc("/rs/gwClient/delete/{clientId}", handleClient)
+	router.HandleFunc("/rs/gwClient/add", h.HandleClientPost)
+	router.HandleFunc("/rs/gwClient/update", h.HandleClientPut)
+	router.HandleFunc("/rs/gwClient/get/{clientId}", h.HandleClientGet)
+	router.HandleFunc("/rs/gwClient/list", h.HandleClientList)
+	router.HandleFunc("/rs/gwClient/delete/{clientId}", h.HandleClientDelete)
 
 	// super admin restRoute services
-	router.HandleFunc("/rs/gwRestRouteSuper/add", handleRestRouteSuperChange)
-	router.HandleFunc("/rs/gwRestRouteSuper/update", handleRestRouteSuperChange)
-	router.HandleFunc("/rs/gwRestRouteSuper/get/{id}/{clientId}", handleRestRouteSuper)
-	router.HandleFunc("/rs/gwRestRouteSuper/list/{clientId}", handleRestRouteSuperList)
-	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", handleRestRouteSuper)
+	router.HandleFunc("/rs/gwRestRouteSuper/add", h.HandleRestRouteSuperPost)
+	router.HandleFunc("/rs/gwRestRouteSuper/update", h.HandleRestRouteSuperPut)
+	router.HandleFunc("/rs/gwRestRouteSuper/get/{id}/{clientId}", h.HandleRestRouteSuperGet)
+	router.HandleFunc("/rs/gwRestRouteSuper/list/{clientId}", h.HandleRestRouteSuperList)
+	router.HandleFunc("/rs/gwRestRouteSuper/delete/{id}/{clientId}", h.HandleRestRouteSuperDelete)
 
 	// super admin routeUrl services
-	router.HandleFunc("/rs/gwRouteUrlSuper/add", handleRouteURLSuperChange)
-	router.HandleFunc("/rs/gwRouteUrlSuper/update", handleRouteURLSuperChange)
-	router.HandleFunc("/rs/gwRouteUrlSuper/get/{id}/{routeId}/{clientId}", handleRouteURLSuper)
-	router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
-	router.HandleFunc("/rs/gwRouteUrlSuper/delete/{id}/{routeId}/{clientId}", handleRouteURLSuper)
-	router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
+	router.HandleFunc("/rs/gwRouteUrlSuper/add", h.HandleRouteURLSuperPost)
+	router.HandleFunc("/rs/gwRouteUrlSuper/update", h.HandleRouteURLSuperPut)
+	router.HandleFunc("/rs/gwRouteUrlSuper/get/{id}/{routeId}/{clientId}", h.HandleRouteURLSuperGet)
+	router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", h.HandleRouteURLSuperList)
+	router.HandleFunc("/rs/gwRouteUrlSuper/delete/{id}/{routeId}/{clientId}", h.HandleRouteURLSuperDelete)
+	router.HandleFunc("/rs/gwRouteUrlSuper/activate", h.HandleRouteURLActivateSuper)
 
 	//super performance service
-	router.HandleFunc("/rs/gwPerformanceSuper", handlePeformanceSuper)
+	router.HandleFunc("/rs/gwPerformanceSuper", h.HandlePeformanceSuper)
 
 	//super errors service
-	router.HandleFunc("/rs/gwErrorsSuper", handleErrorsSuper)
+	router.HandleFunc("/rs/gwErrorsSuper", h.HandleErrorsSuper)
 
 	// super Breaker services
-	router.HandleFunc("/rs/gwBreakerSuper/add", handleBreakerSuperChange)
-	router.HandleFunc("/rs/gwBreakerSuper/update", handleBreakerSuperChange)
-	router.HandleFunc("/rs/gwBreakerSuper/reset", handleBreakerSuperReset)
-	router.HandleFunc("/rs/gwBreakerSuper/get/{urlId}/{routeId}/{clientId}", handleBreakerSuper)
-	router.HandleFunc("/rs/gwBreakerSuper/status/{urlId}/{clientId}", handleBreakerStatusSuper)
+	router.HandleFunc("/rs/gwBreakerSuper/add", h.HandleBreakerSuperPost)
+	router.HandleFunc("/rs/gwBreakerSuper/update", h.HandleBreakerSuperPut)
+	router.HandleFunc("/rs/gwBreakerSuper/reset", h.HandleBreakerSuperReset)
+	router.HandleFunc("/rs/gwBreakerSuper/get/{urlId}/{routeId}/{clientId}", h.HandleBreakerSuperGet)
+	router.HandleFunc("/rs/gwBreakerSuper/status/{urlId}/{clientId}", h.HandleBreakerStatusSuper)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
-	router.HandleFunc("/rs/gwBreakerSuper/delete/{urlId}/{routeId}/{clientId}", handleBreakerSuper)
+	router.HandleFunc("/rs/gwBreakerSuper/delete/{urlId}/{routeId}/{clientId}", h.HandleBreakerSuperDelete)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	// admin restRoute services
-	router.HandleFunc("/rs/gwClientUser/get", handleUserClient)
+	router.HandleFunc("/rs/gwClientUser/get", h.HandleUserClient)
 
-	router.HandleFunc("/rs/gwRestRoute/add", handleRestRouteChange)
-	router.HandleFunc("/rs/gwRestRoute/update", handleRestRouteChange)
-	router.HandleFunc("/rs/gwRestRoute/get/{id}", handleRestRoute)
-	router.HandleFunc("/rs/gwRestRoute/list", handleRestRouteList)
-	router.HandleFunc("/rs/gwRestRoute/delete/{id}", handleRestRoute)
+	router.HandleFunc("/rs/gwRestRoute/add", h.HandleRestRoutePost)
+	router.HandleFunc("/rs/gwRestRoute/update", h.HandleRestRoutePut)
+	router.HandleFunc("/rs/gwRestRoute/get/{id}", h.HandleRestRouteGet)
+	router.HandleFunc("/rs/gwRestRoute/list", h.HandleRestRouteList)
+	router.HandleFunc("/rs/gwRestRoute/delete/{id}", h.HandleRestRouteDelete)
 
 	// admin routeUrl services
-	router.HandleFunc("/rs/gwRouteUrl/add", handleRouteURLChange)
-	router.HandleFunc("/rs/gwRouteUrl/update", handleRouteURLChange)
-	router.HandleFunc("/rs/gwRouteUrl/get/{id}/{routeId}", handleRouteURL)
-	router.HandleFunc("/rs/gwRouteUrl/list/{routeId}", handleRouteURLList)
-	router.HandleFunc("/rs/gwRouteUrl/delete/{id}/{routeId}", handleRouteURL)
-	router.HandleFunc("/rs/gwRouteUrl/activate", handleRouteURLActivate)
+	router.HandleFunc("/rs/gwRouteUrl/add", h.HandleRouteURLPost)
+	router.HandleFunc("/rs/gwRouteUrl/update", h.HandleRouteURLPut)
+	router.HandleFunc("/rs/gwRouteUrl/get/{id}/{routeId}", h.HandleRouteURLGet)
+	router.HandleFunc("/rs/gwRouteUrl/list/{routeId}", h.HandleRouteURLList)
+	router.HandleFunc("/rs/gwRouteUrl/delete/{id}/{routeId}", h.HandleRouteURLDelete)
+	router.HandleFunc("/rs/gwRouteUrl/activate", h.HandleRouteURLActivate)
 
 	//admin performance service
-	router.HandleFunc("/rs/gwPerformance", handlePeformance)
+	router.HandleFunc("/rs/gwPerformance", h.HandlePeformance)
 
 	//admin errors service
-	router.HandleFunc("/rs/gwErrors", handleErrors)
+	router.HandleFunc("/rs/gwErrors", h.HandleErrors)
+
+	//cluster route status
+	router.HandleFunc("/rs/cluster/routestatus/{route}", h.HandleGetRouteStatus)
+	router.HandleFunc("/rs/cluster/routestatus/delete/{route}", h.HandleDeleteRouteStatus)
+	router.HandleFunc("/rs/cluster/routes/{route}", h.HandleGetClusterGwRoutes)
 
 	// admin Breaker services
-	router.HandleFunc("/rs/gwBreaker/add", handleBreakerChange)
-	router.HandleFunc("/rs/gwBreaker/update", handleBreakerChange)
-	router.HandleFunc("/rs/gwBreaker/reset", handleBreakerReset)
-	router.HandleFunc("/rs/gwBreaker/get/{urlId}/{routeId}", handleBreaker)
-	router.HandleFunc("/rs/gwBreaker/status/{urlId}", handleBreakerStatus)
+	router.HandleFunc("/rs/gwBreaker/add", h.HandleBreakerPost)
+	router.HandleFunc("/rs/gwBreaker/update", h.HandleBreakerPut)
+	router.HandleFunc("/rs/gwBreaker/reset", h.HandleBreakerReset)
+	router.HandleFunc("/rs/gwBreaker/get/{urlId}/{routeId}", h.HandleBreakerGet)
+	router.HandleFunc("/rs/gwBreaker/status/{urlId}", h.HandleBreakerStatus)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/list/{routeId}/{clientId}", handleRouteURLSuperList)
-	router.HandleFunc("/rs/gwBreaker/delete/{urlId}/{routeId}", handleBreaker)
+	router.HandleFunc("/rs/gwBreaker/delete/{urlId}/{routeId}", h.HandleBreakerDelete)
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	//gateway routes
-	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", handleGwRoute)
-	router.HandleFunc("/{route}/{fpath:[^ ]+}", handleGwRoute)
+	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", h.HandleGwRoute)
+	router.HandleFunc("/{route}/{fpath:[^ ]+}", h.HandleGwRoute)
 	//disgard -- router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
-	router.HandleFunc("/{route}", handleGwRoute)
+	router.HandleFunc("/{route}", h.HandleGwRoute)
 	http.ListenAndServe(":3011", router)
 }

@@ -1,3 +1,5 @@
+package managers
+
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
  All rights reserved.
@@ -22,7 +24,6 @@
  You should have received a copy of the GNU Affero General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package managers
 
 import (
 	ch "UlboraApiGateway/cache"
@@ -71,8 +72,8 @@ type GatewayRouteURL struct {
 	Name         string `json:"name"`
 	URL          string `json:"url"`
 	Active       bool   `json:"active"`
-	CircuitOpen  bool
-	OpenFailCode int
+	CircuitOpen  bool   `json:"circuitOpen"`
+	OpenFailCode int    `json:"openFailCode"`
 }
 
 //GatewayDB db config
@@ -89,6 +90,12 @@ type GatewayRoutes struct {
 	ClientID    int64
 	GwDB        GatewayDB
 	GwCacheHost string
+}
+
+//GateStatusResponse GateStatusResponse
+type GateStatusResponse struct {
+	Success       bool `json:"success"`
+	RouteModified bool `json:"routeModified"`
 }
 
 //ConnectDb to database

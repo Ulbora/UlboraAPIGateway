@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -26,6 +26,11 @@ package main
 */
 
 import (
+	db "UlboraApiGateway/database"
+	gwerr "UlboraApiGateway/gwerrors"
+	//gwerr "UlboraApiGateway/gwerrors"
+	cb "UlboraApiGateway/circuitbreaker"
+	gwmon "UlboraApiGateway/monitor"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -35,6 +40,28 @@ import (
 
 	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 )
+
+//var errDB gwerr.GatewayErrorMonitor
+
+//Handler Handler
+type Handler struct {
+	DbConfig db.DbConfig
+	ErrDB    gwerr.GatewayErrorMonitor
+	MonDB    gwmon.GatewayPerformanceMonitor
+	CbDB     cb.CircuitBreaker
+}
+
+// //SetManager set manager
+// func SetManager(db gwerr.GatewayErrorMonitor) {
+// 	errDB = db
+// }
+
+type authHeader struct {
+	token    string
+	clientID int64
+	userID   string
+	hashed   bool
+}
 
 func parseQueryString(vals url.Values) string {
 	var rtn = ""
@@ -126,5 +153,13 @@ func getHeaders(req *http.Request) *authHeader {
 	}
 	//fmt.Println(clientIDHeader)
 	//fmt.Println(userIDHeader)
+	return rtn
+}
+
+func paramsOK(p *passParams) bool {
+	var rtn = true
+	if p.b == nil || p.code == nil || p.gwr == nil || p.h == nil || p.r == nil || p.rts == nil || p.w == nil {
+		rtn = false
+	}
 	return rtn
 }
