@@ -1,4 +1,4 @@
-package main
+package handlers
 
 /*
  Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
@@ -32,13 +32,37 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
-func handleGwRoute(w http.ResponseWriter, r *http.Request) {
+type passParams struct {
+	h     *Handler
+	rts   *mgr.GatewayRouteURL
+	fpath string
+	code  *url.Values
+	gwr   mgr.GatewayRoutes
+	b     *cb.Breaker
+	w     http.ResponseWriter
+	r     *http.Request
+}
+
+type returnVals struct {
+	rtnCode int
+	rtn     string
+	eTime1  time.Time
+	sTime2  time.Time
+}
+
+//HandleGwRoute HandleGwRoute
+func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
+	var gatewayDB mgr.GatewayDB
+	gatewayDB.DbConfig = h.DbConfig
+	gatewayDB.GwCacheHost = getCacheHost()
+
 	var sTime1 = time.Now()
 	var sTime2 time.Time
 	var eTime1 time.Time
@@ -98,65 +122,7 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST", "PUT", "PATCH":
-			//fmt.Print("found routes: ")
-			//fmt.Println(rts)
-			var spath = rts.URL + "/" + fpath + parseQueryString(code)
-			//fmt.Print("spath: ")
-			//fmt.Println(spath)
-			//body := r.Body.Read()
-			body, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				fmt.Println(err)
-			} //else {
-			//fmt.Print("Body: ")
-			//fmt.Println(string(body))
-			//}
-			req, rErr := http.NewRequest(r.Method, spath, bytes.NewBuffer(body))
-			if rErr != nil {
-				fmt.Print("request err: ")
-				fmt.Println(rErr)
-				rtnCode = 400
-				rtn = rErr.Error()
-			} else {
-				buildHeaders(r, req)
-				client := &http.Client{}
-				eTime1 = time.Now()
-				resp, cErr := client.Do(req)
-				sTime2 = time.Now()
-				if cErr != nil {
-					fmt.Print("Gateway err: ")
-					fmt.Println(cErr)
-					rtnCode = 400
-					rtn = cErr.Error()
-					cbk := cbDB.GetBreaker(&b)
-					cbDB.Trip(cbk)
-					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
-				} else {
-					defer resp.Body.Close()
-					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
-					if err != nil {
-						fmt.Print("Resp Body err: ")
-						fmt.Println(err)
-						rtnCode = 500
-						rtn = err.Error()
-						cbk := cbDB.GetBreaker(&b)
-						cbDB.Trip(cbk)
-						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
-					} else {
-						rtn = string(respbody)
-						//fmt.Print("Resp Body: ")
-						//fmt.Println(rtn)
-						rtnCode = resp.StatusCode
-						if rtnCode != http.StatusOK {
-							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
-						} else {
-							go cbDB.Reset(gwr.ClientID, rts.URLID)
-						}
-						buildRespHeaders(resp, w)
-						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-					}
-				}
-			}
+
 		case "GET":
 			var spath = rts.URL + "/" + fpath + parseQueryString(code)
 			//fmt.Print("api path: ")
@@ -179,9 +145,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					rtnCode = 400
 					rtn = cErr.Error()
 					fmt.Println("Sending error to database")
-					cbk := cbDB.GetBreaker(&b)
-					cbDB.Trip(cbk)
-					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
+					cbk := h.CbDB.GetBreaker(&b)
+					h.CbDB.Trip(cbk)
+					go h.ErrDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					//fmt.Print("res: ")
 					//fmt.Println(resp)
@@ -197,9 +163,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						//fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
-						cbk := cbDB.GetBreaker(&b)
-						cbDB.Trip(cbk)
-						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
+						cbk := h.CbDB.GetBreaker(&b)
+						h.CbDB.Trip(cbk)
+						go h.ErrDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						//fmt.Println("Resp Body: ")
@@ -210,9 +176,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						//fmt.Print("Resp Body: ")
 						//fmt.Println(rtn)
 						if rtnCode != http.StatusOK {
-							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+							go h.ErrDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
 						} else {
-							go cbDB.Reset(gwr.ClientID, rts.URLID)
+							go h.CbDB.Reset(gwr.ClientID, rts.URLID)
 						}
 						buildRespHeaders(resp, w)
 						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
@@ -242,9 +208,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
-					cbk := cbDB.GetBreaker(&b)
-					cbDB.Trip(cbk)
-					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
+					cbk := h.CbDB.GetBreaker(&b)
+					h.CbDB.Trip(cbk)
+					go h.ErrDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
 					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
@@ -253,18 +219,18 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
-						cbk := cbDB.GetBreaker(&b)
-						cbDB.Trip(cbk)
-						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
+						cbk := h.CbDB.GetBreaker(&b)
+						h.CbDB.Trip(cbk)
+						go h.ErrDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						//fmt.Print("Resp Body: ")
 						//fmt.Println(rtn)
 						rtnCode = resp.StatusCode
 						if rtnCode != http.StatusOK {
-							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+							go h.ErrDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
 						} else {
-							go cbDB.Reset(gwr.ClientID, rts.URLID)
+							go h.CbDB.Reset(gwr.ClientID, rts.URLID)
 						}
 						buildRespHeaders(resp, w)
 						//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
@@ -289,9 +255,9 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(cErr)
 					rtnCode = 400
 					rtn = cErr.Error()
-					cbk := cbDB.GetBreaker(&b)
-					cbDB.Trip(cbk)
-					go errDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
+					cbk := h.CbDB.GetBreaker(&b)
+					h.CbDB.Trip(cbk)
+					go h.ErrDB.SaveRouteError(gwr.ClientID, 400, cErr.Error(), rts.RouteID, rts.URLID)
 				} else {
 					defer resp.Body.Close()
 					respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
@@ -299,18 +265,18 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 						fmt.Println(err)
 						rtnCode = 500
 						rtn = err.Error()
-						cbk := cbDB.GetBreaker(&b)
-						cbDB.Trip(cbk)
-						go errDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
+						cbk := h.CbDB.GetBreaker(&b)
+						h.CbDB.Trip(cbk)
+						go h.ErrDB.SaveRouteError(gwr.ClientID, 500, err.Error(), rts.RouteID, rts.URLID)
 					} else {
 						rtn = string(respbody)
 						fmt.Print("Resp Body: ")
 						fmt.Println(rtn)
 						rtnCode = resp.StatusCode
 						if rtnCode != http.StatusOK {
-							go errDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
+							go h.ErrDB.SaveRouteError(gwr.ClientID, rtnCode, resp.Status, rts.RouteID, rts.URLID)
 						} else {
-							go cbDB.Reset(gwr.ClientID, rts.URLID)
+							go h.CbDB.Reset(gwr.ClientID, rts.URLID)
 						}
 						buildRespHeaders(resp, w)
 						//w.Header().Set("access-control-allow-headers", resp.Header.Get("access-control-allow-headers"))
@@ -336,7 +302,83 @@ func handleGwRoute(w http.ResponseWriter, r *http.Request) {
 	rms := int64(pms + .5)
 	//fmt.Print("rounded latency micros: ")
 	//fmt.Println(rms)
-	go monDB.SaveRoutePerformance(gwr.ClientID, rts.RouteID, rts.URLID, rms)
+	go h.MonDB.SaveRoutePerformance(gwr.ClientID, rts.RouteID, rts.URLID, rms)
 	w.WriteHeader(rtnCode)
 	fmt.Fprint(w, rtn)
+}
+
+func doPostPutPatch(p *passParams) *returnVals {
+	//fmt.Print("found routes: ")
+	//fmt.Println(rts)
+	var rtnVals returnVals
+	var rtn string
+	var rtnCode int
+
+	//var sTime1 = time.Now()
+	var sTime2 time.Time
+	var eTime1 time.Time
+	//var eTime2 time.Time
+
+	var spath = p.rts.URL + "/" + p.fpath + parseQueryString(*p.code)
+	//fmt.Print("spath: ")
+	//fmt.Println(spath)
+	//body := r.Body.Read()
+	body, err := ioutil.ReadAll(p.r.Body)
+	if err != nil {
+		fmt.Println(err)
+	} //else {
+	//fmt.Print("Body: ")
+	//fmt.Println(string(body))
+	//}
+	req, rErr := http.NewRequest(p.r.Method, spath, bytes.NewBuffer(body))
+	if rErr != nil {
+		fmt.Print("request err: ")
+		fmt.Println(rErr)
+		rtnCode = 400
+		rtn = rErr.Error()
+	} else {
+		buildHeaders(p.r, req)
+		client := &http.Client{}
+		eTime1 = time.Now()
+		resp, cErr := client.Do(req)
+		sTime2 = time.Now()
+		if cErr != nil {
+			fmt.Print("Gateway err: ")
+			fmt.Println(cErr)
+			rtnCode = 400
+			rtn = cErr.Error()
+			cbk := p.h.CbDB.GetBreaker(p.b)
+			p.h.CbDB.Trip(cbk)
+			go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, 400, cErr.Error(), p.rts.RouteID, p.rts.URLID)
+		} else {
+			defer resp.Body.Close()
+			respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Print("Resp Body err: ")
+				fmt.Println(err)
+				rtnCode = 500
+				rtn = err.Error()
+				cbk := p.h.CbDB.GetBreaker(p.b)
+				p.h.CbDB.Trip(cbk)
+				go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, 500, err.Error(), p.rts.RouteID, p.rts.URLID)
+			} else {
+				rtn = string(respbody)
+				//fmt.Print("Resp Body: ")
+				//fmt.Println(rtn)
+				rtnCode = resp.StatusCode
+				if rtnCode != http.StatusOK {
+					go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, rtnCode, resp.Status, p.rts.RouteID, p.rts.URLID)
+				} else {
+					go p.h.CbDB.Reset(p.gwr.ClientID, p.rts.URLID)
+				}
+				buildRespHeaders(resp, p.w)
+				//w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+			}
+		}
+	}
+	rtnVals.rtnCode = rtnCode
+	rtnVals.rtn = rtn
+	rtnVals.eTime1 = eTime1
+	rtnVals.sTime2 = sTime2
+	return &rtnVals
 }

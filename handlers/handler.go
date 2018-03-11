@@ -27,7 +27,10 @@ package handlers
 
 import (
 	db "UlboraApiGateway/database"
+	gwerr "UlboraApiGateway/gwerrors"
 	//gwerr "UlboraApiGateway/gwerrors"
+	cb "UlboraApiGateway/circuitbreaker"
+	gwmon "UlboraApiGateway/monitor"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -43,6 +46,9 @@ import (
 //Handler Handler
 type Handler struct {
 	DbConfig db.DbConfig
+	ErrDB    gwerr.GatewayErrorMonitor
+	MonDB    gwmon.GatewayPerformanceMonitor
+	CbDB     cb.CircuitBreaker
 }
 
 // //SetManager set manager
