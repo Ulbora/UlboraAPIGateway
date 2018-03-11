@@ -1,6 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Ulbora/UlboraAPIGateway)](https://goreportcard.com/report/github.com/Ulbora/UlboraAPIGateway)
 
-[(![](https://img.shields.io/docker/build/mariobehling/loklak.svg))](https://hub.docker.com/r/ulboralabs/ulboraapigateway/builds/)
+[![](https://img.shields.io/docker/build/mariobehling/loklak.svg)](https://hub.docker.com/r/ulboralabs/ulboraapigateway/builds/)
 
 
 
