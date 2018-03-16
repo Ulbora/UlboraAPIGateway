@@ -75,7 +75,11 @@ func (g *GatewayPerformanceMonitor) ConnectDb() bool {
 func (g *GatewayPerformanceMonitor) InsertRoutePerformance(e *GwPerformance) (bool, error) {
 	var success bool
 	var err error
+	//fmt.Println("testing db")
+	//fmt.Println(g.DbConfig)
 	dbConnected := g.DbConfig.ConnectionTest()
+	//fmt.Print("db connected: ")
+	//fmt.Println(dbConnected)
 	if !dbConnected {
 		fmt.Println("reconnection to closed database")
 		g.DbConfig.ConnectDb()

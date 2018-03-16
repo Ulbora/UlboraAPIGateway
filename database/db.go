@@ -61,10 +61,12 @@ func (db *DbConfig) ConnectDb() bool {
 }
 
 //ConnectionTest of database
-func (db *DbConfig) ConnectionTest(args ...interface{}) bool {
+func (db *DbConfig) ConnectionTest() bool {
 	var rtn = false
-	rowPtr := routeDb.ConnectionTest(args...)
-	if rowPtr != nil {
+	//fmt.Print("db in db: ")
+	rowPtr := routeDb.ConnectionTest()
+	//fmt.Println(rowPtr)
+	if rowPtr != nil && len(rowPtr.Row) > 0 {
 		foundRow := rowPtr.Row
 		int64Val, err2 := strconv.ParseInt(foundRow[0], 10, 0)
 		//fmt.Print("Records found during test ")

@@ -78,9 +78,9 @@ func TestRestRoute_GetRestRoute(t *testing.T) {
 	rr.ID = routeID
 	rr.ClientID = clientID2
 	res := gatewayDB.GetRestRoute(&rr)
-	fmt.Println("")
-	fmt.Print("found route: ")
-	fmt.Println(res)
+	//fmt.Println("")
+	//fmt.Print("found route: ")
+	//fmt.Println(res)
 	if res.Route != "content2" {
 		fmt.Println("database insert failed")
 		t.Fail()

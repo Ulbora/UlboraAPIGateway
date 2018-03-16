@@ -36,8 +36,9 @@ func ConnectDb(host, user, pw, dbName string) bool {
 }
 
 //ConnectionTest get a row. Passing in tx allows for transactions
-func ConnectionTest(args ...interface{}) *crud.DbRow {
-	rowPtr := crud.Get(ConnectionTestQuery, args...)
+func ConnectionTest() *crud.DbRow {
+	var as []interface{}
+	rowPtr := crud.Get(ConnectionTestQuery, as...)
 	return rowPtr
 }
 

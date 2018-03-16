@@ -32,8 +32,8 @@ func TestDbConfig_ConnectDb(t *testing.T) {
 
 func TestDbConfig_ConnecTest(t *testing.T) {
 	clientID = 333333
-	var a []interface{}
-	success := dbConfig.ConnectionTest(a...)
+	//var a []interface{}
+	success := dbConfig.ConnectionTest()
 	if success == true {
 		fmt.Print("Connection test: ")
 		fmt.Println(success)

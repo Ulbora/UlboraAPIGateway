@@ -27,8 +27,8 @@ func TestConnectDb(t *testing.T) {
 
 func TestConnectionTest(t *testing.T) {
 	clientID = 2222
-	var a []interface{}
-	rowPtr := ConnectionTest(a...)
+	//var a []interface{}
+	rowPtr := ConnectionTest()
 	if rowPtr != nil {
 		foundRow := rowPtr.Row
 		//fmt.Print("Records found during test ")

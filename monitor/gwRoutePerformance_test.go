@@ -25,7 +25,7 @@ func TestGatewayPerformanceMonitor_ConnectDb(t *testing.T) {
 	gatewayDB.DbConfig.DbPw = "admin"
 	gatewayDB.DbConfig.DatabaseName = "ulbora_api_gateway"
 	gatewayDB.CallBatchSize = 2
-	///////////////-- add more test to test remote gatewayDB.CacheHost = "http://localhost:3010"
+	gatewayDB.CacheHost = "http://localhost:3010"
 	connected1 = gatewayDB.ConnectDb()
 
 	gatewayDB2.DbConfig.Host = "localhost:3306"
@@ -90,7 +90,22 @@ func TestGatewayPerformanceMonitor_InsertRouteURL(t *testing.T) {
 	}
 }
 
+// func TestGatewayPerformanceMonitor_InsertRoutePerformanceCache(t *testing.T) {
+// 	var p GwPerformance
+// 	p.ClientID = clientID
+// 	p.Calls = 500
+// 	p.Entered = time.Now().Add(time.Hour * -2400)
+// 	p.LatencyMsTotal = 10000
+// 	p.RestRouteID = routeID
+// 	p.RouteURIID = routeURLID
+// 	suc, err := gatewayDB.InsertRoutePerformance(&p)
+// 	if suc == true || err == nil {
+// 		t.Fail()
+// 	}
+// }
+
 func TestGatewayPerformanceMonitor_InsertRoutePerformanceReq(t *testing.T) {
+	gatewayDB.CacheHost = "http://localhost:3010"
 	var p GwPerformance
 	//p.ClientID = clientID
 	p.Calls = 500
@@ -100,6 +115,28 @@ func TestGatewayPerformanceMonitor_InsertRoutePerformanceReq(t *testing.T) {
 	p.RouteURIID = routeURLID
 	suc, err := gatewayDB.InsertRoutePerformance(&p)
 	if suc == true || err == nil {
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_TestCloseDb1(t *testing.T) {
+	success := gatewayDB.CloseDb()
+	//success2 := gatewayDB2.CloseDb()
+	if success != true {
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_InsertRoutePerformanceDb(t *testing.T) {
+	var p GwPerformance
+	p.ClientID = clientID
+	p.Calls = 500
+	p.Entered = time.Now().Add(time.Hour * -2400)
+	p.LatencyMsTotal = 10000
+	p.RestRouteID = routeID
+	p.RouteURIID = routeURLID
+	suc, err := gatewayDB.InsertRoutePerformance(&p)
+	if suc != true || err != nil {
 		t.Fail()
 	}
 }
@@ -141,9 +178,19 @@ func TestGatewayPerformanceMonitor_DeleteRoutePerformance(t *testing.T) {
 	}
 }
 
-func TestGatewayPerformanceMonitor_SaveRoutePerformanceCh(t *testing.T) {
-	gatewayDB.CacheHost = "htt"
+func TestGatewayPerformanceMonitor_SaveRoutePerformanceCache(t *testing.T) {
+	gatewayDB.CacheHost = ""
 	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	if res != true {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_SaveRoutePerformanceReq(t *testing.T) {
+	gatewayDB.CacheHost = "http://localhost:3010"
+	var cid int64
+	res := gatewayDB.SaveRoutePerformance(cid, routeID, routeURLID, 100)
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
@@ -158,7 +205,8 @@ func TestGatewayPerformanceMonitor_SaveRoutePerformance(t *testing.T) {
 	}
 }
 
-func TestGatewayPerformanceMonitor_SaveRoutePerformance2(t *testing.T) {
+func TestGatewayPerformanceMonitor_SaveRoutePerformanceCh(t *testing.T) {
+	gatewayDB.CacheHost = "htt"
 	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
 	if res != true {
 		fmt.Println("database delete failed")

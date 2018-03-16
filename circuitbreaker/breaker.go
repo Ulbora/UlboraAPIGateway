@@ -146,8 +146,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 		var cp ch.CProxy
 		cp.Host = c.CacheHost
 		res := cp.Get(key)
-		fmt.Print("cache read in from server in status: ")
-		fmt.Println(res)
+		//fmt.Print("cache read in from server in status: ")
+		//fmt.Println(res)
 		if res.Success == true {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 			//fmt.Print("json from cache: ")
@@ -183,14 +183,14 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 			}
 		}
 		if cs.FailCount >= cs.Threshold && timeExpired != true {
-			fmt.Println("setting open")
+			//fmt.Println("setting open")
 			s.Warning = true
 			s.Open = true
 			s.FailoverRouteName = cs.FailoverRouteName
 			s.OpenFailCode = cs.OpenFailCode
 
 		} else if cs.FailCount > 0 {
-			fmt.Println("setting partial")
+			//fmt.Println("setting partial")
 			s.Warning = true
 			s.PartialOpen = true
 		}
