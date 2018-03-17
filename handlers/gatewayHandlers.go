@@ -80,10 +80,23 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 
 	var rtn string
 	var rtnCode int
+
+	var route string
+	var rName string
+	var fpath string
+	//var code string
+
 	vars := mux.Vars(r)
-	route := vars["route"]
-	rName := vars["rname"]
-	fpath := vars["fpath"]
+	if vars != nil {
+		route = vars["route"]
+		rName = vars["rname"]
+		fpath = vars["fpath"]
+	} else {
+		route = r.URL.Query().Get("route")
+		rName = r.URL.Query().Get("rname")
+		fpath = r.URL.Query().Get("fpath")
+	}
+
 	code := r.URL.Query()
 	gwr.Route = route
 	var activeRoute = true
@@ -91,9 +104,11 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 		activeRoute = false
 	}
 	//fmt.Println("getting route active: " + rName)
-	//fmt.Print("active: ")
-	//fmt.Println(activeRoute)
+	fmt.Print("active: ")
+	fmt.Println(activeRoute)
 	rts := gwr.GetGatewayRoutes(activeRoute, rName)
+	fmt.Print("routes: ")
+	fmt.Println(rts)
 	var b cb.Breaker
 	b.ClientID = gwr.ClientID
 	b.RestRouteID = rts.RouteID
@@ -117,13 +132,13 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println(code)
 	// fmt.Println("Found url: " + rts.URL)
 	if rts.URL == "" {
-		//fmt.Println("No route found in gateway")
+		fmt.Println("No route found in gateway")
 		rtnCode = rts.OpenFailCode
 		rtn = "bad route"
 		//fmt.Print("found routes: ")
 		//fmt.Println(rts)
 	} else if rts.CircuitOpen == true {
-		//fmt.Println("Circuit breaker is open for this route")
+		fmt.Println("Circuit breaker is open for this route")
 		rtnCode = rts.OpenFailCode
 		rtn = "Circuit open"
 		//fmt.Print("found route: ")
