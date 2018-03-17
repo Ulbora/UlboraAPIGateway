@@ -96,7 +96,7 @@ func TestGatewayPost_doPostPutPatchReq2(t *testing.T) {
 	c.Key = "test"
 
 	aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("POST1", "/test", bytes.NewBuffer(aJSON))
+	r, _ := http.NewRequest("wwPOST1", "/test", bytes.NewBuffer(aJSON))
 	r.Header.Set("Content-Type", "application/json")
 	p.r = r
 	w := httptest.NewRecorder()
