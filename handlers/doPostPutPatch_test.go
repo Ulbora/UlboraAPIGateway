@@ -77,6 +77,41 @@ func TestGatewayPost_doPostPutPatchReq(t *testing.T) {
 	}
 }
 
+func TestGatewayPost_doPostPutPatchReq2(t *testing.T) {
+	var p passParams
+	p.h = new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgp.DbConfig
+	p.h.CbDB = cbr
+	p.b = new(cb.Breaker)
+	p.gwr = new(mgr.GatewayRoutes)
+	p.rts = new(mgr.GatewayRouteURL)
+	p.rts.URL = "http://challenge.myapigateway.com"
+	p.fpath = "rs/challenge"
+	var q = make(url.Values, 0)
+	q.Set("p1", "param1")
+	p.code = &q
+	var c challenge
+	c.Answer = "test"
+	c.Key = "test"
+
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("POST1", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("Content-Type", "application/json")
+	p.r = r
+	w := httptest.NewRecorder()
+	p.w = w
+
+	//["p1"] = ["param1"]
+
+	rtn := doPostPutPatch(&p)
+	fmt.Print("doPost bad req2 Res: ")
+	fmt.Println(rtn)
+	if rtn.rtnCode != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestGatewayPost_doPostPutPatchMedia(t *testing.T) {
 	var p passParams
 	p.h = new(Handler)

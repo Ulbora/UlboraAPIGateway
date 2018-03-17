@@ -120,6 +120,8 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 	g.DeleteRoutePerformance()
 	mu.Lock()
 	defer mu.Unlock()
+	//fmt.Print("per insert client1 :")
+	//fmt.Println(clientID)
 	var rtn bool
 	//var s Status
 	key := strconv.FormatInt(clientID, 10) + "perf:" + strconv.FormatInt(urlID, 10)
@@ -161,12 +163,18 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 		//fmt.Print("cache from local: ")
 		//fmt.Println(rp)
 	}
+	//fmt.Print("per insert client2 :")
+	//fmt.Println(clientID)
+	//fmt.Print("found :")
+	//fmt.Println(found)
 	if found == true {
 		rp.Calls = rp.Calls + 1
 		rp.LatencyMsTotal = rp.LatencyMsTotal + latency
 		if rp.Calls >= g.CallBatchSize {
 			//sendToDbAndClear(rp, cp, useExCache)
-			//fmt.Print("saving to database and clearing cache")
+			//fmt.Print("per insert client3 :")
+			//fmt.Println(clientID)
+			//fmt.Println("saving to database and clearing cache")
 			var p GwPerformance
 			p.ClientID = clientID
 			p.Calls = rp.Calls
@@ -174,11 +182,14 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 			p.LatencyMsTotal = rp.LatencyMsTotal
 			p.RestRouteID = routeID
 			p.RouteURIID = urlID
+			//fmt.Print("per insert client :")
+			//fmt.Println(clientID)
 			suc, err := g.InsertRoutePerformance(&p)
 			if err != nil {
 				fmt.Println(err)
 			}
-			//rtn = true
+			//fmt.Print("Insert Res: ")
+			//fmt.Println(suc)
 			if suc == true {
 				if useExCache == true {
 					//var cp ch.CProxy

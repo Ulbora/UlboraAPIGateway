@@ -72,6 +72,38 @@ func TestGatewayDel_doDelMethod(t *testing.T) {
 	}
 }
 
+func TestGatewayDel_doDelReq(t *testing.T) {
+	var p passParams
+	p.h = new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgd.DbConfig
+	p.h.CbDB = cbr
+	p.b = new(cb.Breaker)
+	p.gwr = new(mgr.GatewayRoutes)
+	p.rts = new(mgr.GatewayRouteURL)
+	p.rts.URL = "http://challenge.myapigateway.com"
+	p.fpath = "rs/challenge/en_us"
+	var q = make(url.Values, 0)
+	q.Set("p1", "param1")
+	p.code = &q
+
+	// aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("DELETE1", "/test", nil)
+	//r.Header.Set("Content-Type", "application/json")
+	p.r = r
+	w := httptest.NewRecorder()
+	p.w = w
+
+	//["p1"] = ["param1"]
+
+	rtn := doDelete(&p)
+	fmt.Print("doDel bad req Res: ")
+	fmt.Println(rtn)
+	if rtn.rtnCode != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestGatewayDel_doDel(t *testing.T) {
 	var p passParams
 	p.h = new(Handler)

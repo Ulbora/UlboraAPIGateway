@@ -11,15 +11,15 @@ var gatewayDB GatewayPerformanceMonitor
 var gatewayDB2 mgr.GatewayDB
 var connected1 bool
 var connected2 bool
-var clientID int64
+var clientIDT int64
 var insertID int64
 
-var routeID int64
+var routeIDT int64
 
-var routeURLID int64
+var routeURLIDT int64
 
 func TestGatewayPerformanceMonitor_ConnectDb(t *testing.T) {
-	clientID = 4334567
+	clientIDT = 4334567
 	gatewayDB.DbConfig.Host = "localhost:3306"
 	gatewayDB.DbConfig.DbUser = "admin"
 	gatewayDB.DbConfig.DbPw = "admin"
@@ -41,14 +41,14 @@ func TestGatewayPerformanceMonitor_ConnectDb(t *testing.T) {
 func TestGatewayPerformanceMonitor_InsertClient(t *testing.T) {
 	var c mgr.Client
 	c.APIKey = "12233hgdd333"
-	c.ClientID = clientID
+	c.ClientID = clientIDT
 	c.Enabled = true
 	c.Level = "small"
 
 	res := gatewayDB2.InsertClient(&c)
 	if res.Success == true && res.ID != -1 {
 		fmt.Print("new client Id: ")
-		fmt.Println(clientID)
+		fmt.Println(clientIDT)
 	} else {
 		fmt.Println("database insert failed")
 		t.Fail()
@@ -58,13 +58,13 @@ func TestGatewayPerformanceMonitor_InsertClient(t *testing.T) {
 func TestGatewayPerformanceMonitor_InsertRestRoute(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.Route = "content"
-	rr.ClientID = clientID
+	rr.ClientID = clientIDT
 
 	res := gatewayDB2.InsertRestRoute(&rr)
 	if res.Success == true && res.ID != -1 {
-		routeID = res.ID
+		routeIDT = res.ID
 		fmt.Print("new route Id: ")
-		fmt.Println(routeID)
+		fmt.Println(routeIDT)
 	} else {
 		fmt.Println("database insert failed")
 		t.Fail()
@@ -76,14 +76,14 @@ func TestGatewayPerformanceMonitor_InsertRouteURL(t *testing.T) {
 	ru.Name = "blue"
 	ru.URL = "http://www.apigateway.com/blue/"
 	ru.Active = false
-	ru.RouteID = routeID
-	ru.ClientID = clientID
+	ru.RouteID = routeIDT
+	ru.ClientID = clientIDT
 
 	res := gatewayDB2.InsertRouteURL(&ru)
 	if res.Success == true && res.ID != -1 {
-		routeURLID = res.ID
+		routeURLIDT = res.ID
 		fmt.Print("new route url Id: ")
-		fmt.Println(routeURLID)
+		fmt.Println(routeURLIDT)
 	} else {
 		fmt.Println("database insert failed")
 		t.Fail()
@@ -111,8 +111,8 @@ func TestGatewayPerformanceMonitor_InsertRoutePerformanceReq(t *testing.T) {
 	p.Calls = 500
 	p.Entered = time.Now().Add(time.Hour * -2400)
 	p.LatencyMsTotal = 10000
-	p.RestRouteID = routeID
-	p.RouteURIID = routeURLID
+	p.RestRouteID = routeIDT
+	p.RouteURIID = routeURLIDT
 	suc, err := gatewayDB.InsertRoutePerformance(&p)
 	if suc == true || err == nil {
 		t.Fail()
@@ -129,12 +129,12 @@ func TestGatewayPerformanceMonitor_TestCloseDb1(t *testing.T) {
 
 func TestGatewayPerformanceMonitor_InsertRoutePerformanceDb(t *testing.T) {
 	var p GwPerformance
-	p.ClientID = clientID
+	p.ClientID = clientIDT
 	p.Calls = 500
 	p.Entered = time.Now().Add(time.Hour * -2400)
 	p.LatencyMsTotal = 10000
-	p.RestRouteID = routeID
-	p.RouteURIID = routeURLID
+	p.RestRouteID = routeIDT
+	p.RouteURIID = routeURLIDT
 	suc, err := gatewayDB.InsertRoutePerformance(&p)
 	if suc != true || err != nil {
 		t.Fail()
@@ -143,12 +143,12 @@ func TestGatewayPerformanceMonitor_InsertRoutePerformanceDb(t *testing.T) {
 
 func TestGatewayPerformanceMonitor_InsertRoutePerformance(t *testing.T) {
 	var p GwPerformance
-	p.ClientID = clientID
+	p.ClientID = clientIDT
 	p.Calls = 500
 	p.Entered = time.Now().Add(time.Hour * -2400)
 	p.LatencyMsTotal = 10000
-	p.RestRouteID = routeID
-	p.RouteURIID = routeURLID
+	p.RestRouteID = routeIDT
+	p.RouteURIID = routeURLIDT
 	suc, err := gatewayDB.InsertRoutePerformance(&p)
 	if suc != true || err != nil {
 		t.Fail()
@@ -157,9 +157,9 @@ func TestGatewayPerformanceMonitor_InsertRoutePerformance(t *testing.T) {
 
 func TestGatewayPerformanceMonitor_GetRoutePerformance(t *testing.T) {
 	var p GwPerformance
-	p.ClientID = clientID
-	p.RestRouteID = routeID
-	p.RouteURIID = routeURLID
+	p.ClientID = clientIDT
+	p.RestRouteID = routeIDT
+	p.RouteURIID = routeURLIDT
 	res := gatewayDB.GetRoutePerformance(&p)
 	fmt.Println("")
 	fmt.Print("found gw performance list: ")
@@ -180,7 +180,7 @@ func TestGatewayPerformanceMonitor_DeleteRoutePerformance(t *testing.T) {
 
 func TestGatewayPerformanceMonitor_SaveRoutePerformanceCache(t *testing.T) {
 	gatewayDB.CacheHost = ""
-	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	res := gatewayDB.SaveRoutePerformance(clientIDT, routeIDT, routeURLIDT, 100)
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
@@ -190,7 +190,9 @@ func TestGatewayPerformanceMonitor_SaveRoutePerformanceCache(t *testing.T) {
 func TestGatewayPerformanceMonitor_SaveRoutePerformanceReq(t *testing.T) {
 	gatewayDB.CacheHost = "http://localhost:3010"
 	var cid int64
-	res := gatewayDB.SaveRoutePerformance(cid, routeID, routeURLID, 100)
+	var rte int64
+	fmt.Println("sending bad request:")
+	res := gatewayDB.SaveRoutePerformance(cid, rte, routeURLIDT, 100)
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
@@ -198,7 +200,16 @@ func TestGatewayPerformanceMonitor_SaveRoutePerformanceReq(t *testing.T) {
 }
 
 func TestGatewayPerformanceMonitor_SaveRoutePerformance(t *testing.T) {
-	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	res := gatewayDB.SaveRoutePerformance(clientIDT, routeIDT, routeURLIDT, 100)
+	if res != true {
+		fmt.Println("database delete failed")
+		t.Fail()
+	}
+}
+
+func TestGatewayPerformanceMonitor_SaveRoutePerformanceBatchSize(t *testing.T) {
+	gatewayDB.CallBatchSize = 1000
+	res := gatewayDB.SaveRoutePerformance(clientIDT, routeIDT, routeURLIDT, 100)
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
@@ -207,7 +218,7 @@ func TestGatewayPerformanceMonitor_SaveRoutePerformance(t *testing.T) {
 
 func TestGatewayPerformanceMonitor_SaveRoutePerformanceCh(t *testing.T) {
 	gatewayDB.CacheHost = "htt"
-	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	res := gatewayDB.SaveRoutePerformance(clientIDT, routeIDT, routeURLIDT, 100)
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
@@ -215,7 +226,8 @@ func TestGatewayPerformanceMonitor_SaveRoutePerformanceCh(t *testing.T) {
 }
 
 func TestGatewayPerformanceMonitor_SaveRoutePerformance3(t *testing.T) {
-	res := gatewayDB.SaveRoutePerformance(clientID, routeID, routeURLID, 100)
+	gatewayDB.CallBatchSize = 0
+	res := gatewayDB.SaveRoutePerformance(clientIDT, routeIDT, routeURLIDT, 100)
 	if res != true {
 		fmt.Println("database delete failed")
 		t.Fail()
@@ -224,9 +236,9 @@ func TestGatewayPerformanceMonitor_SaveRoutePerformance3(t *testing.T) {
 
 func TestGatewayPerformanceMonitor_GetRoutePerformance2(t *testing.T) {
 	var p GwPerformance
-	p.ClientID = clientID
-	p.RestRouteID = routeID
-	p.RouteURIID = routeURLID
+	p.ClientID = clientIDT
+	p.RestRouteID = routeIDT
+	p.RouteURIID = routeURLIDT
 	res := gatewayDB.GetRoutePerformance(&p)
 	fmt.Println("")
 	fmt.Print("found gw performance list: ")
@@ -239,7 +251,7 @@ func TestGatewayPerformanceMonitor_GetRoutePerformance2(t *testing.T) {
 
 func TestGatewayPerformanceMonitor_DeleteClient(t *testing.T) {
 	var c mgr.Client
-	c.ClientID = clientID
+	c.ClientID = clientIDT
 	res := gatewayDB2.DeleteClient(&c)
 	if res.Success != true {
 		fmt.Println("database delete failed")
