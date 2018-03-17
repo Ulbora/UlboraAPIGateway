@@ -49,14 +49,14 @@ func TestGatewayOptions_doOptionReq(t *testing.T) {
 	p.b = new(cb.Breaker)
 	p.gwr = new(mgr.GatewayRoutes)
 	p.rts = new(mgr.GatewayRouteURL)
-	p.rts.URL = "http://challenge.myapigateway.com"
+	//p.rts.URL = "http://challenge.myapigateway.com"
 	p.fpath = "rs/challenge/en_us"
 	var q = make(url.Values, 0)
 	q.Set("p1", "param1")
 	p.code = &q
 
 	// aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("OPTIONS1", "/test", nil)
+	r, _ := http.NewRequest("OPTIONS", "/test", nil)
 	//r.Header.Set("Content-Type", "application/json")
 	p.r = r
 	w := httptest.NewRecorder()

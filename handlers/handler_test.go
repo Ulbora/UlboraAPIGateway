@@ -16,7 +16,11 @@ func TestHandler_parseQueryString(t *testing.T) {
 	rtn := parseQueryString(q)
 	fmt.Print("querystring: ")
 	fmt.Println(rtn)
-	if rtn != "?p1=param1&p2=param2" {
+	var tpass = false
+	if rtn == "?p1=param1&p2=param2" || rtn == "?p2=param2&p1=param1" {
+		tpass = true
+	}
+	if tpass != true {
 		t.Fail()
 	}
 }

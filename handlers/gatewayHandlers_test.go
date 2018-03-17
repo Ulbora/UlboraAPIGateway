@@ -72,3 +72,188 @@ func TestGwHandler_HandleGwRoutePost(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestGwHandler_HandleGwRoutePut(t *testing.T) {
+	//var p passParams
+	h := new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgp.DbConfig
+	h.CbDB = cbr
+	// b := new(cb.Breaker)
+	// gwr := new(mgr.GatewayRoutes)
+	// rts := new(mgr.GatewayRouteURL)
+	// rts.URL = "http://challenge.myapigateway.com"
+	// fpath := "rs/challenge"
+	// var q = make(url.Values, 0)
+	// q.Set("p1", "param1")
+	// p.code = &q
+	var c challenge
+	c.Answer = "test"
+	c.Key = "test"
+
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("Content-Type", "application/json")
+	//p.r = r
+	w := httptest.NewRecorder()
+
+	h.HandleGwRoute(w, r)
+	//p.w = w
+
+	//["p1"] = ["param1"]
+
+	//rtn := doPostPutPatch(&p)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	if w.Code != 0 {
+		t.Fail()
+	}
+}
+
+func TestGwHandler_HandleGwRoutePatch(t *testing.T) {
+	//var p passParams
+	h := new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgp.DbConfig
+	h.CbDB = cbr
+	// b := new(cb.Breaker)
+	// gwr := new(mgr.GatewayRoutes)
+	// rts := new(mgr.GatewayRouteURL)
+	// rts.URL = "http://challenge.myapigateway.com"
+	// fpath := "rs/challenge"
+	// var q = make(url.Values, 0)
+	// q.Set("p1", "param1")
+	// p.code = &q
+	var c challenge
+	c.Answer = "test"
+	c.Key = "test"
+
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("Content-Type", "application/json")
+	//p.r = r
+	w := httptest.NewRecorder()
+
+	h.HandleGwRoute(w, r)
+	//p.w = w
+
+	//["p1"] = ["param1"]
+
+	//rtn := doPostPutPatch(&p)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	if w.Code != 0 {
+		t.Fail()
+	}
+}
+
+func TestGwHandler_HandleGwRouteGet(t *testing.T) {
+	//var p passParams
+	h := new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgp.DbConfig
+	h.CbDB = cbr
+	// b := new(cb.Breaker)
+	// gwr := new(mgr.GatewayRoutes)
+	// rts := new(mgr.GatewayRouteURL)
+	// rts.URL = "http://challenge.myapigateway.com"
+	// fpath := "rs/challenge"
+	// var q = make(url.Values, 0)
+	// q.Set("p1", "param1")
+	// p.code = &q
+	var c challenge
+	c.Answer = "test"
+	c.Key = "test"
+
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("GET", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("Content-Type", "application/json")
+	//p.r = r
+	w := httptest.NewRecorder()
+
+	h.HandleGwRoute(w, r)
+	//p.w = w
+
+	//["p1"] = ["param1"]
+
+	//rtn := doPostPutPatch(&p)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	if w.Code != 0 {
+		t.Fail()
+	}
+}
+
+func TestGwHandler_HandleGwRouteDel(t *testing.T) {
+	//var p passParams
+	h := new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgp.DbConfig
+	h.CbDB = cbr
+	// b := new(cb.Breaker)
+	// gwr := new(mgr.GatewayRoutes)
+	// rts := new(mgr.GatewayRouteURL)
+	// rts.URL = "http://challenge.myapigateway.com"
+	// fpath := "rs/challenge"
+	// var q = make(url.Values, 0)
+	// q.Set("p1", "param1")
+	// p.code = &q
+	var c challenge
+	c.Answer = "test"
+	c.Key = "test"
+
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("DELETE", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("Content-Type", "application/json")
+	//p.r = r
+	w := httptest.NewRecorder()
+
+	h.HandleGwRoute(w, r)
+	//p.w = w
+
+	//["p1"] = ["param1"]
+
+	//rtn := doPostPutPatch(&p)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	if w.Code != 0 {
+		t.Fail()
+	}
+}
+
+func TestGwHandler_HandleGwRouteOpt(t *testing.T) {
+	//var p passParams
+	h := new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgp.DbConfig
+	h.CbDB = cbr
+	// b := new(cb.Breaker)
+	// gwr := new(mgr.GatewayRoutes)
+	// rts := new(mgr.GatewayRouteURL)
+	// rts.URL = "http://challenge.myapigateway.com"
+	// fpath := "rs/challenge"
+	// var q = make(url.Values, 0)
+	// q.Set("p1", "param1")
+	// p.code = &q
+	var c challenge
+	c.Answer = "test"
+	c.Key = "test"
+
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("OPTIONS", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("Content-Type", "application/json")
+	//p.r = r
+	w := httptest.NewRecorder()
+
+	h.HandleGwRoute(w, r)
+	//p.w = w
+
+	//["p1"] = ["param1"]
+
+	//rtn := doPostPutPatch(&p)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	if w.Code != 0 {
+		t.Fail()
+	}
+}

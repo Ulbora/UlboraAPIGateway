@@ -86,7 +86,7 @@ func TestGatewayPost_doPostPutPatchReq2(t *testing.T) {
 	p.b = new(cb.Breaker)
 	p.gwr = new(mgr.GatewayRoutes)
 	p.rts = new(mgr.GatewayRouteURL)
-	p.rts.URL = "http://challenge.myapigateway.com"
+	//p.rts.URL = "http://challenge.myapigateway.com"
 	p.fpath = "rs/challenge"
 	var q = make(url.Values, 0)
 	q.Set("p1", "param1")
@@ -96,7 +96,7 @@ func TestGatewayPost_doPostPutPatchReq2(t *testing.T) {
 	c.Key = "test"
 
 	aJSON, _ := json.Marshal(c)
-	r, _ := http.NewRequest("wwPOST1", "/test", bytes.NewBuffer(aJSON))
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
 	r.Header.Set("Content-Type", "application/json")
 	p.r = r
 	w := httptest.NewRecorder()
