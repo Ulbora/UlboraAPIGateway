@@ -168,6 +168,33 @@ func TestRRtu1_HandleRouteUrlInsertMethod(t *testing.T) {
 	}
 }
 
+func TestRRtu1_HandleRouteUrlInsertAuth(t *testing.T) {
+	testMode = false
+	var rr mgr.RouteURL
+	rr.ClientID = rruHandid
+	rr.Name = "blue"
+	rr.RouteID = rruID
+	rr.URL = "test/url"
+	aJSON, _ := json.Marshal(rr)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperPost(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRtu1_HandleRouteUrlInsert(t *testing.T) {
 	var rr mgr.RouteURL
 	rr.ClientID = rruHandid
@@ -273,6 +300,34 @@ func TestRRtu1_HandleRouteUrlUpdateMethod(t *testing.T) {
 	}
 }
 
+func TestRRtu1_HandleRouteUrlUpdateAuth(t *testing.T) {
+	testMode = false
+	var rr mgr.RouteURL
+	rr.ID = rruuID
+	rr.ClientID = rruHandid
+	rr.Name = "green"
+	rr.RouteID = rruID
+	rr.URL = "test/url"
+	aJSON, _ := json.Marshal(rr)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperPut(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRtu1_HandleRouteUrlUpdate(t *testing.T) {
 	var rr mgr.RouteURL
 	rr.ID = rruuID
@@ -341,6 +396,30 @@ func TestRRtu1_HandleGetMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestRRtu1_HandleGetAuth(t *testing.T) {
+	testMode = false
+	var idStr string = strconv.FormatInt(rruuID, 10)
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?id="+idStr+"&routeId="+routeIDStr+"&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.RouteURL
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get URL: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestRRtu1_HandleGet(t *testing.T) {
@@ -437,6 +516,32 @@ func TestRRtu1_HandleRouteUrlActivateMethod(t *testing.T) {
 	}
 }
 
+func TestRRtu1_HandleRouteUrlActivateAuth(t *testing.T) {
+	testMode = false
+	var rr mgr.RouteURL
+	rr.ID = rruuID
+	rr.RouteID = rruID
+	rr.ClientID = rruHandid
+	aJSON, _ := json.Marshal(rr)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLActivateSuper(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRtu1_HandleRouteUrlActivate(t *testing.T) {
 	var rr mgr.RouteURL
 	rr.ID = rruuID
@@ -525,6 +630,29 @@ func TestRRtu1_HandleGetListMethod(t *testing.T) {
 	}
 }
 
+func TestRRtu1_HandleGetListAuth(t *testing.T) {
+	testMode = false
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeIDStr+"&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperList(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []mgr.RouteURL
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get URL List: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRtu1_HandleGetList(t *testing.T) {
 	var routeIDStr string = strconv.FormatInt(rruID, 10)
 	var CIDStr string = strconv.FormatInt(rruHandid, 10)
@@ -544,6 +672,30 @@ func TestRRtu1_HandleGetList(t *testing.T) {
 	if w.Code != http.StatusOK || len(bdy) != 1 || bdy[0].Active != true {
 		t.Fail()
 	}
+}
+
+func TestRRtu1_HandleDeleteAuth(t *testing.T) {
+	testMode = false
+	var idStr string = strconv.FormatInt(rruuID, 10)
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("DELETE", "/test?id="+idStr+"&routeId="+routeIDStr+"&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperDelete(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Delete URL: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestRRtu1_HandleDelete(t *testing.T) {

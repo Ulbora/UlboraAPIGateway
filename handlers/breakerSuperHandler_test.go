@@ -197,6 +197,37 @@ func TestBks_HandleSuperMethod(t *testing.T) {
 	}
 }
 
+func TestBks_HandleSuperAuth(t *testing.T) {
+	testMode = false
+	var c cb.Breaker
+	c.ClientID = clustCidPer
+	c.FailoverRouteName = "test"
+	//c.FailureCount = 1
+	c.FailureThreshold = 3
+	c.HealthCheckTimeSeconds = 120
+	c.RestRouteID = routeBks
+	c.RouteURIID = routeURLBksID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperPost(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestBks_HandleSuper(t *testing.T) {
 	var c cb.Breaker
 	c.ClientID = clustCidPer
@@ -266,6 +297,29 @@ func TestBks_HandleSuperGetMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestBks_HandleSuperGetAuth(t *testing.T) {
+	testMode = false
+	var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperGet(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Breaker
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestBks_HandleSuperGet(t *testing.T) {
@@ -381,6 +435,38 @@ func TestBks_HandleSuperPutMethos(t *testing.T) {
 	}
 }
 
+func TestBks_HandleSuperPutAuth(t *testing.T) {
+	testMode = false
+	var c cb.Breaker
+	c.ID = bksID
+	c.ClientID = clustCidPer
+	c.FailoverRouteName = "test2"
+	//c.FailureCount = 4
+	c.FailureThreshold = 1
+	c.HealthCheckTimeSeconds = 120
+	c.RestRouteID = routeBks
+	c.RouteURIID = routeURLBksID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperPut(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestBks_HandleSuperPut(t *testing.T) {
 	var c cb.Breaker
 	c.ID = bksID
@@ -482,6 +568,29 @@ func TestBks_HandleSuperStatusMethod(t *testing.T) {
 	}
 }
 
+func TestBks_HandleSuperStatusAuth(t *testing.T) {
+	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	testMode = false
+	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("GET", "/test?clientId=69&urlId="+routeURLBksIDStr, nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerStatusSuper(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Status
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Status Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestBks_HandleSuperStatus(t *testing.T) {
 	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
 	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
@@ -575,6 +684,32 @@ func TestBks_HandleSuperResetMethod(t *testing.T) {
 	}
 }
 
+func TestBks_HandleSuperResetAuth(t *testing.T) {
+	testMode = false
+	var c cb.Breaker
+	c.ClientID = clustCidPer
+	c.RouteURIID = routeURLBksID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperReset(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestBks_HandleSuperReset(t *testing.T) {
 	var c cb.Breaker
 	c.ClientID = clustCidPer
@@ -660,6 +795,29 @@ func TestBks_HandleSuperDelMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestBks_HandleSuperDelAuth(t *testing.T) {
+	testMode = false
+	var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperDelete(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp delete: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestBks_HandleSuperDel(t *testing.T) {

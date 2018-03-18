@@ -137,6 +137,32 @@ func TestRRtNs_HandleRestRouteInsertReq(t *testing.T) {
 	}
 }
 
+func TestRRtNs_HandleRestRouteInsertAuth(t *testing.T) {
+	testMode = false
+	var rr mgr.RestRoute
+	//rr.ClientID = rrHandid
+	rr.Route = "test"
+	aJSON, _ := json.Marshal(rr)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hrrNs.HandleRestRoutePost(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRtNs_HandleRestRouteInsert(t *testing.T) {
 	var rr mgr.RestRoute
 	//rr.ClientID = rrHandid
@@ -235,6 +261,32 @@ func TestRRtNs_HandleRestRouteUpdateReq(t *testing.T) {
 	}
 }
 
+func TestRRtNs_HandleRestRouteUpdateAuth(t *testing.T) {
+	testMode = false
+	var rr mgr.RestRoute
+	rr.ID = rrNsID
+	rr.Route = "test2"
+	aJSON, _ := json.Marshal(rr)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hrrNs.HandleRestRoutePut(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRtNs_HandleRestRouteUpdate(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.ID = rrNsID
@@ -299,6 +351,28 @@ func TestRRtNs_HandleGetReq(t *testing.T) {
 	}
 }
 
+func TestRRtNs_HandleGetAuth(t *testing.T) {
+	testMode = false
+	var idStr string = strconv.FormatInt(rrNsID, 10)
+	r, _ := http.NewRequest("GET", "/test?id="+idStr, nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrrNs.HandleRestRouteGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.RestRoute
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRtNs_HandleGet(t *testing.T) {
 	var idStr string = strconv.FormatInt(rrNsID, 10)
 	r, _ := http.NewRequest("GET", "/test?id="+idStr, nil)
@@ -336,6 +410,27 @@ func TestRRtNs_HandleGetListMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestRRtNs_HandleGetListAuth(t *testing.T) {
+	testMode = false
+	r, _ := http.NewRequest("GET", "/test", nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrrNs.HandleRestRouteList(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []mgr.RestRoute
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get List: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestRRtNs_HandleGetList(t *testing.T) {
@@ -394,6 +489,28 @@ func TestRRtNs_HandleDeleteReq(t *testing.T) {
 	if w.Code != http.StatusBadRequest {
 		t.Fail()
 	}
+}
+
+func TestRRtNs_HandleDeleteAuth(t *testing.T) {
+	testMode = false
+	var idStr string = strconv.FormatInt(rrNsID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?id="+idStr, nil)
+	r.Header.Set("u-client-id", "36")
+	r.Header.Set("clientId", "36")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrrNs.HandleRestRouteDelete(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestRRtNs_HandleDelete(t *testing.T) {

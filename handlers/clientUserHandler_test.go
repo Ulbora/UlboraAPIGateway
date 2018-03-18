@@ -100,6 +100,29 @@ func TestCU1_HandleUserClientGetMethod(t *testing.T) {
 	}
 }
 
+func TestCU1_HandleUserClientGeAuth(t *testing.T) {
+	testMode = false
+	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	//var CIDStr string = strconv.FormatInt(uCid, 10)
+	r, _ := http.NewRequest("GET", "/test", nil)
+	r.Header.Set("u-client-id", "29")
+	r.Header.Set("clientId", "29")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hu.HandleUserClient(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.Client
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestCU1_HandleUserClientGet(t *testing.T) {
 	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
 	//var CIDStr string = strconv.FormatInt(uCid, 10)

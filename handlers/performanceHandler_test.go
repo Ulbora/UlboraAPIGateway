@@ -197,6 +197,35 @@ func TestPer_HandleErrorsSuperMethod(t *testing.T) {
 	}
 }
 
+func TestPer_HandleErrorsSuperAuth(t *testing.T) {
+	testMode = false
+	var p gwmon.GwPerformance
+	p.ClientID = clustCidPer
+	p.LatencyMsTotal = 125
+	p.Entered = time.Now()
+	p.RestRouteID = routePer
+	p.RouteURIID = routeURLPerID
+	aJSON, _ := json.Marshal(p)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	h.HandlePeformanceSuper(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []gwmon.GwPerformance
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestPer_HandleErrorsSuper(t *testing.T) {
 	var p gwmon.GwPerformance
 	p.ClientID = clustCidPer
@@ -290,6 +319,35 @@ func TestPer_HandleErrorsMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestPer_HandleErrorsAuth(t *testing.T) {
+	testMode = false
+	var p gwmon.GwPerformance
+	//p.ClientID = clustCidPer
+	p.LatencyMsTotal = 125
+	p.Entered = time.Now()
+	p.RestRouteID = routePer
+	p.RouteURIID = routeURLPerID
+	aJSON, _ := json.Marshal(p)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	h.HandlePeformance(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []gwmon.GwPerformance
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestPer_HandleErrors(t *testing.T) {

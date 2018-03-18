@@ -135,6 +135,31 @@ func TestRRt_HandleRestRouteInsertReq(t *testing.T) {
 	}
 }
 
+func TestRRt_HandleRestRouteInsertAuth(t *testing.T) {
+	testMode = false
+	var rr mgr.RestRoute
+	rr.ClientID = rrHandid
+	rr.Route = "test"
+	aJSON, _ := json.Marshal(rr)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hrr.HandleRestRouteSuperPost(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRt_HandleRestRouteInsert(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.ClientID = rrHandid
@@ -229,6 +254,32 @@ func TestRRt_HandleRestRouteUpdateReq(t *testing.T) {
 	}
 }
 
+func TestRRt_HandleRestRouteUpdateAuth(t *testing.T) {
+	testMode = false
+	var rr mgr.RestRoute
+	rr.ID = rrID
+	rr.ClientID = rrHandid
+	rr.Route = "test2"
+	aJSON, _ := json.Marshal(rr)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "26")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hrr.HandleRestRouteSuperPut(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRt_HandleRestRouteUpdate(t *testing.T) {
 	var rr mgr.RestRoute
 	rr.ID = rrID
@@ -295,6 +346,29 @@ func TestRRt_HandleGetReq(t *testing.T) {
 	}
 }
 
+func TestRRt_HandleGetAuth(t *testing.T) {
+	testMode = false
+	var idStr string = strconv.FormatInt(rrID, 10)
+	var CIDStr string = strconv.FormatInt(rrHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?id="+idStr+"&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "26")
+	r.Header.Set("clientId", "26")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrr.HandleRestRouteSuperGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.RestRoute
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRt_HandleGet(t *testing.T) {
 	var idStr string = strconv.FormatInt(rrID, 10)
 	var CIDStr string = strconv.FormatInt(rrHandid, 10)
@@ -358,6 +432,29 @@ func TestRRt_HandleGetListReq(t *testing.T) {
 	}
 }
 
+func TestRRt_HandleGetListAuth(t *testing.T) {
+	testMode = false
+	//var idStr string = strconv.FormatInt(rrID, 10)
+	var CIDStr string = strconv.FormatInt(rrHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "26")
+	r.Header.Set("clientId", "26")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrr.HandleRestRouteSuperList(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []mgr.RestRoute
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get List: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestRRt_HandleGetList(t *testing.T) {
 	//var idStr string = strconv.FormatInt(rrID, 10)
 	var CIDStr string = strconv.FormatInt(rrHandid, 10)
@@ -419,6 +516,29 @@ func TestRRt_HandleDeleteReq(t *testing.T) {
 	if w.Code != http.StatusBadRequest {
 		t.Fail()
 	}
+}
+
+func TestRRt_HandleDeleteAuth(t *testing.T) {
+	testMode = false
+	var idStr string = strconv.FormatInt(rrID, 10)
+	var CIDStr string = strconv.FormatInt(rrHandid, 10)
+	r, _ := http.NewRequest("DELETE", "/test?id="+idStr+"&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "26")
+	r.Header.Set("clientId", "26")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrr.HandleRestRouteSuperDelete(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestRRt_HandleDelete(t *testing.T) {

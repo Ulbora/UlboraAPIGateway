@@ -188,6 +188,35 @@ func TestBkn2_HandleMethod(t *testing.T) {
 	}
 }
 
+func TestBkn2_HandleAuth(t *testing.T) {
+	testMode = false
+	var c cb.Breaker
+	c.FailoverRouteName = "test"
+	c.FailureThreshold = 3
+	c.HealthCheckTimeSeconds = 120
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerPost(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestBkn2_Handle(t *testing.T) {
 	var c cb.Breaker
 	c.FailoverRouteName = "test"
@@ -213,6 +242,29 @@ func TestBkn2_Handle(t *testing.T) {
 	if w.Code != http.StatusOK || bdy.Success != true {
 		t.Fail()
 	}
+}
+
+func TestBkn2_HandleGetAuth(t *testing.T) {
+	testMode = false
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Breaker
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestBkn2_HandleGet(t *testing.T) {
@@ -343,6 +395,36 @@ func TestBkn2_HandlePutMethod(t *testing.T) {
 	}
 }
 
+func TestBkn2_HandlePutAuth(t *testing.T) {
+	testMode = false
+	var c cb.Breaker
+	c.ID = bkID
+	c.FailoverRouteName = "test2"
+	c.FailureThreshold = 1
+	c.HealthCheckTimeSeconds = 120
+	c.RestRouteID = routeBk
+	c.RouteURIID = routeURLBkID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerPut(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestBkn2_HandlePut(t *testing.T) {
 	var c cb.Breaker
 	c.ID = bkID
@@ -400,6 +482,29 @@ func TestBkn2_CircuitBreakerTrip(t *testing.T) {
 	bk.RouteURIID = routeURLBkID
 	edbBk.Trip(bk)
 	edbBk.Trip(bk)
+}
+
+func TestBkn2_HandleStatusAuth(t *testing.T) {
+	testMode = false
+	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerStatus(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Status
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Status Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestBkn2_HandleStatus(t *testing.T) {
@@ -534,6 +639,31 @@ func TestBkn2_HandleResetMethod(t *testing.T) {
 	}
 }
 
+func TestBkn2_HandleResetAuth(t *testing.T) {
+	testMode = false
+	var c cb.Breaker
+	c.RouteURIID = routeURLBkID
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerReset(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestBkn2_HandleReset(t *testing.T) {
 	var c cb.Breaker
 	c.RouteURIID = routeURLBkID
@@ -618,6 +748,29 @@ func TestBkn2_HandleDelMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestBkn2_HandleDelAuth(t *testing.T) {
+	testMode = false
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?routeId="+routeBkStr+"&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerDelete(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp delete: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestBkn2_HandleDel(t *testing.T) {

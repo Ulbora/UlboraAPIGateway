@@ -99,6 +99,33 @@ func TestCliRt_HandleClientInsertMethod(t *testing.T) {
 	}
 }
 
+func TestCliRt_HandleClientInsertAuth(t *testing.T) {
+	testMode = false
+	var c mgr.Client
+	c.ClientID = clientHandid
+	c.APIKey = "123456"
+	c.Enabled = true
+	c.Level = "small"
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "24")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hch.HandleClientPost(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestCliRt_HandleClientInsert(t *testing.T) {
 	var c mgr.Client
 	c.ClientID = clientHandid
@@ -199,6 +226,33 @@ func TestCliRt_HandleClientUpdateMethod(t *testing.T) {
 	}
 }
 
+func TestCliRt_HandleClientUpdateAuth(t *testing.T) {
+	testMode = false
+	var c mgr.Client
+	c.ClientID = clientHandid
+	c.APIKey = "123456"
+	c.Enabled = false
+	c.Level = "small"
+	aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "24")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hch.HandleClientPut(w, r)
+	fmt.Print("Update Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestCliRt_HandleClientUpdate(t *testing.T) {
 	var c mgr.Client
 	c.ClientID = clientHandid
@@ -266,6 +320,29 @@ func TestCliRt_HandleGetMethod(t *testing.T) {
 	}
 }
 
+func TestCliRt_HandleGetAuth(t *testing.T) {
+	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	testMode = false
+	var CIDStr string = strconv.FormatInt(clientHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "24")
+	r.Header.Set("clientId", "24")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleClientGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.Client
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestCliRt_HandleGet(t *testing.T) {
 	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
 	var CIDStr string = strconv.FormatInt(clientHandid, 10)
@@ -306,6 +383,29 @@ func TestCliRt_HandleGetListMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestCliRt_HandleGetListAuth(t *testing.T) {
+	testMode = false
+	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	//var CIDStr string = strconv.FormatInt(clientHandid, 10)
+	r, _ := http.NewRequest("GET", "/test", nil)
+	r.Header.Set("u-client-id", "24")
+	r.Header.Set("clientId", "24")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleClientList(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []mgr.Client
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get List: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestCliRt_HandleGetList(t *testing.T) {
@@ -369,6 +469,29 @@ func TestCliRt_HandleDelMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestCliRt_HandleDelAuth(t *testing.T) {
+	testMode = false
+	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var CIDStr string = strconv.FormatInt(clientHandid, 10)
+	r, _ := http.NewRequest("DELETE", "/test?clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "24")
+	r.Header.Set("clientId", "24")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleClientDelete(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp delete: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestCliRt_HandleDel(t *testing.T) {

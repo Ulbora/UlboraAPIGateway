@@ -193,6 +193,35 @@ func TestErr_HandleErrorsSuperMethod(t *testing.T) {
 	}
 }
 
+func TestErr_HandleErrorsSuperAuth(t *testing.T) {
+	testMode = false
+	var e gwerr.GwError
+	e.ClientID = clustCidErr
+	e.Code = 400
+	e.Entered = time.Now()
+	e.Message = "test error"
+	e.RestRouteID = routeErr
+	e.RouteURIID = routeURLErrID
+	aJSON, _ := json.Marshal(e)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("clientId", "99")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	h.HandleErrorsSuper(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []gwerr.GwError
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp sup: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
+}
+
 func TestErr_HandleErrorsSuper(t *testing.T) {
 	var e gwerr.GwError
 	e.ClientID = clustCidErr
@@ -287,6 +316,35 @@ func TestErr_HandleErrorsMethod(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
+}
+
+func TestErr_HandleErrorsAuth(t *testing.T) {
+	testMode = false
+	var e gwerr.GwError
+	//e.ClientID = clustCidErr
+	e.Code = 400
+	e.Entered = time.Now()
+	e.Message = "test error"
+	e.RestRouteID = routeErr
+	e.RouteURIID = routeURLErrID
+	aJSON, _ := json.Marshal(e)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("clientId", "99")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	h.HandleErrors(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []gwerr.GwError
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnauthorized {
+		t.Fail()
+	}
+	testMode = true
 }
 
 func TestErr_HandleErrors(t *testing.T) {
