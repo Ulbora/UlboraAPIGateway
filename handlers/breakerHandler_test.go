@@ -267,6 +267,48 @@ func TestBkn2_HandleGetAuth(t *testing.T) {
 	testMode = true
 }
 
+func TestBkn2_HandleGetReq(t *testing.T) {
+	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId=w&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Breaker
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestBkn2_HandleGetReq2(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	//var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeBkStr+"&urlId=h", nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Breaker
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestBkn2_HandleGet(t *testing.T) {
 	var routeBkStr string = strconv.FormatInt(routeBk, 10)
 	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
@@ -712,6 +754,27 @@ func TestBkn2_HandleDelReq(t *testing.T) {
 	//var routeBkStr string = strconv.FormatInt(routeBk, 10)
 	var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
 	r, _ := http.NewRequest("DELETE", "/test?routeId=w&urlId="+routeURLBkIDStr, nil)
+	r.Header.Set("u-client-id", "79")
+	r.Header.Set("clientId", "79")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBk.HandleBreakerDelete(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp delete: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestBkn2_HandleDelReq2(t *testing.T) {
+	var routeBkStr string = strconv.FormatInt(routeBk, 10)
+	//var routeURLBkIDStr string = strconv.FormatInt(routeURLBkID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?routeId="+routeBkStr+"&urlId=g", nil)
 	r.Header.Set("u-client-id", "79")
 	r.Header.Set("clientId", "79")
 	r.Header.Set("u-api-key", "12233hgdd3335")

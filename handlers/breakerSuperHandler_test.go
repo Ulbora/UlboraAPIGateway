@@ -278,6 +278,48 @@ func TestBks_HandleSuperGetReq(t *testing.T) {
 	}
 }
 
+func TestBks_HandleSuperGetReq2(t *testing.T) {
+	var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("GET", "/test?clientId=ddd&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "e")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperGet(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Breaker
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp bad clientId: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestBks_HandleSuperGetReq3(t *testing.T) {
+	var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	//var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId=ee", nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperGet(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Breaker
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestBks_HandleSuperGetMethod(t *testing.T) {
 	var routeBksStr string = strconv.FormatInt(routeBks, 10)
 	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
@@ -497,7 +539,7 @@ func TestBks_HandleSuperPut(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperGet2(t *testing.T) {
+func TestBks_HandleSuperGet4(t *testing.T) {
 	var routeBksStr string = strconv.FormatInt(routeBks, 10)
 	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
 	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)
@@ -530,6 +572,27 @@ func TestBks_HandleSuperStatusReq(t *testing.T) {
 	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
 	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
 	r, _ := http.NewRequest("GET", "/test?clientId=f&urlId="+routeURLBksIDStr, nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerStatusSuper(w, r)
+	fmt.Print("Status Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy cb.Status
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Status Resp: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestBks_HandleSuperStatusReq2(t *testing.T) {
+	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	//var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("GET", "/test?clientId=69&urlId=rr", nil)
 	r.Header.Set("u-client-id", "69")
 	r.Header.Set("clientId", "69")
 	r.Header.Set("u-api-key", "12233hgdd3335")
@@ -776,6 +839,48 @@ func TestBks_HandleSuperDelReq(t *testing.T) {
 	}
 }
 
+func TestBks_HandleSuperDelReq2(t *testing.T) {
+	//var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?clientId=69&routeId=ee&urlId="+routeURLBksIDStr, nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperDelete(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp delete: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestBks_HandleSuperDelReq3(t *testing.T) {
+	var routeBksStr string = strconv.FormatInt(routeBks, 10)
+	//var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
+	r, _ := http.NewRequest("DELETE", "/test?clientId=69&routeId="+routeBksStr+"&urlId=dd", nil)
+	r.Header.Set("u-client-id", "69")
+	r.Header.Set("clientId", "69")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hBks.HandleBreakerSuperDelete(w, r)
+	fmt.Print("Media Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy BreakerResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp delete: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestBks_HandleSuperDelMethod(t *testing.T) {
 	var routeBksStr string = strconv.FormatInt(routeBks, 10)
 	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
@@ -841,7 +946,7 @@ func TestBks_HandleSuperDel(t *testing.T) {
 	}
 }
 
-func TestBks_HandleSuperGet3(t *testing.T) {
+func TestBks_HandleSuperGet5(t *testing.T) {
 	var routeBksStr string = strconv.FormatInt(routeBks, 10)
 	var routeURLBksIDStr string = strconv.FormatInt(routeURLBksID, 10)
 	r, _ := http.NewRequest("GET", "/test?clientId=69&routeId="+routeBksStr+"&urlId="+routeURLBksIDStr, nil)

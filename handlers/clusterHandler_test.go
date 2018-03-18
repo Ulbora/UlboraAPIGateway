@@ -131,7 +131,7 @@ func TestClus_handleGetRouteStatus(t *testing.T) {
 	}
 }
 
-func TestClus_handleGetRouteStatus2(t *testing.T) {
+func TestClus_handleGetRouteStatusReq(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/test?route=testroute", nil)
 	r.Header.Set("u-client-id", "999")
 	//r.Header.Set("u-api-key", "12345")
@@ -158,6 +158,25 @@ func TestClus_handleGetRouteStatus3(t *testing.T) {
 	w := httptest.NewRecorder()
 	hcc.HandleGetRouteStatus(w, r)
 	var bdy mgr.GateStatusResponse
+	b, _ := ioutil.ReadAll(w.Body)
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("code: ")
+	fmt.Println(w.Code)
+	fmt.Print("body: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
+func TestClus_handleDeleteRouteStatusMethod(t *testing.T) {
+	r, _ := http.NewRequest("GET", "/test?route=testroute", nil)
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+
+	w := httptest.NewRecorder()
+	hcc.HandleDeleteRouteStatus(w, r)
+	var bdy mgr.ClusterResponse
 	b, _ := ioutil.ReadAll(w.Body)
 	json.Unmarshal([]byte(b), &bdy)
 	fmt.Print("code: ")
@@ -203,6 +222,25 @@ func TestClus_handleDeleteRouteStatus2(t *testing.T) {
 	fmt.Print("body: ")
 	fmt.Println(bdy)
 	if w.Code != http.StatusOK || bdy.Success == true {
+		t.Fail()
+	}
+}
+
+func TestClus_handleGetClusterGwRoutesMethod(t *testing.T) {
+	r, _ := http.NewRequest("DELETE", "/test?route=content", nil)
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+
+	w := httptest.NewRecorder()
+	hcc.HandleGetClusterGwRoutes(w, r)
+	var bdy = make([]mgr.GatewayRouteURL, 0)
+	b, _ := ioutil.ReadAll(w.Body)
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("code: ")
+	fmt.Println(w.Code)
+	fmt.Print("body: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusNotFound {
 		t.Fail()
 	}
 }

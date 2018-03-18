@@ -376,6 +376,50 @@ func TestRRtu1_HandleGetReq(t *testing.T) {
 	}
 }
 
+func TestRRtu1_HandleGetReq2(t *testing.T) {
+	var idStr string = strconv.FormatInt(rruuID, 10)
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?id=hh"+idStr+"&routeId="+routeIDStr+"&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.RouteURL
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get URL: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestRRtu1_HandleGetReq3(t *testing.T) {
+	var idStr string = strconv.FormatInt(rruuID, 10)
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?id="+idStr+"&routeId="+routeIDStr+"&clientId=hhh"+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperGet(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.RouteURL
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get URL: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestRRtu1_HandleGetMethod(t *testing.T) {
 	var idStr string = strconv.FormatInt(rruuID, 10)
 	var routeIDStr string = strconv.FormatInt(rruID, 10)
@@ -609,6 +653,27 @@ func TestRRtu1_HandleGetListReq(t *testing.T) {
 	}
 }
 
+func TestRRtu1_HandleGetListReq2(t *testing.T) {
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("GET", "/test?routeId="+routeIDStr+"&clientId=rrr"+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperList(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy []mgr.RouteURL
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Get URL List: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestRRtu1_HandleGetListMethod(t *testing.T) {
 	var routeIDStr string = strconv.FormatInt(rruID, 10)
 	var CIDStr string = strconv.FormatInt(rruHandid, 10)
@@ -776,6 +841,50 @@ func TestRRtu1_HandleDelete2Req(t *testing.T) {
 	//var routeIDStr string = strconv.FormatInt(rruID, 10)
 	var CIDStr string = strconv.FormatInt(rruHandid, 10)
 	r, _ := http.NewRequest("DELETE", "/test?id="+idStr+"&routeId=w&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperDelete(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Delete URL: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestRRtu1_HandleDeleteReq2(t *testing.T) {
+	var idStr string = strconv.FormatInt(rruuID, 10)
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("DELETE", "/test?id=ggg"+idStr+"&routeId="+routeIDStr+"&clientId="+CIDStr, nil)
+	r.Header.Set("u-client-id", "38")
+	r.Header.Set("clientId", "38")
+	r.Header.Set("u-api-key", "12233hgdd3335")
+	w := httptest.NewRecorder()
+	hrru.HandleRouteURLSuperDelete(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	b, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(b), &bdy)
+	fmt.Print("Resp Delete URL: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestRRtu1_HandleDeleteReq3(t *testing.T) {
+	var idStr string = strconv.FormatInt(rruuID, 10)
+	var routeIDStr string = strconv.FormatInt(rruID, 10)
+	var CIDStr string = strconv.FormatInt(rruHandid, 10)
+	r, _ := http.NewRequest("DELETE", "/test?id="+idStr+"&routeId="+routeIDStr+"&clientId=ddd"+CIDStr, nil)
 	r.Header.Set("u-client-id", "38")
 	r.Header.Set("clientId", "38")
 	r.Header.Set("u-api-key", "12233hgdd3335")

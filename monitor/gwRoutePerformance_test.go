@@ -119,15 +119,16 @@ func TestGatewayPerformanceMonitor_InsertRoutePerformanceReq(t *testing.T) {
 	}
 }
 
-func TestGatewayPerformanceMonitor_TestCloseDb1(t *testing.T) {
-	success := gatewayDB.CloseDb()
-	//success2 := gatewayDB2.CloseDb()
-	if success != true {
-		t.Fail()
-	}
-}
+// func TestGatewayPerformanceMonitor_TestCloseDb1(t *testing.T) {
+// 	success := gatewayDB.CloseDb()
+// 	//success2 := gatewayDB2.CloseDb()
+// 	if success != true {
+// 		t.Fail()
+// 	}
+// }
 
 func TestGatewayPerformanceMonitor_InsertRoutePerformanceDb(t *testing.T) {
+	gatewayDB.CloseDb()
 	var p GwPerformance
 	p.ClientID = clientIDT
 	p.Calls = 500

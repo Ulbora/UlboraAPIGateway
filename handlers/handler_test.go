@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"os"
 	//"net/http/httptest"
 	//"bytes"
 	"fmt"
@@ -28,6 +29,14 @@ func TestHandler_parseQueryString(t *testing.T) {
 func TestHandler_getCacheHost(t *testing.T) {
 	rtn := getCacheHost()
 	if rtn != "http://localhost:3010" {
+		t.Fail()
+	}
+}
+
+func TestHandler_getCacheHostEnv(t *testing.T) {
+	os.Setenv("CACHE_HOST", "123")
+	rtn := getCacheHost()
+	if rtn != "123" {
 		t.Fail()
 	}
 }
@@ -74,13 +83,24 @@ func TestHandler_getAuth(t *testing.T) {
 	}
 }
 
+func TestHandler_getAuthEnv(t *testing.T) {
+	os.Setenv("OAUTH2_VALIDATION_URI", "55447")
+	r, _ := http.NewRequest("POST", "/test", nil)
+	res := getAuth(r)
+	if res.ValidationURL != "55447" {
+		t.Fail()
+	}
+}
+
 func TestHandler_getHeaders(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/test", nil)
 	r.Header.Set("clientId", "12345")
+	r.Header.Set("Authorization", "auth 123456")
+	r.Header.Set("hashed", "true")
 	res := getHeaders(r)
 	fmt.Print("res: ")
 	fmt.Println(res.clientID)
-	if res.clientID != 12345 {
+	if res.clientID != 12345 || res.token != "123456" || res.hashed != true {
 		t.Fail()
 	}
 }
