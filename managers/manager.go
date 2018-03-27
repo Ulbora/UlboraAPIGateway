@@ -76,6 +76,19 @@ type GatewayRouteURL struct {
 	OpenFailCode int    `json:"openFailCode"`
 }
 
+//GatewayClusterRouteURL url
+type GatewayClusterRouteURL struct {
+	RouteID           int64  `json:"routeId"`
+	Route             string `json:"route"`
+	URLID             int64  `json:"urlId"`
+	Name              string `json:"name"`
+	URL               string `json:"url"`
+	Active            bool   `json:"active"`
+	CircuitOpen       bool   `json:"circuitOpen"`
+	OpenFailCode      int    `json:"openFailCode"`
+	FailoverRouteName string `json:"failoverRouteName"`
+}
+
 //GatewayDB db config
 type GatewayDB struct {
 	DbConfig    db.DbConfig

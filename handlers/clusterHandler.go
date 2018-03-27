@@ -36,73 +36,73 @@ import (
 	"strconv"
 )
 
-//HandleGetRouteStatus HandleGetRouteStatus
-func (h Handler) HandleGetRouteStatus(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		var gwr mgr.GatewayRoutes
-		gwr.GwDB.DbConfig = h.DbConfig
-		cid := r.Header.Get("u-client-id")
-		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
-		//gwr.APIKey = r.Header.Get("u-api-key")
-		gwr.GwCacheHost = getCacheHost()
-		w.Header().Set("Content-Type", "application/json")
-		vars := mux.Vars(r)
-		var route string
-		if vars != nil {
-			route = vars["route"]
-		} else {
-			route = r.URL.Query().Get("route")
-		}
-		gwr.Route = route
-		res := gwr.GetGatewayRouteStatus()
-		resJSON, err := json.Marshal(res)
-		fmt.Print("json out: ")
-		fmt.Println(res)
-		if err != nil {
-			log.Println(err.Error())
-			//http.Error(w, "json output failed", http.StatusInternalServerError)
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, string(resJSON))
-	default:
-		w.WriteHeader(http.StatusNotFound)
-	}
-}
+// //HandleGetRouteStatus HandleGetRouteStatus
+// func (h Handler) HandleGetRouteStatus(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case "GET":
+// 		var gwr mgr.GatewayRoutes
+// 		gwr.GwDB.DbConfig = h.DbConfig
+// 		cid := r.Header.Get("u-client-id")
+// 		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
+// 		//gwr.APIKey = r.Header.Get("u-api-key")
+// 		gwr.GwCacheHost = getCacheHost()
+// 		w.Header().Set("Content-Type", "application/json")
+// 		vars := mux.Vars(r)
+// 		var route string
+// 		if vars != nil {
+// 			route = vars["route"]
+// 		} else {
+// 			route = r.URL.Query().Get("route")
+// 		}
+// 		gwr.Route = route
+// 		res := gwr.GetGatewayRouteStatus()
+// 		resJSON, err := json.Marshal(res)
+// 		fmt.Print("json out: ")
+// 		fmt.Println(res)
+// 		if err != nil {
+// 			log.Println(err.Error())
+// 			//http.Error(w, "json output failed", http.StatusInternalServerError)
+// 		}
+// 		w.WriteHeader(http.StatusOK)
+// 		fmt.Fprint(w, string(resJSON))
+// 	default:
+// 		w.WriteHeader(http.StatusNotFound)
+// 	}
+// }
 
-//HandleDeleteRouteStatus HandleDeleteRouteStatus
-func (h Handler) HandleDeleteRouteStatus(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "DELETE":
-		var gwr mgr.GatewayRoutes
-		gwr.GwDB.DbConfig = h.DbConfig
-		cid := r.Header.Get("u-client-id")
-		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
-		gwr.APIKey = r.Header.Get("u-api-key")
-		gwr.GwCacheHost = getCacheHost()
-		w.Header().Set("Content-Type", "application/json")
-		vars := mux.Vars(r)
-		var route string
-		if vars != nil {
-			route = vars["route"]
-		} else {
-			route = r.URL.Query().Get("route")
-		}
-		gwr.Route = route
-		res := gwr.DeleteGatewayRouteStatus()
-		resJSON, err := json.Marshal(res)
-		//fmt.Print("json out: ")
-		//fmt.Println(res)
-		if err != nil {
-			log.Println(err.Error())
-			//http.Error(w, "json output failed", http.StatusInternalServerError)
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, string(resJSON))
-	default:
-		w.WriteHeader(http.StatusNotFound)
-	}
-}
+// //HandleDeleteRouteStatus HandleDeleteRouteStatus
+// func (h Handler) HandleDeleteRouteStatus(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case "DELETE":
+// 		var gwr mgr.GatewayRoutes
+// 		gwr.GwDB.DbConfig = h.DbConfig
+// 		cid := r.Header.Get("u-client-id")
+// 		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
+// 		gwr.APIKey = r.Header.Get("u-api-key")
+// 		gwr.GwCacheHost = getCacheHost()
+// 		w.Header().Set("Content-Type", "application/json")
+// 		vars := mux.Vars(r)
+// 		var route string
+// 		if vars != nil {
+// 			route = vars["route"]
+// 		} else {
+// 			route = r.URL.Query().Get("route")
+// 		}
+// 		gwr.Route = route
+// 		res := gwr.DeleteGatewayRouteStatus()
+// 		resJSON, err := json.Marshal(res)
+// 		//fmt.Print("json out: ")
+// 		//fmt.Println(res)
+// 		if err != nil {
+// 			log.Println(err.Error())
+// 			//http.Error(w, "json output failed", http.StatusInternalServerError)
+// 		}
+// 		w.WriteHeader(http.StatusOK)
+// 		fmt.Fprint(w, string(resJSON))
+// 	default:
+// 		w.WriteHeader(http.StatusNotFound)
+// 	}
+// }
 
 //HandleGetClusterGwRoutes HandleGetClusterGwRoutes
 func (h Handler) HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request) {

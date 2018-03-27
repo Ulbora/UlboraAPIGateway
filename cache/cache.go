@@ -62,6 +62,7 @@ func (cp *CProxy) Set(i *Item) *Response {
 	var sURL = cp.Host + "/rs/cache/set"
 	aJSON, err := json.Marshal(i)
 	if err != nil {
+		fmt.Println("JSON parse err in cache: ")
 		fmt.Println(err)
 	} else {
 		req, rErr := http.NewRequest("POST", sURL, bytes.NewBuffer(aJSON))
@@ -80,7 +81,9 @@ func (cp *CProxy) Set(i *Item) *Response {
 				decoder := json.NewDecoder(resp.Body)
 				error := decoder.Decode(&rtn)
 				if error != nil {
-					log.Println(error.Error())
+					fmt.Print("Decode cache err: ")
+					fmt.Println(error)
+					//log.Println(error.Error())
 				}
 			}
 		}
@@ -112,6 +115,8 @@ func (cp *CProxy) Get(key string) *ResponseValue {
 func (cp *CProxy) Delete(key string) *Response {
 	var rtn = new(Response)
 	var sURL = cp.Host + "/rs/cache/delete/" + key
+	fmt.Print("sURL: ")
+	fmt.Println(sURL)
 	req, rErr := http.NewRequest("DELETE", sURL, nil)
 	if rErr != nil {
 		fmt.Print("request err: ")

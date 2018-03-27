@@ -1,20 +1,26 @@
 package managers
 
 import (
+	"strconv"
+	//"time"
 	//"strconv"
-	env "UlboraApiGateway/environment"
+	//env "UlboraApiGateway/environment"
+	ch "UlboraApiGateway/cache"
+	cb "UlboraApiGateway/circuitbreaker"
 	"fmt"
 	"testing"
 )
 
 var gwRoutes GatewayRoutes
+var clustCbDB cb.CircuitBreaker
 var connectedForCache bool
 
-//var cp2 ch.CProxy
+var cpc ch.CProxy
 var clustCid int64
 var routeClust int64
+var routeClustURLID int64
 
-func TestGatewayRoutes_ConnectForCache(t *testing.T) {
+func TestClusterGatewayRoutes_ConnectForCache(t *testing.T) {
 	clustCid = 88
 	gwRoutes.GwDB.DbConfig.Host = "localhost:3306"
 	gwRoutes.GwDB.DbConfig.DbUser = "admin"
@@ -25,10 +31,13 @@ func TestGatewayRoutes_ConnectForCache(t *testing.T) {
 		t.Fail()
 	}
 	//gwRoutes.GwDB.DbConfig = gwRoutes.GwDB.DbConfig
-	cp.Host = "http://localhost:3010"
+	cpc.Host = "http://localhost:3010"
+	gwRoutes.GwCacheHost = cpc.Host
+	clustCbDB.DbConfig = gwRoutes.GwDB.DbConfig
+	clustCbDB.CacheHost = cpc.Host
 }
 
-func TestGatewayRoutes_InsertClientForCache(t *testing.T) {
+func TestClusterGatewayRoutes_InsertClientForCache(t *testing.T) {
 	var c Client
 	c.APIKey = "12233hgdd333"
 	c.ClientID = clustCid
@@ -46,7 +55,7 @@ func TestGatewayRoutes_InsertClientForCache(t *testing.T) {
 	}
 }
 
-func TestGatewayRoutes_InsertRestRoute(t *testing.T) {
+func TestClusterGatewayRoutes_InsertRestRoute(t *testing.T) {
 	var rr RestRoute
 	rr.Route = "content"
 	rr.ClientID = clustCid
@@ -62,7 +71,7 @@ func TestGatewayRoutes_InsertRestRoute(t *testing.T) {
 	}
 }
 
-func TestGatewayRoutes_InsertRouteURL(t *testing.T) {
+func TestClusterGatewayRoutes_InsertRouteURL(t *testing.T) {
 	var ru RouteURL
 	ru.Name = "blue"
 	ru.URL = "http://www.apigateway.com/blue/"
@@ -75,6 +84,7 @@ func TestGatewayRoutes_InsertRouteURL(t *testing.T) {
 		//routeURLID3 = res.ID
 		fmt.Print("new route url Id: ")
 		fmt.Println(res.ID)
+		routeClustURLID = res.ID
 	} else {
 		fmt.Println("database insert failed")
 		t.Fail()
@@ -98,63 +108,64 @@ func TestGatewayRoutes_InsertRouteURL(t *testing.T) {
 	}
 }
 
-func TestGatewayRoutes_SetGatewayRouteStatus(t *testing.T) {
-	//clustCid = 8
-	gwRoutes.ClientID = clustCid
-	gwRoutes.Route = "testroute"
-	//gwRoutes.APIKey = "12345"
-	gwRoutes.GwCacheHost = env.GetCacheHost() // "http://localhost:3010"
-
-	res := gwRoutes.SetGatewayRouteStatus()
-	if res != true {
+func TestClusterGatewayRoutes_InsertBreaker(t *testing.T) {
+	var b cb.Breaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	suc, err := clustCbDB.InsertBreaker(&b)
+	if suc != true || err != nil {
 		t.Fail()
 	}
 }
 
-func TestGatewayRoutes_SetGatewayRouteStatus2(t *testing.T) {
+// func TestGatewayRoutes_SetGatewayRouteStatus2(t *testing.T) {
 
-	//cp2.Host = "http://localhost:3010"
-	gwRoutes.ClientID = clustCid
-	gwRoutes.Route = "testroute"
-	//gwRoutes.APIKey = "12345"
-	gwRoutes.GwCacheHost = "http://localhost1:3010"
+// 	//cp2.Host = "http://localhost:3010"
+// 	gwRoutes.ClientID = clustCid
+// 	gwRoutes.Route = "testroute"
+// 	//gwRoutes.APIKey = "12345"
+// 	gwRoutes.GwCacheHost = "http://localhost1:3010"
 
-	res := gwRoutes.SetGatewayRouteStatus()
-	if res != false {
-		t.Fail()
-	}
-}
+// 	res := gwRoutes.SetGatewayRouteStatus()
+// 	if res != false {
+// 		t.Fail()
+// 	}
+// }
 
-func TestGatewayRoutes_GetGatewayRouteStatus(t *testing.T) {
+// func TestGatewayRoutes_GetGatewayRouteStatus(t *testing.T) {
 
-	//cp2.Host = "http://localhost:3010"
-	gwRoutes.ClientID = clustCid
-	gwRoutes.Route = "testroute"
-	//gwRoutes.APIKey = "12345"
-	gwRoutes.GwCacheHost = env.GetCacheHost() // "http://localhost:3010"
+// 	//cp2.Host = "http://localhost:3010"
+// 	gwRoutes.ClientID = clustCid
+// 	gwRoutes.Route = "testroute"
+// 	//gwRoutes.APIKey = "12345"
+// 	gwRoutes.GwCacheHost = env.GetCacheHost() // "http://localhost:3010"
 
-	res := gwRoutes.GetGatewayRouteStatus()
-	fmt.Println(res)
-	if res.Success != true && res.RouteModified != true {
-		t.Fail()
-	}
-}
+// 	res := gwRoutes.GetGatewayRouteStatus()
+// 	fmt.Println(res)
+// 	if res.Success != true && res.RouteModified != true {
+// 		t.Fail()
+// 	}
+// }
 
-func TestGatewayRoutes_GetGatewayRouteStatus2(t *testing.T) {
+// func TestGatewayRoutes_GetGatewayRouteStatus2(t *testing.T) {
 
-	gwRoutes.ClientID = clustCid
-	gwRoutes.Route = "testroute"
-	//gwRoutes.APIKey = "12345"
-	gwRoutes.GwCacheHost = "http://localhost2:3010"
-	res := gwRoutes.GetGatewayRouteStatus()
-	fmt.Println(res)
-	if res.Success == true || res.RouteModified == true {
-		t.Fail()
-	}
-}
+// 	gwRoutes.ClientID = clustCid
+// 	gwRoutes.Route = "testroute"
+// 	//gwRoutes.APIKey = "12345"
+// 	gwRoutes.GwCacheHost = "http://localhost2:3010"
+// 	res := gwRoutes.GetGatewayRouteStatus()
+// 	fmt.Println(res)
+// 	if res.Success == true || res.RouteModified == true {
+// 		t.Fail()
+// 	}
+// }
 
-func TestGatewayRoutes_GetClusterGwRoutes(t *testing.T) {
-
+func TestClusterGatewayRoutes_GetClusterGwRoutes(t *testing.T) {
 	gwRoutes.ClientID = clustCid
 	gwRoutes.Route = "content"
 	gwRoutes.APIKey = "12233hgdd333"
@@ -167,33 +178,140 @@ func TestGatewayRoutes_GetClusterGwRoutes(t *testing.T) {
 	}
 }
 
-func TestGatewayRoutes_DeleteGatewayRouteStatus(t *testing.T) {
-
+func TestClusterGatewayRoutes_ClearClusterGwRoutes(t *testing.T) {
+	//time.Sleep(2000 * time.Millisecond)
 	gwRoutes.ClientID = clustCid
-	gwRoutes.Route = "testroute"
-	gwRoutes.APIKey = "12345"
-	gwRoutes.GwCacheHost = "http://localhost:3010"
-	res := gwRoutes.DeleteGatewayRouteStatus()
-	fmt.Println(res)
-	if res.Success == true {
+	gwRoutes.Route = "content"
+	res := gwRoutes.ClearClusterGwRoutes()
+	if res != true {
 		t.Fail()
 	}
 }
 
-func TestGatewayRoutes_DeleteGatewayRouteStatus2(t *testing.T) {
-
-	gwRoutes.ClientID = clustCid
-	gwRoutes.Route = "testroute"
-	gwRoutes.APIKey = "12233hgdd333"
-	gwRoutes.GwCacheHost = "http://localhost:3010"
-	res := gwRoutes.DeleteGatewayRouteStatus()
-	fmt.Println(res)
-	if res.Success != true {
+func TestClusterGatewayRoutes_GetCache(t *testing.T) {
+	var cid = strconv.FormatInt(clustCid, 10)
+	var key = cid + ":cluster:" + "content"
+	rtn := cpc.Get(key)
+	fmt.Print("routes after del: ")
+	fmt.Println(rtn)
+	if rtn.Success == true {
 		t.Fail()
 	}
 }
 
-func TestGatewayRoutes_DeleteClientForCache(t *testing.T) {
+func TestClusterGatewayRoutes_TripClusterGwRoutes1(t *testing.T) {
+	gwRoutes.ClientID = clustCid
+	//gwRoutes.Route = "content"
+	//gwRoutes.APIKey = "12233hgdd333"
+	//gwRoutes.GwCacheHost = "http://localhost2:3010"
+	var b cb.Breaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	res := gwRoutes.TripClusterGwRoutes(&b)
+	fmt.Print("found routes: ")
+	fmt.Println(res)
+	if res != true {
+		t.Fail()
+	}
+}
+
+func TestClusterGatewayRoutes_TripClusterGwRoutes2(t *testing.T) {
+	gwRoutes.ClientID = clustCid
+	//gwRoutes.Route = "content"
+	//gwRoutes.APIKey = "12233hgdd333"
+	//gwRoutes.GwCacheHost = "http://localhost2:3010"
+	var b cb.Breaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	res := gwRoutes.TripClusterGwRoutes(&b)
+	fmt.Print("found routes: ")
+	fmt.Println(res)
+	if res != true {
+		t.Fail()
+	}
+}
+
+func TestClusterGatewayRoutes_TripClusterGwRoutes3(t *testing.T) {
+	gwRoutes.ClientID = clustCid
+	//gwRoutes.Route = "content"
+	//gwRoutes.APIKey = "12233hgdd333"
+	//gwRoutes.GwCacheHost = "http://localhost2:3010"
+	var b cb.Breaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	res := gwRoutes.TripClusterGwRoutes(&b)
+	fmt.Print("found routes: ")
+	fmt.Println(res)
+	if res != true {
+		t.Fail()
+	}
+}
+
+func TestClusterGatewayRoutes_GetBreakerStatus(t *testing.T) {
+
+	res := clustCbDB.GetStatus(clustCid, routeClustURLID)
+	fmt.Print("routes status: ")
+	fmt.Println(res)
+	if res.Open != true {
+		t.Fail()
+	}
+}
+
+// func TestClusterGatewayRoutes_GetClusterGwRoutes2(t *testing.T) {
+// 	time.Sleep(2000 * time.Millisecond)
+// 	gwRoutes.ClientID = clustCid
+// 	gwRoutes.Route = "content"
+// 	//gwRoutes.GwCacheHost = "http://localhost2:3010"
+// 	res := gwRoutes.GetClusterGwRoutes()
+// 	fmt.Print("found routes: ")
+// 	fmt.Println(res)
+// 	if len(*res) != 2 {
+// 		t.Fail()
+// 	}
+// }
+
+// func TestGatewayRoutes_DeleteGatewayRouteStatus(t *testing.T) {
+
+// 	gwRoutes.ClientID = clustCid
+// 	gwRoutes.Route = "testroute"
+// 	gwRoutes.APIKey = "12345"
+// 	gwRoutes.GwCacheHost = "http://localhost:3010"
+// 	res := gwRoutes.DeleteGatewayRouteStatus()
+// 	fmt.Println(res)
+// 	if res.Success == true {
+// 		t.Fail()
+// 	}
+// }
+
+// func TestGatewayRoutes_DeleteGatewayRouteStatus2(t *testing.T) {
+
+// 	gwRoutes.ClientID = clustCid
+// 	gwRoutes.Route = "testroute"
+// 	gwRoutes.APIKey = "12233hgdd333"
+// 	gwRoutes.GwCacheHost = "http://localhost:3010"
+// 	res := gwRoutes.DeleteGatewayRouteStatus()
+// 	fmt.Println(res)
+// 	if res.Success != true {
+// 		t.Fail()
+// 	}
+// }
+
+func TestClusterGatewayRoutes_DeleteClientForCache(t *testing.T) {
 	var c Client
 	c.ClientID = clustCid
 	res := gatewayDB.DeleteClient(&c)
@@ -203,7 +321,7 @@ func TestGatewayRoutes_DeleteClientForCache(t *testing.T) {
 	}
 }
 
-func TestGatewayRoutes_TestCloseDb2(t *testing.T) {
+func TestClusterGatewayRoutes_TestCloseDb2(t *testing.T) {
 	success := gatewayDB3.CloseDb()
 	if success != true {
 		t.Fail()
