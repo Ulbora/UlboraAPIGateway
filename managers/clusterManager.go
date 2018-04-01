@@ -40,91 +40,6 @@ type ClusterResponse struct {
 	Success bool `json:"success"`
 }
 
-// //SetGatewayRouteStatus SetGatewayRouteStatus
-// func (gw *GatewayRoutes) SetGatewayRouteStatus() bool {
-// 	var rtn bool
-// 	var cp ch.CProxy
-// 	cp.Host = gw.GwCacheHost
-// 	var cid = strconv.FormatInt(gw.ClientID, 10)
-// 	var key = cid + ":status:" + gw.Route // + ":" + gw.APIKey
-// 	fmt.Print("key: ")
-// 	fmt.Println(key)
-// 	var rs GateStatusResponse
-// 	rs.RouteModified = true
-// 	aJSON, err := json.Marshal(rs)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	} else {
-// 		cval := b64.StdEncoding.EncodeToString([]byte(aJSON))
-// 		var i ch.Item
-// 		i.Key = key
-// 		i.Value = cval
-// 		res := cp.Set(&i)
-// 		if res.Success != true {
-// 			fmt.Println("Routes status not cached for key " + key + ".")
-// 		} else {
-// 			rtn = true
-// 		}
-// 	}
-// 	return rtn
-// }
-
-// //GetGatewayRouteStatus GetGatewayRouteStatus
-// func (gw *GatewayRoutes) GetGatewayRouteStatus() *GateStatusResponse {
-// 	var rtn GateStatusResponse
-// 	var cp ch.CProxy
-// 	cp.Host = gw.GwCacheHost
-// 	var cid = strconv.FormatInt(gw.ClientID, 10)
-// 	var key = cid + ":status:" + gw.Route // + ":" + gw.APIKey
-// 	fmt.Print("key: ")
-// 	fmt.Println(key)
-// 	res := cp.Get(key)
-// 	if res.Success == true {
-// 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
-// 		if err != nil {
-// 			fmt.Println(err)
-// 		} else {
-// 			err := json.Unmarshal([]byte(rJSON), &rtn)
-// 			if err != nil {
-// 				fmt.Println(err)
-// 			} else {
-// 				rtn.Success = true
-// 				//fmt.Println("Found Gateway route in cache for key: " + key)
-// 			}
-// 		}
-
-// 	}
-// 	return &rtn
-// }
-
-// //DeleteGatewayRouteStatus DeleteGatewayRouteStatus
-// func (gw *GatewayRoutes) DeleteGatewayRouteStatus() *ClusterResponse {
-// 	var rtn ClusterResponse
-// 	var clt = new(Client)
-// 	var a []interface{}
-// 	a = append(a, gw.ClientID)
-// 	rowPtr := gw.GwDB.DbConfig.GetClient(a...)
-// 	if rowPtr != nil {
-// 		foundRow := rowPtr.Row
-// 		clt = parseClientRow(&foundRow)
-// 	}
-// 	if gw.APIKey == clt.APIKey {
-// 		var cp ch.CProxy
-// 		cp.Host = gw.GwCacheHost
-// 		var cid = strconv.FormatInt(gw.ClientID, 10)
-// 		var key = cid + ":status:" + gw.Route // + ":" + gw.APIKey
-// 		fmt.Print("key: ")
-// 		fmt.Println(key)
-// 		res := cp.Delete(key)
-// 		if res.Success == true {
-// 			rtn.Success = true
-// 		}
-// 	} else {
-// 		fmt.Println("Failed to delete gateway route from cache because api key was wrong: ")
-// 	}
-// 	return &rtn
-// }
-
 //GetClusterGwRoutes GetClusterGwRoutes
 func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 	//var rtnVal GatewayRouteURL
@@ -206,12 +121,22 @@ func (gw *GatewayRoutes) ClearClusterGwRoutes() bool {
 	return rtn.Success
 }
 
-//TripClusterGwRoutes TripClusterGwRoutes
-func (gw *GatewayRoutes) TripClusterGwRoutes(b *cb.Breaker) bool {
+//TripClusterBreaker TripClusterBreaker
+func (gw *GatewayRoutes) TripClusterBreaker(b *cb.Breaker) bool {
 	var cbDB cb.CircuitBreaker
 	cbDB.CacheHost = gw.GwCacheHost
 	b.ClientID = gw.ClientID
 	cbDB.Trip(b)
+	gw.ClearClusterGwRoutes()
+	return true
+}
+
+//ResetClusterBreaker ResetClusterBreaker
+func (gw *GatewayRoutes) ResetClusterBreaker(urlID int64) bool {
+	var cbDB cb.CircuitBreaker
+	cbDB.CacheHost = gw.GwCacheHost
+	cbDB.Reset(gw.ClientID, urlID)
+	gw.ClearClusterGwRoutes()
 	return true
 }
 
