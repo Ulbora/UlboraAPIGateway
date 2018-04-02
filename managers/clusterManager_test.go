@@ -123,6 +123,19 @@ func TestClusterGatewayRoutes_InsertBreaker(t *testing.T) {
 	}
 }
 
+func TestClusterGatewayRoutes_GetClusterGwRoutesReq(t *testing.T) {
+	//gwRoutes.ClientID = clustCid
+	gwRoutes.Route = "content"
+	gwRoutes.APIKey = "12233hgdd333"
+	//gwRoutes.GwCacheHost = "http://localhost2:3010"
+	res := gwRoutes.GetClusterGwRoutes()
+	fmt.Print("found routes: ")
+	fmt.Println(res)
+	if len(*res) > 0 {
+		t.Fail()
+	}
+}
+
 func TestClusterGatewayRoutes_GetClusterGwRoutes(t *testing.T) {
 	gwRoutes.ClientID = clustCid
 	gwRoutes.Route = "content"
@@ -132,6 +145,16 @@ func TestClusterGatewayRoutes_GetClusterGwRoutes(t *testing.T) {
 	fmt.Print("found routes: ")
 	fmt.Println(res)
 	if len(*res) != 2 {
+		t.Fail()
+	}
+}
+
+func TestClusterGatewayRoutes_ClearClusterGwRoutesReq(t *testing.T) {
+	//time.Sleep(2000 * time.Millisecond)
+	gwRoutes.ClientID = clustCid
+	gwRoutes.Route = "content1"
+	res := gwRoutes.ClearClusterGwRoutes()
+	if res != false {
 		t.Fail()
 	}
 }

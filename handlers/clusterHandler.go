@@ -116,7 +116,7 @@ func (h Handler) HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request
 		gwr.APIKey = r.Header.Get("u-api-key")
 
 		//gwr.GwCacheHost = env.GetCacheHost()
-		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		var route string
 		if vars != nil {
@@ -126,6 +126,44 @@ func (h Handler) HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request
 		}
 		gwr.Route = route
 		res := gwr.GetClusterGwRoutes()
+		resJSON, err := json.Marshal(res)
+		fmt.Print("json out: ")
+		fmt.Println(res)
+		if err != nil {
+			log.Println(err.Error())
+			//http.Error(w, "json output failed", http.StatusInternalServerError)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, string(resJSON))
+	default:
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
+//HandleClearClusterGwRoutes HandleClearClusterGwRoutes
+func (h Handler) HandleClearClusterGwRoutes(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "DELETE":
+		var gwr mgr.GatewayRoutes
+		gwr.GwDB.DbConfig = h.DbConfig
+		gwr.GwCacheHost = getCacheHost()
+		cid := r.Header.Get("u-client-id")
+		gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
+		gwr.APIKey = r.Header.Get("u-api-key")
+
+		//gwr.GwCacheHost = env.GetCacheHost()
+		//w.Header().Set("Content-Type", "application/json")
+		vars := mux.Vars(r)
+		var route string
+		if vars != nil {
+			route = vars["route"]
+		} else {
+			route = r.URL.Query().Get("route")
+		}
+		gwr.Route = route
+		suc := gwr.ClearClusterGwRoutes()
+		var res mgr.ClusterResponse
+		res.Success = suc
 		resJSON, err := json.Marshal(res)
 		fmt.Print("json out: ")
 		fmt.Println(res)
