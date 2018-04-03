@@ -28,6 +28,7 @@ package handlers
 import (
 	db "UlboraApiGateway/database"
 	gwerr "UlboraApiGateway/gwerrors"
+	"time"
 	//gwerr "UlboraApiGateway/gwerrors"
 	cb "UlboraApiGateway/circuitbreaker"
 	gwmon "UlboraApiGateway/monitor"
@@ -61,6 +62,21 @@ type authHeader struct {
 	clientID int64
 	userID   string
 	hashed   bool
+}
+
+//ClusterBreaker ClusterBreaker
+type ClusterBreaker struct {
+	ID                     int64     `json:"id"`
+	FailureThreshold       int       `json:"failureThreshold"`
+	FailureCount           int       `json:"failureCount"`
+	LastFailureTime        time.Time `json:"lastFailureTime"`
+	HealthCheckTimeSeconds int       `json:"healthCheckTimeSeconds"`
+	FailoverRouteName      string    `json:"failoverRouteName"`
+	OpenFailCode           int       `json:"openFailCode"`
+	RouteURIID             int64     `json:"routeUriId"`
+	RestRouteID            int64     `json:"routeId"`
+	ClientID               int64     `json:"clientId"`
+	Route                  string    `json:"route"`
 }
 
 func parseQueryString(vals url.Values) string {

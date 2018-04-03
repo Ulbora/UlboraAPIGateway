@@ -204,8 +204,8 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 	defer mu.Unlock()
 	//var s Status
 	key := strconv.FormatInt(b.ClientID, 10) + "breaker:" + strconv.FormatInt(b.RouteURIID, 10)
-	//fmt.Print("key: ")
-	//fmt.Println(key)
+	fmt.Print("key in trip in breaker: ")
+	fmt.Println(key)
 	var cp ch.CProxy
 	var cs breakerState
 	var found bool

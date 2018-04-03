@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	cb "UlboraApiGateway/circuitbreaker"
 	env "UlboraApiGateway/environment"
 	mgr "UlboraApiGateway/managers"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,7 +16,9 @@ import (
 var gwRoutes mgr.GatewayRoutes
 var clustCid int64 = 97
 var routeClust int64
+var routeClustURLID int64
 var connectedForCache bool
+var clustCbDB cb.CircuitBreaker
 var hcc Handler
 
 func TestClus_ConnectForCache(t *testing.T) {
@@ -22,6 +26,8 @@ func TestClus_ConnectForCache(t *testing.T) {
 	gwRoutes.GwDB.DbConfig.DbUser = "admin"
 	gwRoutes.GwDB.DbConfig.DbPw = "admin"
 	gwRoutes.GwDB.DbConfig.DatabaseName = "ulbora_api_gateway"
+	clustCbDB.DbConfig = gwRoutes.GwDB.DbConfig
+	clustCbDB.CacheHost = "http://localhost:3010"
 	connectedForCache = gwRoutes.GwDB.ConnectDb()
 	if connectedForCache != true {
 		t.Fail()
@@ -86,7 +92,7 @@ func TestClus_InsertRouteURL(t *testing.T) {
 
 	res := gwRoutes.GwDB.InsertRouteURL(&ru)
 	if res.Success == true && res.ID != -1 {
-		//routeURLID3 = res.ID
+		routeClustURLID = res.ID
 		fmt.Print("new route url Id: ")
 		fmt.Println(res.ID)
 	} else {
@@ -338,6 +344,108 @@ func TestClus_handleClearClusterGwRoutes(t *testing.T) {
 	fmt.Print("body: ")
 	fmt.Println(bdy)
 	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_TripClusterBreaker1(t *testing.T) {
+	var b ClusterBreaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	b.Route = "content"
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_TripClusterBreaker2(t *testing.T) {
+	var b ClusterBreaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	b.Route = "content"
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_TripClusterBreaker3(t *testing.T) {
+	var b ClusterBreaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	b.Route = "content"
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_GetBreakerStatus(t *testing.T) {
+	res := clustCbDB.GetStatus(clustCid, routeClustURLID)
+	fmt.Print("routes status: ")
+	fmt.Println(res)
+	if res.Open != true {
 		t.Fail()
 	}
 }

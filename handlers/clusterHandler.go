@@ -27,6 +27,7 @@ package handlers
 
 import (
 	//env "UlboraApiGateway/environment"
+	cb "UlboraApiGateway/circuitbreaker"
 	mgr "UlboraApiGateway/managers"
 	"encoding/json"
 	"fmt"
@@ -175,5 +176,61 @@ func (h Handler) HandleClearClusterGwRoutes(w http.ResponseWriter, r *http.Reque
 		fmt.Fprint(w, string(resJSON))
 	default:
 		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
+//HandleTripClusterBreaker HandleTripClusterBreaker
+func (h Handler) HandleTripClusterBreaker(w http.ResponseWriter, r *http.Request) {
+	var gwr mgr.GatewayRoutes
+	gwr.GwDB.DbConfig = h.DbConfig
+	gwr.GwCacheHost = getCacheHost()
+	cid := r.Header.Get("u-client-id")
+	gwr.ClientID, _ = strconv.ParseInt((cid), 10, 0)
+	gwr.APIKey = r.Header.Get("u-api-key")
+
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
+		case "POST":
+			var b ClusterBreaker
+			decoder := json.NewDecoder(r.Body)
+			error := decoder.Decode(&b)
+			b.ClientID = gwr.ClientID
+			if error != nil {
+				log.Println(error.Error())
+				http.Error(w, error.Error(), http.StatusBadRequest)
+			} else if b.ClientID == 0 || b.RestRouteID == 0 || b.RouteURIID == 0 || b.OpenFailCode == 0 {
+				http.Error(w, "bad request", http.StatusBadRequest)
+			} else {
+				var bk cb.Breaker
+				bk.RouteURIID = b.RouteURIID
+				bk.FailoverRouteName = b.FailoverRouteName
+				bk.FailureCount = b.FailureCount
+				bk.FailureThreshold = b.FailureThreshold
+				bk.HealthCheckTimeSeconds = b.HealthCheckTimeSeconds
+				bk.OpenFailCode = b.OpenFailCode
+				bk.RestRouteID = b.RestRouteID
+				bk.RouteURIID = b.RouteURIID
+				bk.ClientID = gwr.ClientID
+				gwr.Route = b.Route
+				var cbDB cb.CircuitBreaker
+				cbDB.CacheHost = gwr.GwCacheHost
+				cbDB.Trip(&bk)
+				gwr.ClearClusterGwRoutes()
+				var resOut mgr.ClusterResponse
+				resOut.Success = true
+				resJSON, err := json.Marshal(resOut)
+				if err != nil {
+					log.Println(error.Error())
+				}
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, string(resJSON))
+			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
 	}
 }
