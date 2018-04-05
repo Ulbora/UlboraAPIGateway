@@ -348,6 +348,99 @@ func TestClus_handleClearClusterGwRoutes(t *testing.T) {
 	}
 }
 
+func TestClus_TripClusterBreakerMedia(t *testing.T) {
+	var b ClusterBreaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	b.Route = "content"
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	//r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnsupportedMediaType {
+		t.Fail()
+	}
+}
+
+func TestClus_TripClusterBreakerReq(t *testing.T) {
+	var b ClusterBreaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	//b.RestRouteID = routeClust
+	//b.RouteURIID = routeClustURLID
+	b.Route = "content"
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestClus_TripClusterBreakerMethod(t *testing.T) {
+	var b ClusterBreaker
+	b.ClientID = clustCid
+	b.FailureThreshold = 2
+	b.HealthCheckTimeSeconds = 120
+	b.FailoverRouteName = "blue"
+	b.OpenFailCode = 500
+	b.RestRouteID = routeClust
+	b.RouteURIID = routeClustURLID
+	b.Route = "content"
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	//hcc.HandleTripClusterBreaker(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
 func TestClus_TripClusterBreaker1(t *testing.T) {
 	var b ClusterBreaker
 	b.ClientID = clustCid
