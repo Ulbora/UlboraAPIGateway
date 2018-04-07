@@ -79,6 +79,15 @@ type ClusterBreaker struct {
 	Route                  string    `json:"route"`
 }
 
+//ErrorLog ErrorLog
+type ErrorLog struct {
+	ClientID   int64  `json:"clientId"`
+	ErrCode    int    `json:"errorCode"`
+	Message    string `json:"message"`
+	RouteID    int64  `json:"routeId"`
+	RouteURIID int64  `json:"routeUriId"`
+}
+
 func parseQueryString(vals url.Values) string {
 	var rtn = ""
 	var first = true

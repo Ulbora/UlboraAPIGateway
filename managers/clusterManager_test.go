@@ -196,7 +196,7 @@ func TestClusterGatewayRoutes_TripClusterGwRoutes1(t *testing.T) {
 	res := gwRoutes.TripClusterBreaker(&b)
 	fmt.Print("found routes: ")
 	fmt.Println(res)
-	if res != true {
+	if res.Success != true {
 		t.Fail()
 	}
 }
@@ -217,7 +217,7 @@ func TestClusterGatewayRoutes_TripClusterGwRoutes2(t *testing.T) {
 	res := gwRoutes.TripClusterBreaker(&b)
 	fmt.Print("found routes: ")
 	fmt.Println(res)
-	if res != true {
+	if res.Success != true {
 		t.Fail()
 	}
 }
@@ -238,7 +238,7 @@ func TestClusterGatewayRoutes_TripClusterGwRoutes3(t *testing.T) {
 	res := gwRoutes.TripClusterBreaker(&b)
 	fmt.Print("found routes: ")
 	fmt.Println(res)
-	if res != true {
+	if res.Success != true {
 		t.Fail()
 	}
 }

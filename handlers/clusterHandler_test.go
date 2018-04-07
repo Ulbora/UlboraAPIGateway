@@ -3,6 +3,7 @@ package handlers
 import (
 	cb "UlboraApiGateway/circuitbreaker"
 	env "UlboraApiGateway/environment"
+	gwerr "UlboraApiGateway/gwerrors"
 	mgr "UlboraApiGateway/managers"
 	"bytes"
 	"encoding/json"
@@ -14,6 +15,7 @@ import (
 )
 
 var gwRoutes mgr.GatewayRoutes
+var clErrDB gwerr.GatewayErrorMonitor
 var clustCid int64 = 97
 var routeClust int64
 var routeClustURLID int64
@@ -28,6 +30,7 @@ func TestClus_ConnectForCache(t *testing.T) {
 	gwRoutes.GwDB.DbConfig.DatabaseName = "ulbora_api_gateway"
 	clustCbDB.DbConfig = gwRoutes.GwDB.DbConfig
 	clustCbDB.CacheHost = "http://localhost:3010"
+	clErrDB.DbConfig = gwRoutes.GwDB.DbConfig
 	connectedForCache = gwRoutes.GwDB.ConnectDb()
 	if connectedForCache != true {
 		t.Fail()
@@ -539,6 +542,121 @@ func TestClus_GetBreakerStatus(t *testing.T) {
 	fmt.Print("routes status: ")
 	fmt.Println(res)
 	if res.Open != true {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRouteErrorMedia(t *testing.T) {
+	var el ErrorLog
+	el.ClientID = clustCid
+	el.RouteID = routeClust
+	el.RouteURIID = routeClustURLID
+	el.ErrCode = 400
+	el.Message = "failed in test"
+	aJSON, _ := json.Marshal(el)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	//r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRouteError(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in error log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnsupportedMediaType {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRouteErrorReq(t *testing.T) {
+	var el ErrorLog
+	//el.ClientID = clustCid
+	//el.RouteID = routeClust
+	el.RouteURIID = routeClustURLID
+	el.ErrCode = 400
+	el.Message = "failed in test"
+	aJSON, _ := json.Marshal(el)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRouteError(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in error log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRouteErrorMethod(t *testing.T) {
+	var el ErrorLog
+	el.ClientID = clustCid
+	el.RouteID = routeClust
+	el.RouteURIID = routeClustURLID
+	el.ErrCode = 400
+	el.Message = "failed in test"
+	aJSON, _ := json.Marshal(el)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRouteError(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in error log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRouteError(t *testing.T) {
+	var el ErrorLog
+	el.ClientID = clustCid
+	el.RouteID = routeClust
+	el.RouteURIID = routeClustURLID
+	el.ErrCode = 400
+	el.Message = "failed in test"
+	aJSON, _ := json.Marshal(el)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRouteError(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in error log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_GetRouteError(t *testing.T) {
+	var e gwerr.GwError
+	e.ClientID = clustCid
+	e.RestRouteID = routeClust
+	e.RouteURIID = routeClustURLID
+	res := clErrDB.GetRouteError(&e)
+	fmt.Println("")
+	fmt.Print("found gw error list: ")
+	fmt.Println(res)
+	if len(*res) == 0 || (*res)[0].Code != 400 || (*res)[0].Message != "failed in test" {
+		fmt.Println("database read failed")
 		t.Fail()
 	}
 }

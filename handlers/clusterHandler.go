@@ -117,7 +117,7 @@ func (h Handler) HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request
 		gwr.APIKey = r.Header.Get("u-api-key")
 
 		//gwr.GwCacheHost = env.GetCacheHost()
-		//w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		var route string
 		if vars != nil {
@@ -132,7 +132,6 @@ func (h Handler) HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request
 		fmt.Println(res)
 		if err != nil {
 			log.Println(err.Error())
-			//http.Error(w, "json output failed", http.StatusInternalServerError)
 		}
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, string(resJSON))
@@ -153,7 +152,7 @@ func (h Handler) HandleClearClusterGwRoutes(w http.ResponseWriter, r *http.Reque
 		gwr.APIKey = r.Header.Get("u-api-key")
 
 		//gwr.GwCacheHost = env.GetCacheHost()
-		//w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		vars := mux.Vars(r)
 		var route string
 		if vars != nil {
@@ -170,7 +169,6 @@ func (h Handler) HandleClearClusterGwRoutes(w http.ResponseWriter, r *http.Reque
 		fmt.Println(res)
 		if err != nil {
 			log.Println(err.Error())
-			//http.Error(w, "json output failed", http.StatusInternalServerError)
 		}
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, string(resJSON))
@@ -216,12 +214,49 @@ func (h Handler) HandleTripClusterBreaker(w http.ResponseWriter, r *http.Request
 				bk.RouteURIID = b.RouteURIID
 				bk.ClientID = gwr.ClientID
 				gwr.Route = b.Route
-				var cbDB cb.CircuitBreaker
-				cbDB.CacheHost = gwr.GwCacheHost
-				cbDB.Trip(&bk)
+				resOut := gwr.TripClusterBreaker(&bk)
 				gwr.ClearClusterGwRoutes()
+				resJSON, err := json.Marshal(resOut)
+				if err != nil {
+					log.Println(error.Error())
+				}
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, string(resJSON))
+			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+}
+
+//HandleClusterSaveRouteError HandleClusterSaveRouteError
+func (h Handler) HandleClusterSaveRouteError(w http.ResponseWriter, r *http.Request) {
+	cid := r.Header.Get("u-client-id")
+	clientID, _ := strconv.ParseInt((cid), 10, 0)
+
+	w.Header().Set("Content-Type", "application/json")
+	cType := r.Header.Get("Content-Type")
+	if cType != "application/json" {
+		http.Error(w, "json required", http.StatusUnsupportedMediaType)
+	} else {
+		switch r.Method {
+		case "POST":
+			var el ErrorLog
+			decoder := json.NewDecoder(r.Body)
+			error := decoder.Decode(&el)
+			el.ClientID = clientID
+			if error != nil {
+				log.Println(error.Error())
+				http.Error(w, error.Error(), http.StatusBadRequest)
+			} else if el.ClientID == 0 || el.RouteID == 0 || el.RouteURIID == 0 || el.ErrCode == 0 {
+				http.Error(w, "bad request", http.StatusBadRequest)
+			} else {
+				suc, err := h.ErrDB.SaveRouteError(el.ClientID, el.ErrCode, el.Message, el.RouteID, el.RouteURIID)
+				if err != nil {
+					log.Println(error.Error())
+				}
 				var resOut mgr.ClusterResponse
-				resOut.Success = true
+				resOut.Success = suc
 				resJSON, err := json.Marshal(resOut)
 				if err != nil {
 					log.Println(error.Error())

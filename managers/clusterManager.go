@@ -122,13 +122,15 @@ func (gw *GatewayRoutes) ClearClusterGwRoutes() bool {
 }
 
 //TripClusterBreaker TripClusterBreaker
-func (gw *GatewayRoutes) TripClusterBreaker(b *cb.Breaker) bool {
+func (gw *GatewayRoutes) TripClusterBreaker(b *cb.Breaker) ClusterResponse {
+	var rtn ClusterResponse
 	var cbDB cb.CircuitBreaker
 	cbDB.CacheHost = gw.GwCacheHost
 	b.ClientID = gw.ClientID
 	cbDB.Trip(b)
 	gw.ClearClusterGwRoutes()
-	return true
+	rtn.Success = true
+	return rtn
 }
 
 //ResetClusterBreaker ResetClusterBreaker
