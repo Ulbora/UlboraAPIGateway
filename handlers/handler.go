@@ -88,6 +88,14 @@ type ErrorLog struct {
 	RouteURIID int64  `json:"routeUriId"`
 }
 
+//PerformanceLog PerformanceLog
+type PerformanceLog struct {
+	ClientID   int64 `json:"clientId"`
+	RouteID    int64 `json:"routeId"`
+	RouteURIID int64 `json:"routeUriId"`
+	Latency    int64 `json:"latency"`
+}
+
 func parseQueryString(vals url.Values) string {
 	var rtn = ""
 	var first = true

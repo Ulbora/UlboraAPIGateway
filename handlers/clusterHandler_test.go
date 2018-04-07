@@ -5,6 +5,7 @@ import (
 	env "UlboraApiGateway/environment"
 	gwerr "UlboraApiGateway/gwerrors"
 	mgr "UlboraApiGateway/managers"
+	gwmon "UlboraApiGateway/monitor"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -21,6 +22,7 @@ var routeClust int64
 var routeClustURLID int64
 var connectedForCache bool
 var clustCbDB cb.CircuitBreaker
+var clPermDB gwmon.GatewayPerformanceMonitor
 var hcc Handler
 
 func TestClus_ConnectForCache(t *testing.T) {
@@ -31,11 +33,15 @@ func TestClus_ConnectForCache(t *testing.T) {
 	clustCbDB.DbConfig = gwRoutes.GwDB.DbConfig
 	clustCbDB.CacheHost = "http://localhost:3010"
 	clErrDB.DbConfig = gwRoutes.GwDB.DbConfig
+	clPermDB.DbConfig = gwRoutes.GwDB.DbConfig
 	connectedForCache = gwRoutes.GwDB.ConnectDb()
 	if connectedForCache != true {
 		t.Fail()
 	}
 	hcc.DbConfig = gwRoutes.GwDB.DbConfig
+	hcc.ErrDB = clErrDB
+	hcc.MonDB = clPermDB
+	hcc.MonDB.CallBatchSize = 1
 	//gwRoutes.GwDB.DbConfig = gwRoutes.GwDB.DbConfig
 	//cp.Host = "http://localhost:3010"
 }
@@ -656,6 +662,141 @@ func TestClus_GetRouteError(t *testing.T) {
 	fmt.Print("found gw error list: ")
 	fmt.Println(res)
 	if len(*res) == 0 || (*res)[0].Code != 400 || (*res)[0].Message != "failed in test" {
+		fmt.Println("database read failed")
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRoutePerformanceMedia(t *testing.T) {
+	var p PerformanceLog
+	p.ClientID = clustCid
+	p.RouteID = routeClust
+	p.RouteURIID = routeClustURLID
+	p.Latency = 100
+	aJSON, _ := json.Marshal(p)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	//r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRoutePerformance(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in perf log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnsupportedMediaType {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRoutePerformanceReq(t *testing.T) {
+	var p PerformanceLog
+	//p.ClientID = clustCid
+	//p.RouteID = routeClust
+	p.RouteURIID = routeClustURLID
+	p.Latency = 100
+	aJSON, _ := json.Marshal(p)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRoutePerformance(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in perf log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRoutePerformanceMethod(t *testing.T) {
+	var p PerformanceLog
+	p.ClientID = clustCid
+	p.RouteID = routeClust
+	p.RouteURIID = routeClustURLID
+	p.Latency = 100
+	aJSON, _ := json.Marshal(p)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRoutePerformance(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in perf log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRoutePerformance(t *testing.T) {
+	var p PerformanceLog
+	p.ClientID = clustCid
+	p.RouteID = routeClust
+	p.RouteURIID = routeClustURLID
+	p.Latency = 100
+	aJSON, _ := json.Marshal(p)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRoutePerformance(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in perf log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_ClusterSaveRoutePerformance2(t *testing.T) {
+	var p PerformanceLog
+	p.ClientID = clustCid
+	p.RouteID = routeClust
+	p.RouteURIID = routeClustURLID
+	p.Latency = 100
+	aJSON, _ := json.Marshal(p)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleClusterSaveRoutePerformance(w, r)
+	fmt.Print("Code: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in perf log: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_GetRoutePerformance(t *testing.T) {
+	var p gwmon.GwPerformance
+	p.ClientID = clustCid
+	p.RestRouteID = routeClust
+	p.RouteURIID = routeClustURLID
+	res := clPermDB.GetRoutePerformance(&p)
+	fmt.Println("")
+	fmt.Print("found gw perform list: ")
+	fmt.Println(res)
+	if len(*res) == 0 || (*res)[0].Calls != 2 || (*res)[0].LatencyMsTotal != 200 {
 		fmt.Println("database read failed")
 		t.Fail()
 	}
