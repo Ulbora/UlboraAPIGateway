@@ -165,6 +165,10 @@ func main() {
 	//router.HandleFunc("/rs/cluster/routestatus/{route}", h.HandleGetRouteStatus)
 	//router.HandleFunc("/rs/cluster/routestatus/delete/{route}", h.HandleDeleteRouteStatus)
 	router.HandleFunc("/rs/cluster/routes/{route}", h.HandleGetClusterGwRoutes)
+	router.HandleFunc("/rs/cluster/routes/clear/{route}", h.HandleClearClusterGwRoutes)
+	router.HandleFunc("/rs/cluster/route/trip", h.HandleTripClusterBreaker)
+	router.HandleFunc("/rs/cluster/route/error", h.HandleClusterSaveRouteError)
+	router.HandleFunc("/rs/cluster/route/performance", h.HandleClusterSaveRoutePerformance)
 
 	// admin Breaker services
 	router.HandleFunc("/rs/gwBreaker/add", h.HandleBreakerPost)
