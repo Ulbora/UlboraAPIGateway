@@ -80,7 +80,7 @@ func (db *GatewayDB) UpdateRestRoute(rr *RestRoute) *GatewayResponse {
 		gwr.ClientID = rr.ClientID
 		gwr.Route = rt.Route
 		gwr.GwCacheHost = env.GetCacheHost()
-		//gwr.SetGatewayRouteStatus()
+		gwr.ClearClusterGwRoutes()
 	}
 	rtn.ID = rr.ID
 	rtn.Success = success
@@ -149,7 +149,7 @@ func (db *GatewayDB) DeleteRestRoute(rr *RestRoute) *GatewayResponse {
 		gwr.ClientID = rr.ClientID
 		gwr.Route = rt.Route
 		gwr.GwCacheHost = env.GetCacheHost()
-		//gwr.SetGatewayRouteStatus()
+		gwr.ClearClusterGwRoutes()
 	}
 	rtn.ID = rr.ID
 	rtn.Success = success

@@ -552,6 +552,103 @@ func TestClus_GetBreakerStatus(t *testing.T) {
 	}
 }
 
+func TestClus_ResetClusterBreakerMedia(t *testing.T) {
+	var b ClusterBreaker
+	b.RouteURIID = routeClustURLID
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	//r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleResetClusterBreaker(w, r)
+	fmt.Print("Code in reset: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusUnsupportedMediaType {
+		t.Fail()
+	}
+}
+
+func TestClus_ResetClusterBreakerReq(t *testing.T) {
+	var b ClusterBreaker
+	//b.RouteURIID = routeClustURLID
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleResetClusterBreaker(w, r)
+	fmt.Print("Code in reset: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
+func TestClus_ResetClusterBreakerMethod(t *testing.T) {
+	var b ClusterBreaker
+	b.RouteURIID = routeClustURLID
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("PUT", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleResetClusterBreaker(w, r)
+	fmt.Print("Code in reset: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
+func TestClus_ResetClusterBreaker(t *testing.T) {
+	var b ClusterBreaker
+	b.RouteURIID = routeClustURLID
+	aJSON, _ := json.Marshal(b)
+	r, _ := http.NewRequest("POST", "/test", bytes.NewBuffer(aJSON))
+	r.Header.Set("u-client-id", "97")
+	r.Header.Set("u-api-key", "12233hgdd333")
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	hcc.HandleResetClusterBreaker(w, r)
+	fmt.Print("Code in reset: ")
+	fmt.Println(w.Code)
+	by, _ := ioutil.ReadAll(w.Body)
+	var bdy mgr.GatewayResponse
+	json.Unmarshal([]byte(by), &bdy)
+	fmt.Print("Resp in trip: ")
+	fmt.Println(bdy)
+	if w.Code != http.StatusOK || bdy.Success != true {
+		t.Fail()
+	}
+}
+
+func TestClus_GetBreakerStatus2(t *testing.T) {
+	res := clustCbDB.GetStatus(clustCid, routeClustURLID)
+	fmt.Print("routes status: ")
+	fmt.Println(res)
+	if res.Open != false {
+		t.Fail()
+	}
+}
+
 func TestClus_ClusterSaveRouteErrorMedia(t *testing.T) {
 	var el ErrorLog
 	el.ClientID = clustCid

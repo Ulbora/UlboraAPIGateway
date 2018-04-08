@@ -74,7 +74,7 @@ func (db *GatewayDB) UpdateRouteURL(ru *RouteURL) *GatewayResponse {
 			gwr.ClientID = rr.ClientID
 			gwr.Route = route.Route
 			gwr.GwCacheHost = env.GetCacheHost()
-			//gwr.SetGatewayRouteStatus()
+			gwr.ClearClusterGwRoutes()
 		}
 	}
 	rtn.ID = ru.ID
@@ -109,7 +109,7 @@ func (db *GatewayDB) ActivateRouteURL(ru *RouteURL) *GatewayResponse {
 				gwr.ClientID = rr.ClientID
 				gwr.Route = route.Route
 				gwr.GwCacheHost = env.GetCacheHost()
-				//gwr.SetGatewayRouteStatus()
+				gwr.ClearClusterGwRoutes()
 			}
 		}
 	}
@@ -174,7 +174,7 @@ func (db *GatewayDB) DeleteRouteURL(ru *RouteURL) *GatewayResponse {
 			gwr.ClientID = rr.ClientID
 			gwr.Route = route.Route
 			gwr.GwCacheHost = env.GetCacheHost()
-			//gwr.SetGatewayRouteStatus()
+			gwr.ClearClusterGwRoutes()
 		}
 	}
 	rtn.ID = ru.ID

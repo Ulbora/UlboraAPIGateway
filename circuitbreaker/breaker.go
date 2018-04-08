@@ -295,7 +295,6 @@ func (c *CircuitBreaker) Reset(clientID int64, urlID int64) {
 	} else {
 		delete(cbCache, key)
 	}
-
 }
 
 //GetBreaker from database
