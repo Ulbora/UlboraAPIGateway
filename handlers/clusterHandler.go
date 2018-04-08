@@ -60,8 +60,8 @@ func (h Handler) HandleGetClusterGwRoutes(w http.ResponseWriter, r *http.Request
 		gwr.Route = route
 		res := gwr.GetClusterGwRoutes()
 		resJSON, err := json.Marshal(res)
-		fmt.Print("json out: ")
-		fmt.Println(res)
+		//fmt.Print("json out: ")
+		//fmt.Println(res)
 		if err != nil {
 			log.Println(err.Error())
 		}
@@ -97,8 +97,8 @@ func (h Handler) HandleClearClusterGwRoutes(w http.ResponseWriter, r *http.Reque
 		var res mgr.ClusterResponse
 		res.Success = suc
 		resJSON, err := json.Marshal(res)
-		fmt.Print("json out: ")
-		fmt.Println(res)
+		//fmt.Print("json out: ")
+		//fmt.Println(res)
 		if err != nil {
 			log.Println(err.Error())
 		}

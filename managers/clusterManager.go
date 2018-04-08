@@ -83,8 +83,8 @@ func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 				rtn = append(rtn, *rowContent)
 			}
 			aJSON, err := json.Marshal(rtn)
-			fmt.Print("rtn")
-			fmt.Println(rtn)
+			//fmt.Print("rtn")
+			//fmt.Println(rtn)
 			if err != nil {
 				fmt.Println("JSON parser err: ")
 				fmt.Println(err)
@@ -95,8 +95,8 @@ func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 				var i ch.Item
 				i.Key = key
 				i.Value = cval
-				fmt.Print("item: ")
-				fmt.Println(i)
+				//fmt.Print("item: ")
+				//fmt.Println(i)
 				res := cp.Set(&i)
 				if res.Success != true {
 					fmt.Println("Routes not cached from db for key " + key + ".")
@@ -109,14 +109,14 @@ func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 
 //ClearClusterGwRoutes ClearClusterGwRoutes
 func (gw *GatewayRoutes) ClearClusterGwRoutes() bool {
-	fmt.Print("gw ")
-	fmt.Println(gw)
+	//fmt.Print("gw ")
+	//fmt.Println(gw)
 	var cp ch.CProxy
 	cp.Host = gw.GwCacheHost
 	var cid = strconv.FormatInt(gw.ClientID, 10)
 	var key = cid + ":cluster:" + gw.Route
-	fmt.Print("key in clear ")
-	fmt.Println(key)
+	//fmt.Print("key in clear ")
+	//fmt.Println(key)
 	rtn := cp.Delete(key)
 	return rtn.Success
 }

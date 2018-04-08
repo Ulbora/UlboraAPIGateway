@@ -204,8 +204,8 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 	defer mu.Unlock()
 	//var s Status
 	key := strconv.FormatInt(b.ClientID, 10) + "breaker:" + strconv.FormatInt(b.RouteURIID, 10)
-	fmt.Print("key in trip in breaker: ")
-	fmt.Println(key)
+	//fmt.Print("key in trip in breaker: ")
+	//fmt.Println(key)
 	var cp ch.CProxy
 	var cs breakerState
 	var found bool
@@ -299,8 +299,8 @@ func (c *CircuitBreaker) Reset(clientID int64, urlID int64) {
 
 //GetBreaker from database
 func (c *CircuitBreaker) GetBreaker(b *Breaker) *Breaker {
-	fmt.Print("b in cb: ")
-	fmt.Println(b)
+	//fmt.Print("b in cb: ")
+	//fmt.Println(b)
 	a := []interface{}{b.RouteURIID, b.RestRouteID, b.ClientID}
 	var rtn *Breaker
 	rowPtr := c.DbConfig.GetBreaker(a...)

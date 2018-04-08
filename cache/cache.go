@@ -115,8 +115,8 @@ func (cp *CProxy) Get(key string) *ResponseValue {
 func (cp *CProxy) Delete(key string) *Response {
 	var rtn = new(Response)
 	var sURL = cp.Host + "/rs/cache/delete/" + key
-	fmt.Print("sURL: ")
-	fmt.Println(sURL)
+	//fmt.Print("sURL: ")
+	//fmt.Println(sURL)
 	req, rErr := http.NewRequest("DELETE", sURL, nil)
 	if rErr != nil {
 		fmt.Print("request err: ")

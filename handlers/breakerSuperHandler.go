@@ -433,8 +433,8 @@ func (h Handler) HandleBreakerStatusSuper(w http.ResponseWriter, r *http.Request
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			resOut := cbDB.GetStatus(clientID, UID)
-			fmt.Print("response: ")
-			fmt.Println(resOut)
+			//fmt.Print("response: ")
+			//fmt.Println(resOut)
 			resJSON, err := json.Marshal(resOut)
 			if err != nil {
 				log.Println(err.Error())

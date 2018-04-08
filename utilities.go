@@ -26,29 +26,8 @@ package main
 */
 
 import (
-	"fmt"
-	"net/http"
-	"net/url"
 	"os"
-	"strconv"
-	"strings"
-
-	uoauth "github.com/Ulbora/go-ulbora-oauth2"
 )
-
-func parseQueryString(vals url.Values) string {
-	var rtn = ""
-	var first = true
-	for key, value := range vals {
-		if first == true {
-			first = false
-			rtn += "?" + key + "=" + value[0]
-		} else {
-			rtn += "&" + key + "=" + value[0]
-		}
-	}
-	return rtn
-}
 
 func getCacheHost() string {
 	var rtn = ""
@@ -57,74 +36,5 @@ func getCacheHost() string {
 	} else {
 		rtn = "http://localhost:3010"
 	}
-	return rtn
-}
-
-func buildHeaders(pr *http.Request, sr *http.Request) {
-	h := pr.Header
-	for hn, v := range h {
-		//fmt.Print("header: ")
-		//fmt.Print(hn)
-		//fmt.Print(" value: ")
-		//fmt.Println(v[0])
-		sr.Header.Set(hn, v[0])
-	}
-}
-
-func buildRespHeaders(pw *http.Response, sw http.ResponseWriter) {
-	h := pw.Header
-	//var cnt = 0
-	for hn, v := range h {
-		// cnt++
-		// fmt.Print("header: ")
-		// fmt.Print(hn)
-		// fmt.Print(" value: ")
-		// fmt.Println(v[0])
-		// if cnt > 5 {
-		// 	break
-		// }
-		sw.Header().Set(hn, v[0])
-	}
-}
-
-func getAuth(req *http.Request) *uoauth.Oauth {
-	changeHeader := getHeaders(req)
-	auth := new(uoauth.Oauth)
-	auth.Token = changeHeader.token
-	auth.ClientID = changeHeader.clientID
-	auth.UserID = changeHeader.userID
-	auth.Hashed = changeHeader.hashed
-	if os.Getenv("OAUTH2_VALIDATION_URI") != "" {
-		auth.ValidationURL = os.Getenv("OAUTH2_VALIDATION_URI")
-	} else {
-		auth.ValidationURL = "http://localhost:3000/rs/token/validate"
-	}
-	return auth
-}
-
-func getHeaders(req *http.Request) *authHeader {
-	var rtn = new(authHeader)
-	authHeader := req.Header.Get("Authorization")
-	tokenArray := strings.Split(authHeader, " ")
-	if len(tokenArray) == 2 {
-		rtn.token = tokenArray[1]
-		//fmt.Println(rtn.token)
-	}
-	userIDHeader := req.Header.Get("userId")
-	rtn.userID = userIDHeader
-
-	clientIDHeader := req.Header.Get("clientId")
-	clientID, err := strconv.ParseInt(clientIDHeader, 10, 32)
-	if err != nil {
-		fmt.Println(err)
-	}
-	rtn.clientID = clientID
-	if req.Header.Get("hashed") == "true" {
-		rtn.hashed = true
-	} else {
-		rtn.hashed = false
-	}
-	//fmt.Println(clientIDHeader)
-	//fmt.Println(userIDHeader)
 	return rtn
 }
