@@ -1,0 +1,22 @@
+mode: set
+UlboraApiGateway/cache/cache.go:60.42,64.16 4 1
+UlboraApiGateway/cache/cache.go:91.2,91.12 1 1
+UlboraApiGateway/cache/cache.go:64.16,67.3 2 0
+UlboraApiGateway/cache/cache.go:67.3,69.18 2 1
+UlboraApiGateway/cache/cache.go:69.18,72.4 2 0
+UlboraApiGateway/cache/cache.go:72.4,76.19 4 1
+UlboraApiGateway/cache/cache.go:76.19,79.5 2 1
+UlboraApiGateway/cache/cache.go:79.5,83.21 4 1
+UlboraApiGateway/cache/cache.go:83.21,87.6 2 0
+UlboraApiGateway/cache/cache.go:95.50,100.16 4 1
+UlboraApiGateway/cache/cache.go:111.2,111.12 1 1
+UlboraApiGateway/cache/cache.go:100.16,103.3 2 1
+UlboraApiGateway/cache/cache.go:103.3,107.19 4 1
+UlboraApiGateway/cache/cache.go:107.19,109.4 1 0
+UlboraApiGateway/cache/cache.go:115.48,121.17 4 1
+UlboraApiGateway/cache/cache.go:139.2,139.12 1 1
+UlboraApiGateway/cache/cache.go:121.17,124.3 2 0
+UlboraApiGateway/cache/cache.go:124.3,127.18 3 1
+UlboraApiGateway/cache/cache.go:127.18,130.4 2 1
+UlboraApiGateway/cache/cache.go:130.4,134.20 4 1
+UlboraApiGateway/cache/cache.go:134.20,136.5 1 1

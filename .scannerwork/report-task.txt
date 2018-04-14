@@ -1,0 +1,7 @@
+organization=ulboralabs
+projectKey=myapigateway
+serverUrl=https://sonarcloud.io
+serverVersion=7.1.1.10702
+dashboardUrl=https://sonarcloud.io/dashboard/index/myapigateway
+ceTaskId=AWLFwg_kX0BbYiea-yfW
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AWLFwg_kX0BbYiea-yfW
