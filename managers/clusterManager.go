@@ -60,6 +60,8 @@ func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 			if err != nil {
 				fmt.Println(err)
 			}
+			//fmt.Print("rtn in cluster routes")
+			//fmt.Println(rtn)
 		}
 		//fmt.Println("Found Gateway route in cache for key: " + key)
 	} else {
@@ -126,6 +128,8 @@ func (gw *GatewayRoutes) TripClusterBreaker(b *cb.Breaker) ClusterResponse {
 	var rtn ClusterResponse
 	var cbDB cb.CircuitBreaker
 	cbDB.CacheHost = gw.GwCacheHost
+	//fmt.Print("host: ")
+	//fmt.Println(cbDB.CacheHost)
 	b.ClientID = gw.ClientID
 	cbDB.Trip(b)
 	gw.ClearClusterGwRoutes()

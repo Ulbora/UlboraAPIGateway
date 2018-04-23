@@ -229,8 +229,10 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 				if err != nil {
 					fmt.Println(err)
 				} else {
-					//fmt.Print("cache from server in Trip: ")
-					//fmt.Println(cs)
+					//fmt.Print("cache from server in Trip fail cnt: ")
+					//fmt.Println(cs.FailCount)
+					//fmt.Print("cache from server in Trip : threshold ")
+					//fmt.Println(cs.Threshold)
 					found = res.Success
 				}
 			}
