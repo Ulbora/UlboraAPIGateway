@@ -78,15 +78,17 @@ type GatewayRouteURL struct {
 
 //GatewayClusterRouteURL url
 type GatewayClusterRouteURL struct {
-	RouteID           int64  `json:"routeId"`
-	Route             string `json:"route"`
-	URLID             int64  `json:"urlId"`
-	Name              string `json:"name"`
-	URL               string `json:"url"`
-	Active            bool   `json:"active"`
-	CircuitOpen       bool   `json:"circuitOpen"`
-	OpenFailCode      int    `json:"openFailCode"`
-	FailoverRouteName string `json:"failoverRouteName"`
+	RouteID                int64  `json:"routeId"`
+	Route                  string `json:"route"`
+	URLID                  int64  `json:"urlId"`
+	Name                   string `json:"name"`
+	URL                    string `json:"url"`
+	Active                 bool   `json:"active"`
+	CircuitOpen            bool   `json:"circuitOpen"`
+	OpenFailCode           int    `json:"openFailCode"`
+	FailoverRouteName      string `json:"failoverRouteName"`
+	FailureThreshold       int    `json:"failureThreshold"`
+	HealthCheckTimeSeconds int    `json:"healthCheckTimeSeconds"`
 }
 
 //GatewayDB db config
