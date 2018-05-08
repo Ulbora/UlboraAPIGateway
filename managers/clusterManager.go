@@ -163,7 +163,7 @@ func parseClusterGatewayRoutesRow(foundRow *[]string, cbDB *cb.CircuitBreaker, c
 		}
 		cbs := cbDB.GetStatus(cid, rtn.URLID)
 		rtn.OpenFailCode = cbs.OpenFailCode
-		rtn.FailoverRouteName = cbs.FailoverRouteName
+		//rtn.FailoverRouteName = cbs.FailoverRouteName
 		rtn.CircuitOpen = cbs.Open
 		var b cb.Breaker
 		b.ClientID = cid
@@ -172,6 +172,8 @@ func parseClusterGatewayRoutesRow(foundRow *[]string, cbDB *cb.CircuitBreaker, c
 		cb := cbDB.GetBreaker(&b)
 		rtn.FailureThreshold = cb.FailureThreshold
 		rtn.HealthCheckTimeSeconds = cb.HealthCheckTimeSeconds
+		rtn.OpenFailCode = cb.OpenFailCode
+		rtn.FailoverRouteName = cb.FailoverRouteName
 	}
 	return &rtn
 }
