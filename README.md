@@ -1,6 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Ulbora/UlboraAPIGateway)](https://goreportcard.com/report/github.com/Ulbora/UlboraAPIGateway)
 [![](https://img.shields.io/docker/build/mariobehling/loklak.svg)](https://hub.docker.com/r/ulboralabs/ulboraapigateway/builds/)
-[![alert_status](https://sonarcloud.io/api/project_badges/measure?project=myapigateway&metric=alert_status)](https://sonarcloud.io/dashboard?id=myapigateway)
+[![sqale_rating](https://sonarcloud.io/api/project_badges/measure?project=myapigateway&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=myapigateway)
 [![coverage](https://sonarcloud.io/api/project_badges/measure?project=myapigateway&metric=coverage)](https://sonarcloud.io/dashboard?id=myapigateway)
 
 
