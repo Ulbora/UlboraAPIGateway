@@ -80,7 +80,7 @@ var mu sync.Mutex
 //ConnectDb to database
 func (c *CircuitBreaker) ConnectDb() bool {
 	rtn := c.DbConfig.ConnectDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect")
 	}
 	return rtn
@@ -99,7 +99,7 @@ func (c *CircuitBreaker) InsertBreaker(b *Breaker) (bool, error) {
 	a := []interface{}{b.FailureThreshold, b.HealthCheckTimeSeconds, b.FailoverRouteName, b.OpenFailCode,
 		b.RouteURIID, b.RestRouteID, b.ClientID}
 	suc, insID := c.DbConfig.InsertRouteBreaker(a...)
-	if suc == true && insID != -1 {
+	if suc && insID != -1 {
 		success = suc
 		//fmt.Print("new Id route error id: ")
 		//fmt.Println(insID)
