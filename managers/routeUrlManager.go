@@ -42,7 +42,7 @@ func (db *GatewayDB) InsertRouteURL(ru *RouteURL) *GatewayResponse {
 	var a []interface{}
 	a = append(a, ru.Name, ru.URL, ru.Active, ru.RouteID, ru.ClientID)
 	success, insID := db.DbConfig.InsertRouteURL(a...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	rtn.ID = insID
@@ -61,12 +61,12 @@ func (db *GatewayDB) UpdateRouteURL(ru *RouteURL) *GatewayResponse {
 	var a []interface{}
 	a = append(a, ru.Name, ru.URL, ru.ID, ru.RouteID, ru.ClientID)
 	success := db.DbConfig.UpdateRouteURL(a...)
-	if success == true {
+	if success {
 		fmt.Println("update record")
+		db.Cb.Reset(ru.ClientID, ru.ID)
 		var rr RestRoute
 		rr.ID = ru.RouteID
 		rr.ClientID = ru.ClientID
-		db.Cb.Reset(ru.ClientID, ru.ID)
 		route := db.GetRestRoute(&rr)
 		if route != nil {
 			db.clearCache(ru.ClientID, route.Route)
@@ -93,10 +93,10 @@ func (db *GatewayDB) ActivateRouteURL(ru *RouteURL) *GatewayResponse {
 	var a []interface{}
 	a = append(a, ru.ID, ru.RouteID, ru.ClientID)
 	success := db.DbConfig.ActivateRouteURL(a...)
-	if success == true {
+	if success {
 		fmt.Println("activated urls")
 		successd := db.DbConfig.DeactivateOtherRouteURLs(a...)
-		if successd == true {
+		if successd {
 			fmt.Println("deactivated other urls")
 			var rr RestRoute
 			rr.ID = ru.RouteID
@@ -161,11 +161,11 @@ func (db *GatewayDB) DeleteRouteURL(ru *RouteURL) *GatewayResponse {
 	var a []interface{}
 	a = append(a, ru.ID, ru.RouteID, ru.ClientID)
 	success := db.DbConfig.DeleteRouteURL(a...)
-	if success == true {
+	if success {
 		fmt.Println("deleted record")
 		var rr RestRoute
-		rr.ID = ru.RouteID
 		rr.ClientID = ru.ClientID
+		rr.ID = ru.RouteID
 		db.Cb.Reset(ru.ClientID, ru.ID)
 		route := db.GetRestRoute(&rr)
 		if route != nil {
