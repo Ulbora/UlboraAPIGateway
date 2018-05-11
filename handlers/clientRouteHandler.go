@@ -45,9 +45,9 @@ func (h Handler) HandleClientPost(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	cpme := new(uoauth.Claim)
+	cpme.Role = "superAdmin"
+	cpme.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -55,14 +55,14 @@ func (h Handler) HandleClientPost(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwClient/add"
+			cpme.URI = "/ulbora/rs/gwClient/add"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(cpme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				client := new(mng.Client)
@@ -99,9 +99,9 @@ func (h Handler) HandleClientPut(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	cpume := new(uoauth.Claim)
+	cpume.Role = "superAdmin"
+	cpume.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -109,14 +109,14 @@ func (h Handler) HandleClientPut(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "PUT":
-			me.URI = "/ulbora/rs/gwClient/update"
+			cpume.URI = "/ulbora/rs/gwClient/update"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(cpume)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				client := new(mng.Client)
@@ -153,8 +153,8 @@ func (h Handler) HandleClientGet(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	cgme := new(uoauth.Claim)
+	cgme.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -179,15 +179,15 @@ func (h Handler) HandleClientGet(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/ulbora/rs/gwClient/get"
-		me.Scope = "read"
+		cgme.URI = "/ulbora/rs/gwClient/get"
+		cgme.Scope = "read"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(cgme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			client := new(mng.Client)
@@ -215,8 +215,8 @@ func (h Handler) HandleClientDelete(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	cdme := new(uoauth.Claim)
+	cdme.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -241,15 +241,15 @@ func (h Handler) HandleClientDelete(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "DELETE":
-		me.URI = "/ulbora/rs/gwClient/delete"
-		me.Scope = "write"
+		cdme.URI = "/ulbora/rs/gwClient/delete"
+		cdme.Scope = "write"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(cdme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			client := new(mng.Client)
@@ -277,20 +277,20 @@ func (h Handler) HandleClientList(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	clme := new(uoauth.Claim)
+	clme.Role = "superAdmin"
+	clme.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "GET":
-		me.URI = "/ulbora/rs/gwClient/list"
+		clme.URI = "/ulbora/rs/gwClient/list"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(clme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			client := new(mng.Client)

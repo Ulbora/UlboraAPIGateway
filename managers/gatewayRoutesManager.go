@@ -41,14 +41,15 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	var rtnVal GatewayRouteURL
 	var rtn = make([]GatewayRouteURL, 0)
 	// check cache for saved value---------
+	var cid = strconv.FormatInt(gw.ClientID, 10)
 	var cp ch.CProxy
 	cp.Host = gw.GwCacheHost
-	var cid = strconv.FormatInt(gw.ClientID, 10)
+
 	var key = cid + ":" + gw.Route
 	//fmt.Print("Key Used for cache: ")
 	//fmt.Println(key)
 	res := cp.Get(key)
-	if res.Success == true {
+	if res.Success {
 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 		if err != nil {
 			fmt.Println(err)
@@ -65,8 +66,8 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 
 		dbConnected := gw.GwDB.DbConfig.ConnectionTest()
 		if !dbConnected {
-			fmt.Println("reconnection to closed database")
 			gw.GwDB.DbConfig.ConnectDb()
+			fmt.Println("reconnection to closed database")
 		}
 		var a []interface{}
 		a = append(a, gw.Route, gw.ClientID, gw.APIKey)
@@ -94,7 +95,7 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 				i.Key = key
 				i.Value = cval
 				res := cp.Set(&i)
-				if res.Success != true {
+				if !res.Success {
 					fmt.Println("Routes not cached from db for key " + key + ".")
 				}
 			}
@@ -102,9 +103,9 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	}
 	//fmt.Println("Routes: ")
 	//fmt.Println(rtn)
-	if len(rtn) > 0 && getActive == true {
+	if len(rtn) > 0 && getActive {
 		for r := range rtn {
-			if rtn[r].Active == true {
+			if rtn[r].Active {
 				rtnVal = rtn[r]
 				break
 			}
@@ -122,14 +123,14 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	cbs := cbDB.GetStatus(gw.ClientID, rtnVal.URLID)
 	//fmt.Print("Breaker: ")
 	//fmt.Println(cbs)
-	if cbs.Open == true && cbs.FailoverRouteName != "" {
+	if cbs.Open && cbs.FailoverRouteName != "" {
 		for r := range rtn {
 			if rtn[r].Name == cbs.FailoverRouteName {
 				rtnVal = rtn[r]
 				break
 			}
 		}
-	} else if cbs.Open == true {
+	} else if cbs.Open {
 		rtnVal.CircuitOpen = cbs.Open
 		rtnVal.OpenFailCode = cbs.OpenFailCode
 	}
@@ -137,20 +138,20 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 }
 
 func parseGatewayRoutesRow(foundRow *[]string) *GatewayRouteURL {
-	var rtn GatewayRouteURL
+	var rtrn GatewayRouteURL
 	if len(*foundRow) > 0 {
-		rtn.RouteID, _ = strconv.ParseInt((*foundRow)[0], 10, 0)
-		rtn.Route = (*foundRow)[1]
-		rtn.URLID, _ = strconv.ParseInt((*foundRow)[2], 10, 0)
-		rtn.Name = (*foundRow)[3]
-		rtn.URL = (*foundRow)[4]
+		rtrn.RouteID, _ = strconv.ParseInt((*foundRow)[0], 10, 0)
+		rtrn.Route = (*foundRow)[1]
+		rtrn.URLID, _ = strconv.ParseInt((*foundRow)[2], 10, 0)
+		rtrn.Name = (*foundRow)[3]
+		rtrn.URL = (*foundRow)[4]
 		active, err := strconv.ParseBool((*foundRow)[5])
 		if err != nil {
 			fmt.Print(err)
-			rtn.Active = false
+			rtrn.Active = false
 		} else {
-			rtn.Active = active
+			rtrn.Active = active
 		}
 	}
-	return &rtn
+	return &rtrn
 }

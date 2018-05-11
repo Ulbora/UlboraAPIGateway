@@ -40,9 +40,9 @@ func (h Handler) HandlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 	var monDB gwmon.GatewayPerformanceMonitor
 	monDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "read"
+	psme := new(uoauth.Claim)
+	psme.Role = "superAdmin"
+	psme.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -50,14 +50,14 @@ func (h Handler) HandlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwPerformanceSuper"
+			psme.URI = "/ulbora/rs/gwPerformanceSuper"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(psme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				p := new(gwmon.GwPerformance)
@@ -69,20 +69,20 @@ func (h Handler) HandlePeformanceSuper(w http.ResponseWriter, r *http.Request) {
 				} else if p.ClientID == 0 || p.RestRouteID == 0 || p.RouteURIID == 0 {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
-					resOut := monDB.GetRoutePerformance(p)
+					psresOut := monDB.GetRoutePerformance(p)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
-					resJSON, err := json.Marshal(resOut)
+					psresJSON, err := json.Marshal(psresOut)
 					if err != nil {
 						log.Println(error.Error())
 						http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
 					//fmt.Fprint(w, string(resJSON))
-					if string(resJSON) == "null" {
+					if string(psresJSON) == "null" {
 						fmt.Fprint(w, "[]")
 					} else {
-						fmt.Fprint(w, string(resJSON))
+						fmt.Fprint(w, string(psresJSON))
 					}
 				}
 			}
@@ -97,9 +97,9 @@ func (h Handler) HandlePeformance(w http.ResponseWriter, r *http.Request) {
 	var monDB gwmon.GatewayPerformanceMonitor
 	monDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "admin"
-	me.Scope = "read"
+	pme := new(uoauth.Claim)
+	pme.Role = "admin"
+	pme.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -107,14 +107,14 @@ func (h Handler) HandlePeformance(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwPerformance"
+			pme.URI = "/ulbora/rs/gwPerformance"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(pme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				p := new(gwmon.GwPerformance)
@@ -127,20 +127,20 @@ func (h Handler) HandlePeformance(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "bad request", http.StatusBadRequest)
 				} else {
 					p.ClientID = auth.ClientID
-					resOut := monDB.GetRoutePerformance(p)
+					presOut := monDB.GetRoutePerformance(p)
 					//fmt.Print("response: ")
 					//fmt.Println(resOut)
-					resJSON, err := json.Marshal(resOut)
+					presJSON, err := json.Marshal(presOut)
 					if err != nil {
 						log.Println(error.Error())
 						http.Error(w, "json output failed", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
 					//fmt.Fprint(w, string(resJSON))
-					if string(resJSON) == "null" {
+					if string(presJSON) == "null" {
 						fmt.Fprint(w, "[]")
 					} else {
-						fmt.Fprint(w, string(resJSON))
+						fmt.Fprint(w, string(presJSON))
 					}
 				}
 			}

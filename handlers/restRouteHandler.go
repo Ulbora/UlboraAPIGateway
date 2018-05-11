@@ -45,9 +45,9 @@ func (h Handler) HandleRestRoutePost(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "admin"
-	me.Scope = "write"
+	rpme := new(uoauth.Claim)
+	rpme.Role = "admin"
+	rpme.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -55,14 +55,14 @@ func (h Handler) HandleRestRoutePost(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwRestRoute/add"
+			rpme.URI = "/ulbora/rs/gwRestRoute/add"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(rpme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				rt := new(mng.RestRoute)
@@ -100,9 +100,9 @@ func (h Handler) HandleRestRoutePut(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "admin"
-	me.Scope = "write"
+	rpume := new(uoauth.Claim)
+	rpume.Role = "admin"
+	rpume.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -110,14 +110,14 @@ func (h Handler) HandleRestRoutePut(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "PUT":
-			me.URI = "/ulbora/rs/gwRestRoute/update"
+			rpume.URI = "/ulbora/rs/gwRestRoute/update"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(rpume)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				rt := new(mng.RestRoute)
@@ -155,8 +155,8 @@ func (h Handler) HandleRestRouteGet(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "admin"
+	rgme := new(uoauth.Claim)
+	rgme.Role = "admin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -178,15 +178,15 @@ func (h Handler) HandleRestRouteGet(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/ulbora/rs/gwRestRoute/get"
-		me.Scope = "read"
+		rgme.URI = "/ulbora/rs/gwRestRoute/get"
+		rgme.Scope = "read"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(rgme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RestRoute)
@@ -215,8 +215,8 @@ func (h Handler) HandleRestRouteDelete(w http.ResponseWriter, r *http.Request) {
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "admin"
+	rdme := new(uoauth.Claim)
+	rdme.Role = "admin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -238,15 +238,15 @@ func (h Handler) HandleRestRouteDelete(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "DELETE":
-		me.URI = "/ulbora/rs/gwRestRoute/delete"
-		me.Scope = "write"
+		rdme.URI = "/ulbora/rs/gwRestRoute/delete"
+		rdme.Scope = "write"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(rdme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RestRoute)
@@ -283,12 +283,12 @@ func (h Handler) HandleRestRouteList(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		me.URI = "/ulbora/rs/gwRestRoute/list"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
 			valid = auth.Authorize(me)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RestRoute)

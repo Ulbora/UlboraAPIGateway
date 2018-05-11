@@ -45,9 +45,9 @@ func (h Handler) HandleRouteURLSuperPost(w http.ResponseWriter, r *http.Request)
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	uspme := new(uoauth.Claim)
+	uspme.Role = "superAdmin"
+	uspme.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -55,14 +55,14 @@ func (h Handler) HandleRouteURLSuperPost(w http.ResponseWriter, r *http.Request)
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwRouteUrlSuper/add"
+			uspme.URI = "/ulbora/rs/gwRouteUrlSuper/add"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(uspme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				rt := new(mng.RouteURL)
@@ -100,9 +100,9 @@ func (h Handler) HandleRouteURLSuperPut(w http.ResponseWriter, r *http.Request) 
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	usume := new(uoauth.Claim)
+	usume.Role = "superAdmin"
+	usume.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -110,14 +110,14 @@ func (h Handler) HandleRouteURLSuperPut(w http.ResponseWriter, r *http.Request) 
 	} else {
 		switch r.Method {
 		case "PUT":
-			me.URI = "/ulbora/rs/gwRouteUrlSuper/update"
+			usume.URI = "/ulbora/rs/gwRouteUrlSuper/update"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(usume)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				rt := new(mng.RouteURL)
@@ -155,9 +155,9 @@ func (h Handler) HandleRouteURLActivateSuper(w http.ResponseWriter, r *http.Requ
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	usame := new(uoauth.Claim)
+	usame.Role = "superAdmin"
+	usame.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -165,14 +165,14 @@ func (h Handler) HandleRouteURLActivateSuper(w http.ResponseWriter, r *http.Requ
 	} else {
 		switch r.Method {
 		case "PUT":
-			me.URI = "/ulbora/rs/gwRouteUrlSuper/activate"
+			usame.URI = "/ulbora/rs/gwRouteUrlSuper/activate"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(usame)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				rt := new(mng.RouteURL)
@@ -210,8 +210,8 @@ func (h Handler) HandleRouteURLSuperGet(w http.ResponseWriter, r *http.Request) 
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	usgme := new(uoauth.Claim)
+	usgme.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -251,15 +251,15 @@ func (h Handler) HandleRouteURLSuperGet(w http.ResponseWriter, r *http.Request) 
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/ulbora/rs/gwRouteUrlSuper/get"
-		me.Scope = "read"
+		usgme.URI = "/ulbora/rs/gwRouteUrlSuper/get"
+		usgme.Scope = "read"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(usgme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RouteURL)
@@ -289,8 +289,8 @@ func (h Handler) HandleRouteURLSuperDelete(w http.ResponseWriter, r *http.Reques
 	gatewayDB.GwCacheHost = getCacheHost()
 
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	usdme := new(uoauth.Claim)
+	usdme.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -330,15 +330,15 @@ func (h Handler) HandleRouteURLSuperDelete(w http.ResponseWriter, r *http.Reques
 	//fmt.Println(id)
 	switch r.Method {
 	case "DELETE":
-		me.URI = "/ulbora/rs/gwRouteUrlSuper/delete"
-		me.Scope = "write"
+		usdme.URI = "/ulbora/rs/gwRouteUrlSuper/delete"
+		usdme.Scope = "write"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(usdme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RouteURL)
@@ -410,12 +410,12 @@ func (h Handler) HandleRouteURLSuperList(w http.ResponseWriter, r *http.Request)
 	case "GET":
 		me.URI = "/ulbora/rs/gwRouteUrlSuper/list"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
 			valid = auth.Authorize(me)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RouteURL)
