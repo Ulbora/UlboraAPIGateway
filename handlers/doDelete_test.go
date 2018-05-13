@@ -135,6 +135,7 @@ func TestGatewayDel_doDelReq2(t *testing.T) {
 		t.Fail()
 	}
 }
+
 func TestGatewayDel_doDel(t *testing.T) {
 	var p passParams
 	p.h = new(Handler)
@@ -160,7 +161,39 @@ func TestGatewayDel_doDel(t *testing.T) {
 	//["p1"] = ["param1"]
 
 	rtn := doDelete(&p)
-	fmt.Print("doGet Res: ")
+	fmt.Print("doDel Res: ")
+	fmt.Println(rtn)
+	if rtn.rtnCode != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
+func TestGatewayDel_doDelUrl(t *testing.T) {
+	var p passParams
+	p.h = new(Handler)
+	var cbr cb.CircuitBreaker
+	cbr.DbConfig = gwTgd.DbConfig
+	p.h.CbDB = cbr
+	p.b = new(cb.Breaker)
+	p.gwr = new(mgr.GatewayRoutes)
+	p.rts = new(mgr.GatewayRouteURL)
+	p.rts.URL = "://challenge.myapigateway.com"
+	p.fpath = "rs/challenge/en_us"
+	var q = make(url.Values, 0)
+	q.Set("p1", "param1")
+	p.code = &q
+
+	// aJSON, _ := json.Marshal(c)
+	r, _ := http.NewRequest("DELETE", "/test", nil)
+	//r.Header.Set("Content-Type", "application/json")
+	p.r = r
+	w := httptest.NewRecorder()
+	p.w = w
+
+	//["p1"] = ["param1"]
+
+	rtn := doDelete(&p)
+	fmt.Print("doDel Res: ")
 	fmt.Println(rtn)
 	if rtn.rtnCode != http.StatusNotFound {
 		t.Fail()
