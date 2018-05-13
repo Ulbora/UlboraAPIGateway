@@ -116,7 +116,7 @@ type GateStatusResponse struct {
 //ConnectDb to database
 func (db *GatewayDB) ConnectDb() bool {
 	rtn := db.DbConfig.ConnectDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect")
 	}
 	return rtn
@@ -125,7 +125,7 @@ func (db *GatewayDB) ConnectDb() bool {
 //CloseDb connection to database
 func (db *GatewayDB) CloseDb() bool {
 	rtn := db.DbConfig.CloseDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect closed")
 	}
 	return rtn

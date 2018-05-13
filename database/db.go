@@ -54,7 +54,7 @@ type Rows struct {
 //ConnectDb to database
 func (db *DbConfig) ConnectDb() bool {
 	rtn := routeDb.ConnectDb(db.Host, db.DbUser, db.DbPw, db.DatabaseName)
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect in db")
 	}
 	return rtn
@@ -84,7 +84,7 @@ func (db *DbConfig) ConnectionTest() bool {
 //InsertClient in database
 func (db *DbConfig) InsertClient(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertClient(args...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	return success, insID
@@ -93,7 +93,7 @@ func (db *DbConfig) InsertClient(args ...interface{}) (bool, int64) {
 //UpdateClient in database
 func (db *DbConfig) UpdateClient(args ...interface{}) bool {
 	success := routeDb.UpdateClient(args...)
-	if success == true {
+	if success {
 		fmt.Println("updated record")
 	}
 	return success
@@ -130,7 +130,7 @@ func (db *DbConfig) DeleteClient(args ...interface{}) bool {
 //InsertRoutePerformance in database
 func (db *DbConfig) InsertRoutePerformance(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertRoutePerformance(args...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	return success, insID
@@ -156,7 +156,7 @@ func (db *DbConfig) DeleteRoutePerformance(args ...interface{}) bool {
 //InsertRouteError in database
 func (db *DbConfig) InsertRouteError(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertRouteError(args...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	return success, insID
@@ -182,7 +182,7 @@ func (db *DbConfig) DeleteRouteError(args ...interface{}) bool {
 //InsertRouteBreaker in database
 func (db *DbConfig) InsertRouteBreaker(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertRouteBreaker(args...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	return success, insID
@@ -191,7 +191,7 @@ func (db *DbConfig) InsertRouteBreaker(args ...interface{}) (bool, int64) {
 //UpdateRouteBreakerConfig in database
 func (db *DbConfig) UpdateRouteBreakerConfig(args ...interface{}) bool {
 	success := routeDb.UpdateRouteBreakerConfig(args...)
-	if success == true {
+	if success {
 		fmt.Println("updated record")
 	}
 	return success
@@ -200,7 +200,7 @@ func (db *DbConfig) UpdateRouteBreakerConfig(args ...interface{}) bool {
 //UpdateRouteBreakerFail in database
 func (db *DbConfig) UpdateRouteBreakerFail(args ...interface{}) bool {
 	success := routeDb.UpdateRouteBreakerFail(args...)
-	if success == true {
+	if success {
 		fmt.Println("updated record")
 	}
 	return success
@@ -226,7 +226,7 @@ func (db *DbConfig) DeleteBreaker(args ...interface{}) bool {
 //InsertRestRoute in database
 func (db *DbConfig) InsertRestRoute(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertRestRoute(args...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	return success, insID
@@ -235,7 +235,7 @@ func (db *DbConfig) InsertRestRoute(args ...interface{}) (bool, int64) {
 //UpdateRestRoute in database
 func (db *DbConfig) UpdateRestRoute(args ...interface{}) bool {
 	success := routeDb.UpdateRestRoute(args...)
-	if success == true {
+	if success {
 		fmt.Println("updated record")
 	}
 	return success
@@ -272,7 +272,7 @@ func (db *DbConfig) DeleteRestRoute(args ...interface{}) bool {
 //InsertRouteURL in database
 func (db *DbConfig) InsertRouteURL(args ...interface{}) (bool, int64) {
 	success, insID := routeDb.InsertRouteURL(args...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	return success, insID
@@ -281,7 +281,7 @@ func (db *DbConfig) InsertRouteURL(args ...interface{}) (bool, int64) {
 //UpdateRouteURL in database
 func (db *DbConfig) UpdateRouteURL(args ...interface{}) bool {
 	success := routeDb.UpdateRouteURL(args...)
-	if success == true {
+	if success {
 		fmt.Println("updated record")
 	}
 	return success
@@ -290,7 +290,7 @@ func (db *DbConfig) UpdateRouteURL(args ...interface{}) bool {
 //ActivateRouteURL in database
 func (db *DbConfig) ActivateRouteURL(args ...interface{}) bool {
 	success := routeDb.ActivateRouteURL(args...)
-	if success == true {
+	if success {
 		fmt.Println("updated record")
 	}
 	return success
@@ -299,7 +299,7 @@ func (db *DbConfig) ActivateRouteURL(args ...interface{}) bool {
 //DeactivateOtherRouteURLs in database
 func (db *DbConfig) DeactivateOtherRouteURLs(args ...interface{}) bool {
 	success := routeDb.DeactivateOtherRouteURLs(args...)
-	if success == true {
+	if success {
 		fmt.Println("updated record")
 	}
 	return success
@@ -360,7 +360,7 @@ func (db *DbConfig) GetRouteURLs(args ...interface{}) *Rows {
 //CloseDb database connection
 func (db *DbConfig) CloseDb() bool {
 	rtn := routeDb.CloseDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connection closed in db")
 	}
 	return rtn

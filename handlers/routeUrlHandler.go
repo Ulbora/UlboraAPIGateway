@@ -221,21 +221,21 @@ func (h Handler) HandleRouteURLGet(w http.ResponseWriter, r *http.Request) {
 
 	var id int64
 	//var clientID int64
-	var routeID int64
+	var rugRouteID int64
 	var errID error
 	//var errCID error
 	var errRID error
 
 	if vars != nil {
 		id, errID = strconv.ParseInt(vars["id"], 10, 0)
-		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		rugRouteID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
 		//clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
 	} else {
 		var idStr = r.URL.Query().Get("id")
 		id, errID = strconv.ParseInt(idStr, 10, 0)
 
 		var routeIDStr = r.URL.Query().Get("routeId")
-		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+		rugRouteID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
 
 		//var clientIDStr = r.URL.Query().Get("clientId")
 		//clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
@@ -276,7 +276,7 @@ func (h Handler) HandleRouteURLGet(w http.ResponseWriter, r *http.Request) {
 		} else {
 			rt := new(mng.RouteURL)
 			rt.ID = id
-			rt.RouteID = routeID
+			rt.RouteID = rugRouteID
 			rt.ClientID = auth.ClientID
 			resOut := gatewayDB.GetRouteURL(rt)
 			//fmt.Print("response: ")
@@ -310,21 +310,21 @@ func (h Handler) HandleRouteURLDelete(w http.ResponseWriter, r *http.Request) {
 
 	var id int64
 	//var clientID int64
-	var routeID int64
+	var rudRouteID int64
 	var errID error
 	//var errCID error
 	var errRID error
 
 	if vars != nil {
 		id, errID = strconv.ParseInt(vars["id"], 10, 0)
-		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		rudRouteID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
 		//clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
 	} else {
 		var idStr = r.URL.Query().Get("id")
 		id, errID = strconv.ParseInt(idStr, 10, 0)
 
 		var routeIDStr = r.URL.Query().Get("routeId")
-		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+		rudRouteID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
 
 		//var clientIDStr = r.URL.Query().Get("clientId")
 		//clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
@@ -362,7 +362,7 @@ func (h Handler) HandleRouteURLDelete(w http.ResponseWriter, r *http.Request) {
 		} else {
 			rt := new(mng.RouteURL)
 			rt.ID = id
-			rt.RouteID = routeID
+			rt.RouteID = rudRouteID
 			rt.ClientID = auth.ClientID
 			resOut := gatewayDB.DeleteRouteURL(rt)
 			gatewayDB.Cb.Reset(rt.ClientID, rt.ID)

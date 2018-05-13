@@ -229,19 +229,19 @@ func (h Handler) HandleBreakerGet(w http.ResponseWriter, r *http.Request) {
 	//var clientID int64
 	//var errCID error
 
-	var routeID int64
+	var bgRouteID int64
 	var errRID error
 
 	var UID int64
 	var errUID error
 
 	if vars != nil {
-		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		bgRouteID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
 		UID, errUID = strconv.ParseInt(vars["urlId"], 10, 0)
 	} else {
 
 		var routeIDStr = r.URL.Query().Get("routeId")
-		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+		bgRouteID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
 
 		var urlIDStr = r.URL.Query().Get("urlId")
 		UID, errUID = strconv.ParseInt(urlIDStr, 10, 0)
@@ -269,7 +269,7 @@ func (h Handler) HandleBreakerGet(w http.ResponseWriter, r *http.Request) {
 		} else {
 			bk := new(cb.Breaker)
 			bk.ClientID = auth.ClientID
-			bk.RestRouteID = routeID
+			bk.RestRouteID = bgRouteID
 			bk.RouteURIID = UID
 			resOut := cbDB.GetBreaker(bk)
 			//fmt.Print("response: ")
@@ -299,19 +299,19 @@ func (h Handler) HandleBreakerDelete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 
-	var routeID int64
+	var bdRouteID int64
 	var errRID error
 
 	var UID int64
 	var errUID error
 
 	if vars != nil {
-		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		bdRouteID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
 		UID, errUID = strconv.ParseInt(vars["urlId"], 10, 0)
 	} else {
 
 		var routeIDStr = r.URL.Query().Get("routeId")
-		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+		bdRouteID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
 
 		var urlIDStr = r.URL.Query().Get("urlId")
 		UID, errUID = strconv.ParseInt(urlIDStr, 10, 0)
@@ -341,7 +341,7 @@ func (h Handler) HandleBreakerDelete(w http.ResponseWriter, r *http.Request) {
 		} else {
 			bk := new(cb.Breaker)
 			bk.ClientID = auth.ClientID
-			bk.RestRouteID = routeID
+			bk.RestRouteID = bdRouteID
 			bk.RouteURIID = UID
 			suc := cbDB.DeleteBreaker(bk)
 			var res BreakerResponse

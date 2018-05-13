@@ -137,7 +137,7 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 		rtn = "bad route"
 		//fmt.Print("found routes: ")
 		//fmt.Println(rts)
-	} else if rts.CircuitOpen == true {
+	} else if rts.CircuitOpen {
 		fmt.Println("Circuit breaker is open for this route")
 		rtnCode = rts.OpenFailCode
 		rtn = "Circuit open"

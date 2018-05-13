@@ -36,9 +36,9 @@ import (
 func doOptions(p *passParams) *returnVals {
 	//fmt.Print("found routes: ")
 	//fmt.Println(rts)
-	var rtnVals returnVals
-	var rtn string
-	var rtnCode int
+	var rtnValso returnVals
+	var rtno string
+	var rtnCodeo int
 
 	//var sTime1 = time.Now()
 	var sTime2 time.Time
@@ -49,8 +49,8 @@ func doOptions(p *passParams) *returnVals {
 		if rErr != nil {
 			fmt.Print("request err: ")
 			fmt.Println(rErr)
-			rtnCode = 400
-			rtn = rErr.Error()
+			rtnCodeo = 400
+			rtno = rErr.Error()
 		} else {
 			client := &http.Client{}
 			eTime1 = time.Now()
@@ -59,8 +59,8 @@ func doOptions(p *passParams) *returnVals {
 			if cErr != nil {
 				fmt.Print("Gateway err: ")
 				fmt.Println(cErr)
-				rtnCode = 400
-				rtn = cErr.Error()
+				rtnCodeo = 400
+				rtno = cErr.Error()
 				cbk := p.h.CbDB.GetBreaker(p.b)
 				p.h.CbDB.Trip(cbk)
 				go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, 400, cErr.Error(), p.rts.RouteID, p.rts.URLID)
@@ -69,18 +69,18 @@ func doOptions(p *passParams) *returnVals {
 				respbody, err := processResponse(resp) //:= ioutil.ReadAll(resp.Body)
 				if err != nil {
 					fmt.Println(err)
-					rtnCode = 500
-					rtn = err.Error()
+					rtnCodeo = 500
+					rtno = err.Error()
 					cbk := p.h.CbDB.GetBreaker(p.b)
 					p.h.CbDB.Trip(cbk)
 					go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, 500, err.Error(), p.rts.RouteID, p.rts.URLID)
 				} else {
-					rtn = string(respbody)
+					rtno = string(respbody)
 					//fmt.Print("Resp Body: ")
 					//fmt.Println(rtn)
-					rtnCode = resp.StatusCode
-					if rtnCode != http.StatusOK {
-						go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, rtnCode, resp.Status, p.rts.RouteID, p.rts.URLID)
+					rtnCodeo = resp.StatusCode
+					if rtnCodeo != http.StatusOK {
+						go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, rtnCodeo, resp.Status, p.rts.RouteID, p.rts.URLID)
 					} else {
 						go p.h.CbDB.Reset(p.gwr.ClientID, p.rts.URLID)
 					}
@@ -94,9 +94,9 @@ func doOptions(p *passParams) *returnVals {
 			}
 		}
 	}
-	rtnVals.rtnCode = rtnCode
-	rtnVals.rtn = rtn
-	rtnVals.eTime1 = eTime1
-	rtnVals.sTime2 = sTime2
-	return &rtnVals
+	rtnValso.rtnCode = rtnCodeo
+	rtnValso.rtn = rtno
+	rtnValso.eTime1 = eTime1
+	rtnValso.sTime2 = sTime2
+	return &rtnValso
 }

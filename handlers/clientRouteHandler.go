@@ -160,18 +160,18 @@ func (h Handler) HandleClientGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	var clientID int64
-	var errCID error
+	var errCIDg error
 
 	//var UID int64
 	//var errUID error
 
 	if vars != nil {
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		clientID, errCIDg = strconv.ParseInt(vars["clientId"], 10, 0)
 	} else {
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		clientID, errCIDg = strconv.ParseInt(clientIDStr, 10, 0)
 	}
-	if errCID != nil {
+	if errCIDg != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 
@@ -222,18 +222,18 @@ func (h Handler) HandleClientDelete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	var clientID int64
-	var errCID error
+	var errCIDd error
 
 	//var UID int64
 	//var errUID error
 
 	if vars != nil {
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		clientID, errCIDd = strconv.ParseInt(vars["clientId"], 10, 0)
 	} else {
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		clientID, errCIDd = strconv.ParseInt(clientIDStr, 10, 0)
 	}
-	if errCID != nil {
+	if errCIDd != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 

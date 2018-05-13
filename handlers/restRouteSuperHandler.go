@@ -160,19 +160,19 @@ func (h Handler) HandleRestRouteSuperGet(w http.ResponseWriter, r *http.Request)
 	vars := mux.Vars(r)
 
 	var id int64
-	var clientID int64
+	var sgClientID int64
 	var errID error
 	var errCID error
 
 	if vars != nil {
 		id, errID = strconv.ParseInt(vars["id"], 10, 0)
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		sgClientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
 	} else {
 		var idStr = r.URL.Query().Get("id")
 		id, errID = strconv.ParseInt(idStr, 10, 0)
 
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		sgClientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
 	}
 	if errID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -197,7 +197,7 @@ func (h Handler) HandleRestRouteSuperGet(w http.ResponseWriter, r *http.Request)
 		} else {
 			rt := new(mng.RestRoute)
 			rt.ID = id
-			rt.ClientID = clientID
+			rt.ClientID = sgClientID
 			resOut := gatewayDB.GetRestRoute(rt)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)
@@ -228,19 +228,19 @@ func (h Handler) HandleRestRouteSuperDelete(w http.ResponseWriter, r *http.Reque
 	vars := mux.Vars(r)
 
 	var id int64
-	var clientID int64
+	var scClientID int64
 	var errID error
 	var errCID error
 
 	if vars != nil {
 		id, errID = strconv.ParseInt(vars["id"], 10, 0)
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		scClientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
 	} else {
 		var idStr = r.URL.Query().Get("id")
 		id, errID = strconv.ParseInt(idStr, 10, 0)
 
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		scClientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
 	}
 	if errID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -265,7 +265,7 @@ func (h Handler) HandleRestRouteSuperDelete(w http.ResponseWriter, r *http.Reque
 		} else {
 			rt := new(mng.RestRoute)
 			rt.ID = id
-			rt.ClientID = clientID
+			rt.ClientID = scClientID
 			resOut := gatewayDB.DeleteRestRoute(rt)
 			//fmt.Print("response: ")
 			//fmt.Println(resOut)

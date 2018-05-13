@@ -161,14 +161,14 @@ func (h Handler) HandleRestRouteGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 
-	var id int64
+	var idRrg int64
 	var errID error
 
 	if vars != nil {
-		id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		idRrg, errID = strconv.ParseInt(vars["id"], 10, 0)
 	} else {
 		var idStr = r.URL.Query().Get("id")
-		id, errID = strconv.ParseInt(idStr, 10, 0)
+		idRrg, errID = strconv.ParseInt(idStr, 10, 0)
 	}
 	if errID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -190,7 +190,7 @@ func (h Handler) HandleRestRouteGet(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RestRoute)
-			rt.ID = id
+			rt.ID = idRrg
 			rt.ClientID = auth.ClientID
 			resOut := gatewayDB.GetRestRoute(rt)
 			//fmt.Print("response: ")
@@ -221,14 +221,14 @@ func (h Handler) HandleRestRouteDelete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 
-	var id int64
+	var idRrd int64
 	var errID error
 
 	if vars != nil {
-		id, errID = strconv.ParseInt(vars["id"], 10, 0)
+		idRrd, errID = strconv.ParseInt(vars["id"], 10, 0)
 	} else {
 		var idStr = r.URL.Query().Get("id")
-		id, errID = strconv.ParseInt(idStr, 10, 0)
+		idRrd, errID = strconv.ParseInt(idStr, 10, 0)
 	}
 	if errID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -250,7 +250,7 @@ func (h Handler) HandleRestRouteDelete(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			rt := new(mng.RestRoute)
-			rt.ID = id
+			rt.ID = idRrd
 			rt.ClientID = auth.ClientID
 			resOut := gatewayDB.DeleteRestRoute(rt)
 			//fmt.Print("response: ")

@@ -50,11 +50,11 @@ func (gw *GatewayRoutes) GetGatewayRoutes(getActive bool, routeName string) *Gat
 	//fmt.Println(key)
 	res := cp.Get(key)
 	if res.Success {
-		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
+		grJSON, err := b64.StdEncoding.DecodeString(res.Value)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			err := json.Unmarshal([]byte(rJSON), &rtn)
+			err := json.Unmarshal([]byte(grJSON), &rtn)
 			if err != nil {
 				fmt.Println(err)
 			}

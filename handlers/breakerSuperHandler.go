@@ -229,25 +229,25 @@ func (h Handler) HandleBreakerSuperGet(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	var clientID int64
+	var bsgClientID int64
 	var errCID error
 
 	var routeID int64
-	var errRID error
+	var errRIDbsg error
 
 	var UID int64
 	var errUID error
 
 	if vars != nil {
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
-		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		bsgClientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		routeID, errRIDbsg = strconv.ParseInt(vars["routeId"], 10, 0)
 		UID, errUID = strconv.ParseInt(vars["urlId"], 10, 0)
 	} else {
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		bsgClientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
 
 		var routeIDStr = r.URL.Query().Get("routeId")
-		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+		routeID, errRIDbsg = strconv.ParseInt(routeIDStr, 10, 0)
 
 		var urlIDStr = r.URL.Query().Get("urlId")
 		UID, errUID = strconv.ParseInt(urlIDStr, 10, 0)
@@ -255,7 +255,7 @@ func (h Handler) HandleBreakerSuperGet(w http.ResponseWriter, r *http.Request) {
 	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
-	if errRID != nil {
+	if errRIDbsg != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 	if errUID != nil {
@@ -278,7 +278,7 @@ func (h Handler) HandleBreakerSuperGet(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			bk := new(cb.Breaker)
-			bk.ClientID = clientID
+			bk.ClientID = bsgClientID
 			bk.RestRouteID = routeID
 			bk.RouteURIID = UID
 			resOut := cbDB.GetBreaker(bk)
@@ -308,28 +308,28 @@ func (h Handler) HandleBreakerSuperDelete(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	var clientID int64
+	var bsdClientID int64
 	var errCID error
 
 	var routeID int64
 	var errRID error
 
 	var UID int64
-	var errUID error
+	var errUIDbsd error
 
 	if vars != nil {
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		bsdClientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
 		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
-		UID, errUID = strconv.ParseInt(vars["urlId"], 10, 0)
+		UID, errUIDbsd = strconv.ParseInt(vars["urlId"], 10, 0)
 	} else {
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		bsdClientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
 
 		var routeIDStr = r.URL.Query().Get("routeId")
 		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
 
 		var urlIDStr = r.URL.Query().Get("urlId")
-		UID, errUID = strconv.ParseInt(urlIDStr, 10, 0)
+		UID, errUIDbsd = strconv.ParseInt(urlIDStr, 10, 0)
 	}
 	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -337,7 +337,7 @@ func (h Handler) HandleBreakerSuperDelete(w http.ResponseWriter, r *http.Request
 	if errRID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
-	if errUID != nil {
+	if errUIDbsd != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 
@@ -357,7 +357,7 @@ func (h Handler) HandleBreakerSuperDelete(w http.ResponseWriter, r *http.Request
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			bk := new(cb.Breaker)
-			bk.ClientID = clientID
+			bk.ClientID = bsdClientID
 			bk.RestRouteID = routeID
 			bk.RouteURIID = UID
 			suc := cbDB.DeleteBreaker(bk)
