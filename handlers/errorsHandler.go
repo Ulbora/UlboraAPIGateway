@@ -42,9 +42,9 @@ func (h Handler) HandleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 	var errDB gwerr.GatewayErrorMonitor
 	errDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "read"
+	esme := new(uoauth.Claim)
+	esme.Role = "superAdmin"
+	esme.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -52,14 +52,14 @@ func (h Handler) HandleErrorsSuper(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwErrorsSuper"
+			esme.URI = "/ulbora/rs/gwErrorsSuper"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(esme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				e := new(gwerr.GwError)
@@ -100,9 +100,9 @@ func (h Handler) HandleErrors(w http.ResponseWriter, r *http.Request) {
 	var errDB gwerr.GatewayErrorMonitor
 	errDB.DbConfig = h.DbConfig
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "admin"
-	me.Scope = "read"
+	eme := new(uoauth.Claim)
+	eme.Role = "admin"
+	eme.Scope = "read"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -110,14 +110,14 @@ func (h Handler) HandleErrors(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwErrors"
+			eme.URI = "/ulbora/rs/gwErrors"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(eme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				e := new(gwerr.GwError)

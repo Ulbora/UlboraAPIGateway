@@ -36,9 +36,9 @@ import (
 func doDelete(p *passParams) *returnVals {
 	//fmt.Print("found routes: ")
 	//fmt.Println(rts)
-	var rtnVals returnVals
+	var drtnVals returnVals
 	var rtn string
-	var rtnCode int
+	var drtnCode int
 
 	//var sTime1 = time.Now()
 	var sTime2 time.Time
@@ -53,7 +53,7 @@ func doDelete(p *passParams) *returnVals {
 		if rErr != nil {
 			fmt.Print("request err: ")
 			fmt.Println(rErr)
-			rtnCode = 400
+			drtnCode = 400
 			rtn = rErr.Error()
 		} else {
 			buildHeaders(p.r, req)
@@ -64,7 +64,7 @@ func doDelete(p *passParams) *returnVals {
 			if cErr != nil {
 				fmt.Print("Gateway err: ")
 				fmt.Println(cErr)
-				rtnCode = 400
+				drtnCode = 400
 				rtn = cErr.Error()
 				cbk := p.h.CbDB.GetBreaker(p.b)
 				p.h.CbDB.Trip(cbk)
@@ -75,7 +75,7 @@ func doDelete(p *passParams) *returnVals {
 				if err != nil {
 					fmt.Print("Resp Body err: ")
 					fmt.Println(err)
-					rtnCode = 500
+					drtnCode = 500
 					rtn = err.Error()
 					cbk := p.h.CbDB.GetBreaker(p.b)
 					p.h.CbDB.Trip(cbk)
@@ -84,9 +84,9 @@ func doDelete(p *passParams) *returnVals {
 					rtn = string(respbody)
 					//fmt.Print("Resp Body: ")
 					//fmt.Println(rtn)
-					rtnCode = resp.StatusCode
-					if rtnCode != http.StatusOK {
-						go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, rtnCode, resp.Status, p.rts.RouteID, p.rts.URLID)
+					drtnCode = resp.StatusCode
+					if drtnCode != http.StatusOK {
+						go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, drtnCode, resp.Status, p.rts.RouteID, p.rts.URLID)
 					} else {
 						go p.h.CbDB.Reset(p.gwr.ClientID, p.rts.URLID)
 					}
@@ -96,9 +96,9 @@ func doDelete(p *passParams) *returnVals {
 			}
 		}
 	}
-	rtnVals.rtnCode = rtnCode
-	rtnVals.rtn = rtn
-	rtnVals.eTime1 = eTime1
-	rtnVals.sTime2 = sTime2
-	return &rtnVals
+	drtnVals.rtnCode = drtnCode
+	drtnVals.rtn = rtn
+	drtnVals.eTime1 = eTime1
+	drtnVals.sTime2 = sTime2
+	return &drtnVals
 }

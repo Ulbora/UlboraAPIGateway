@@ -36,9 +36,9 @@ import (
 func doGet(p *passParams) *returnVals {
 	//fmt.Print("found routes: ")
 	//fmt.Println(rts)
-	var rtnVals returnVals
-	var rtn string
-	var rtnCode int
+	var rtnValsg returnVals
+	var rtng string
+	var rtnCodeg int
 
 	//var sTime1 = time.Now()
 	var sTime2 time.Time
@@ -51,8 +51,8 @@ func doGet(p *passParams) *returnVals {
 		if rErr != nil {
 			fmt.Print("request err: ")
 			fmt.Println(rErr)
-			rtnCode = 400
-			rtn = rErr.Error()
+			rtnCodeg = 400
+			rtng = rErr.Error()
 		} else {
 			buildHeaders(p.r, req)
 			client := &http.Client{}
@@ -62,8 +62,8 @@ func doGet(p *passParams) *returnVals {
 			if cErr != nil {
 				fmt.Print("Gateway err: ")
 				fmt.Println(cErr)
-				rtnCode = 400
-				rtn = cErr.Error()
+				rtnCodeg = 400
+				rtng = cErr.Error()
 				fmt.Println("Sending error to database")
 				cbk := p.h.CbDB.GetBreaker(p.b)
 				fmt.Print("cbk: ")
@@ -83,22 +83,22 @@ func doGet(p *passParams) *returnVals {
 				if err != nil {
 					//fmt.Print("Resp Body err: ")
 					//fmt.Println(err)
-					rtnCode = 500
-					rtn = err.Error()
+					rtnCodeg = 500
+					rtng = err.Error()
 					cbk := p.h.CbDB.GetBreaker(p.b)
 					p.h.CbDB.Trip(cbk)
 					go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, 500, err.Error(), p.rts.RouteID, p.rts.URLID)
 				} else {
-					rtn = string(respbody)
+					rtng = string(respbody)
 					//fmt.Println("Resp Body: ")
 					//fmt.Println(rtn)
-					rtnCode = resp.StatusCode
+					rtnCodeg = resp.StatusCode
 					//fmt.Print("Status Code: ")
 					//fmt.Println(rtnCode)
 					//fmt.Print("Resp Body: ")
 					//fmt.Println(rtn)
-					if rtnCode != http.StatusOK {
-						go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, rtnCode, resp.Status, p.rts.RouteID, p.rts.URLID)
+					if rtnCodeg != http.StatusOK {
+						go p.h.ErrDB.SaveRouteError(p.gwr.ClientID, rtnCodeg, resp.Status, p.rts.RouteID, p.rts.URLID)
 					} else {
 						go p.h.CbDB.Reset(p.gwr.ClientID, p.rts.URLID)
 					}
@@ -108,9 +108,9 @@ func doGet(p *passParams) *returnVals {
 			}
 		}
 	}
-	rtnVals.rtnCode = rtnCode
-	rtnVals.rtn = rtn
-	rtnVals.eTime1 = eTime1
-	rtnVals.sTime2 = sTime2
-	return &rtnVals
+	rtnValsg.rtnCode = rtnCodeg
+	rtnValsg.rtn = rtng
+	rtnValsg.eTime1 = eTime1
+	rtnValsg.sTime2 = sTime2
+	return &rtnValsg
 }

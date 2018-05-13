@@ -59,12 +59,12 @@ func (h Handler) HandleUserClient(w http.ResponseWriter, r *http.Request) {
 		me.URI = "/ulbora/rs/gwClientUser/get"
 		me.Scope = "read"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
 			valid = auth.Authorize(me)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			client := new(mng.Client)

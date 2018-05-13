@@ -80,7 +80,7 @@ var mu sync.Mutex
 //ConnectDb to database
 func (c *CircuitBreaker) ConnectDb() bool {
 	rtn := c.DbConfig.ConnectDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect")
 	}
 	return rtn
@@ -99,7 +99,7 @@ func (c *CircuitBreaker) InsertBreaker(b *Breaker) (bool, error) {
 	a := []interface{}{b.FailureThreshold, b.HealthCheckTimeSeconds, b.FailoverRouteName, b.OpenFailCode,
 		b.RouteURIID, b.RestRouteID, b.ClientID}
 	suc, insID := c.DbConfig.InsertRouteBreaker(a...)
-	if suc == true && insID != -1 {
+	if suc && insID != -1 {
 		success = suc
 		//fmt.Print("new Id route error id: ")
 		//fmt.Println(insID)
@@ -121,7 +121,7 @@ func (c *CircuitBreaker) UpdateBreaker(b *Breaker) (bool, error) {
 	a := []interface{}{b.FailureThreshold, b.HealthCheckTimeSeconds, b.FailoverRouteName, b.OpenFailCode,
 		b.ID, b.RouteURIID, b.RestRouteID, b.ClientID}
 	suc := c.DbConfig.UpdateRouteBreakerConfig(a...)
-	if suc == true {
+	if suc {
 		success = suc
 		c.Reset(b.ClientID, b.RouteURIID)
 	} else {
@@ -148,7 +148,7 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 		res := cp.Get(key)
 		//fmt.Print("cache read in from server in status: ")
 		//fmt.Println(res)
-		if res.Success == true {
+		if res.Success {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 			//fmt.Print("json from cache: ")
 			//fmt.Println(rJSON)
@@ -164,7 +164,7 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 					found = res.Success
 				}
 			}
-		} else if res.ServiceFailed == true {
+		} else if res.ServiceFailed {
 			cs, found = cbCache[key]
 			//fmt.Print("cache from local after service failed: ")
 			//fmt.Println(cs)
@@ -174,7 +174,7 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 		//fmt.Print("cache from local: ")
 		//fmt.Println(cs)
 	}
-	if found == true {
+	if found {
 		var timeExpired bool
 		if cs.HealthCheckTimeSeconds != 0 {
 			var expireTime = cs.LastFailureTime.Add(time.Second * time.Duration(cs.HealthCheckTimeSeconds))
@@ -182,7 +182,7 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 				timeExpired = true
 			}
 		}
-		if cs.FailCount >= cs.Threshold && timeExpired != true {
+		if cs.FailCount >= cs.Threshold && !timeExpired {
 			//fmt.Println("setting open")
 			s.Warning = true
 			s.Open = true
@@ -218,7 +218,7 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 		//var cp ch.CProxy
 		cp.Host = c.CacheHost
 		res := cp.Get(key)
-		if res.Success == true {
+		if res.Success {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 			//fmt.Print("json from cache server in Trip: ")
 			//fmt.Println(rJSON)
@@ -236,7 +236,7 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 					found = res.Success
 				}
 			}
-		} else if res.ServiceFailed == true {
+		} else if res.ServiceFailed {
 			useExCache = false
 			cs, found = cbCache[key]
 			//fmt.Print("cache from local in Trip after service failed: ")
@@ -247,14 +247,14 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 		//fmt.Print("cache from local in Trip: ")
 		//fmt.Println(cs)
 	}
-	if found == true {
+	if found {
 		//fmt.Print("cache found in Trip: ")
 		//fmt.Println(found)
 		cs.FailCount = cs.FailCount + 1
 		cs.LastFailureTime = time.Now()
-		if useExCache == true {
+		if useExCache {
 			suc := saveToCasheServer(key, cs, cp)
-			if suc != true {
+			if !suc {
 				cbCache[key] = cs
 			}
 		} else {
@@ -270,9 +270,9 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 		bs.FailCount = 1
 		bs.FailoverRouteName = b.FailoverRouteName
 		bs.OpenFailCode = b.OpenFailCode
-		if useExCache == true {
+		if useExCache {
 			suc := saveToCasheServer(key, bs, cp)
-			if suc != true {
+			if !suc {
 				cbCache[key] = bs
 			}
 		} else {
@@ -291,7 +291,7 @@ func (c *CircuitBreaker) Reset(clientID int64, urlID int64) {
 		var cp ch.CProxy
 		cp.Host = c.CacheHost
 		res := cp.Delete(key)
-		if res.Success != true {
+		if !res.Success {
 			delete(cbCache, key)
 		}
 	} else {
@@ -318,7 +318,7 @@ func (c *CircuitBreaker) DeleteBreaker(b *Breaker) bool {
 	a := []interface{}{b.RouteURIID, b.RestRouteID, b.ClientID}
 	var success bool
 	suc := c.DbConfig.DeleteBreaker(a...)
-	if suc == true {
+	if suc {
 		success = suc
 		c.Reset(b.ClientID, b.RouteURIID)
 	} else {
@@ -330,7 +330,7 @@ func (c *CircuitBreaker) DeleteBreaker(b *Breaker) bool {
 //CloseDb connection to database
 func (c *CircuitBreaker) CloseDb() bool {
 	rtn := c.DbConfig.CloseDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect closed")
 	}
 	return rtn
@@ -368,7 +368,7 @@ func saveToCasheServer(key string, bs breakerState, cp ch.CProxy) bool {
 		i.Key = key
 		i.Value = cval
 		res := cp.Set(&i)
-		if res.Success != true {
+		if !res.Success {
 			fmt.Println("Cache server save failed for " + key + ".")
 		} else {
 			rtn = res.Success

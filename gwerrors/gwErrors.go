@@ -51,7 +51,7 @@ type GwError struct {
 //ConnectDb to database
 func (g *GatewayErrorMonitor) ConnectDb() bool {
 	rtn := g.DbConfig.ConnectDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect in errors")
 	}
 	return rtn
@@ -69,7 +69,7 @@ func (g *GatewayErrorMonitor) InsertRouteError(e *GwError) (bool, error) {
 	//var a []interface{}
 	a := []interface{}{e.Code, e.Message, e.Entered, e.RouteURIID, e.RestRouteID, e.ClientID}
 	suc, insID := g.DbConfig.InsertRouteError(a...)
-	if suc == true && insID != -1 {
+	if suc && insID != -1 {
 		success = suc
 		//fmt.Print("new Id route error id: ")
 		//fmt.Println(insID)
@@ -115,7 +115,7 @@ func (g *GatewayErrorMonitor) DeleteRouteError() bool {
 	a := []interface{}{} //{e.RouteURIID, e.RestRouteID, e.ClientID}
 	var success bool
 	suc := g.DbConfig.DeleteRouteError(a...)
-	if suc == true {
+	if suc {
 		success = suc
 	} else {
 		fmt.Println("Failed to delete Error Record")
@@ -126,7 +126,7 @@ func (g *GatewayErrorMonitor) DeleteRouteError() bool {
 //CloseDb connection to database
 func (g *GatewayErrorMonitor) CloseDb() bool {
 	rtn := g.DbConfig.CloseDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect closed in errors")
 	}
 	return rtn

@@ -41,7 +41,7 @@ func (db *GatewayDB) InsertClient(client *Client) *GatewayResponse {
 	var a []interface{}
 	a = append(a, client.ClientID, client.APIKey, client.Enabled, client.Level)
 	success, insID := db.DbConfig.InsertClient(a...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	rtn.ID = insID
@@ -60,7 +60,7 @@ func (db *GatewayDB) UpdateClient(client *Client) *GatewayResponse {
 	var a []interface{}
 	a = append(a, client.APIKey, client.Enabled, client.Level, client.ClientID)
 	success := db.DbConfig.UpdateClient(a...)
-	if success == true {
+	if success {
 		fmt.Println("update record")
 	}
 	rtn.ID = client.ClientID
@@ -111,7 +111,7 @@ func (db *GatewayDB) DeleteClient(client *Client) *GatewayResponse {
 	var a []interface{}
 	a = append(a, client.ClientID)
 	success := db.DbConfig.DeleteClient(a...)
-	if success == true {
+	if success {
 		fmt.Println("deleted record")
 	}
 	rtn.ID = client.ClientID

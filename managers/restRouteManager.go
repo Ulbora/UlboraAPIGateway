@@ -42,7 +42,7 @@ func (db *GatewayDB) InsertRestRoute(rr *RestRoute) *GatewayResponse {
 	var a []interface{}
 	a = append(a, rr.Route, rr.ClientID)
 	success, insID := db.DbConfig.InsertRestRoute(a...)
-	if success == true {
+	if success {
 		fmt.Println("inserted record")
 	}
 	rtn.ID = insID
@@ -60,8 +60,9 @@ func (db *GatewayDB) UpdateRestRoute(rr *RestRoute) *GatewayResponse {
 	}
 	var ag []interface{}
 	ag = append(ag, rr.ID, rr.ClientID)
-	rtp := db.DbConfig.GetRestRoute(ag...)
+
 	var rt = new(RestRoute)
+	rtp := db.DbConfig.GetRestRoute(ag...)
 	if rtp != nil {
 		print("content row: ")
 		println(rtp.Row)
@@ -73,7 +74,7 @@ func (db *GatewayDB) UpdateRestRoute(rr *RestRoute) *GatewayResponse {
 	var a []interface{}
 	a = append(a, rr.Route, rr.ID, rr.ClientID)
 	success := db.DbConfig.UpdateRestRoute(a...)
-	if success == true {
+	if success {
 		fmt.Println("update record")
 		db.clearCache(rr.ClientID, rt.Route)
 		var gwr GatewayRoutes
@@ -142,7 +143,7 @@ func (db *GatewayDB) DeleteRestRoute(rr *RestRoute) *GatewayResponse {
 	var a []interface{}
 	a = append(a, rr.ID, rr.ClientID)
 	success := db.DbConfig.DeleteRestRoute(a...)
-	if success == true {
+	if success {
 		fmt.Println("deleted record")
 		db.clearCache(rr.ClientID, rr.Route)
 		var gwr GatewayRoutes

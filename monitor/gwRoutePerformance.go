@@ -65,7 +65,7 @@ var mu sync.Mutex
 //ConnectDb to database
 func (g *GatewayPerformanceMonitor) ConnectDb() bool {
 	rtn := g.DbConfig.ConnectDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect")
 	}
 	return rtn
@@ -87,7 +87,7 @@ func (g *GatewayPerformanceMonitor) InsertRoutePerformance(e *GwPerformance) (bo
 	//var a []interface{}
 	a := []interface{}{e.Calls, e.LatencyMsTotal, e.Entered, e.RouteURIID, e.RestRouteID, e.ClientID}
 	suc, insID := g.DbConfig.InsertRoutePerformance(a...)
-	if suc == true && insID != -1 {
+	if suc && insID != -1 {
 		success = suc
 		//fmt.Print("new Id route error id: ")
 		//fmt.Println(insID)
@@ -136,7 +136,7 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 		useExCache = true
 		cp.Host = g.CacheHost
 		res := cp.Get(key)
-		if res.Success == true {
+		if res.Success {
 			rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 			//fmt.Print("json from cache: ")
 			//fmt.Println(rJSON)
@@ -152,7 +152,7 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 					found = res.Success
 				}
 			}
-		} else if res.ServiceFailed == true {
+		} else if res.ServiceFailed {
 			useExCache = false
 			rp, found = perCache[key]
 			//fmt.Print("cache from local after service failed: ")
@@ -167,7 +167,7 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 	//fmt.Println(clientID)
 	//fmt.Print("found :")
 	//fmt.Println(found)
-	if found == true {
+	if found {
 		rp.Calls = rp.Calls + 1
 		rp.LatencyMsTotal = rp.LatencyMsTotal + latency
 		if rp.Calls >= g.CallBatchSize {
@@ -190,12 +190,12 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 			}
 			//fmt.Print("Insert Res: ")
 			//fmt.Println(suc)
-			if suc == true {
-				if useExCache == true {
+			if suc {
+				if useExCache {
 					//var cp ch.CProxy
 					//cp.Host = c.CacheHost
 					res := cp.Delete(key)
-					if res.Success != true {
+					if !res.Success {
 						delete(perCache, key)
 						rtn = true
 					} else {
@@ -206,9 +206,9 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 					rtn = true
 				}
 			} else {
-				if useExCache == true {
+				if useExCache {
 					suc := saveToCasheServer(key, rp, cp)
-					if suc != true {
+					if !suc {
 						perCache[key] = rp
 						rtn = true
 					} else {
@@ -220,9 +220,9 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 				}
 			}
 		} else {
-			if useExCache == true {
+			if useExCache {
 				suc := saveToCasheServer(key, rp, cp)
-				if suc != true {
+				if !suc {
 					perCache[key] = rp
 					rtn = true
 				} else {
@@ -238,9 +238,9 @@ func (g *GatewayPerformanceMonitor) SaveRoutePerformance(clientID int64, routeID
 		//var rp routePerformance
 		rp.Calls = 1
 		rp.LatencyMsTotal = latency
-		if useExCache == true {
+		if useExCache {
 			suc := saveToCasheServer(key, rp, cp)
-			if suc != true {
+			if !suc {
 				perCache[key] = rp
 			}
 		} else {
@@ -256,7 +256,7 @@ func (g *GatewayPerformanceMonitor) DeleteRoutePerformance() bool {
 	a := []interface{}{} //{e.RouteURIID, e.RestRouteID, e.ClientID}
 	var success bool
 	suc := g.DbConfig.DeleteRoutePerformance(a...)
-	if suc == true {
+	if suc {
 		success = suc
 	} // else {
 	//fmt.Println("Failed to delete performance Record")
@@ -267,7 +267,7 @@ func (g *GatewayPerformanceMonitor) DeleteRoutePerformance() bool {
 //CloseDb connection to database
 func (g *GatewayPerformanceMonitor) CloseDb() bool {
 	rtn := g.DbConfig.CloseDb()
-	if rtn == true {
+	if rtn {
 		fmt.Println("db connect closed")
 	}
 	return rtn
@@ -313,7 +313,7 @@ func saveToCasheServer(key string, rp routePerformance, cp ch.CProxy) bool {
 		i.Key = key
 		i.Value = cval
 		res := cp.Set(&i)
-		if res.Success != true {
+		if !res.Success {
 			fmt.Println("Cache server save failed for " + key + ".")
 		} else {
 			rtn = res.Success

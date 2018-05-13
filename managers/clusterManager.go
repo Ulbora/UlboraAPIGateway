@@ -51,7 +51,7 @@ func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 	var cid = strconv.FormatInt(gw.ClientID, 10)
 	var key = cid + ":cluster:" + gw.Route
 	res := cp.Get(key)
-	if res.Success == true {
+	if res.Success {
 		rJSON, err := b64.StdEncoding.DecodeString(res.Value)
 		if err != nil {
 			fmt.Println(err)
@@ -100,7 +100,7 @@ func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 				//fmt.Print("item: ")
 				//fmt.Println(i)
 				res := cp.Set(&i)
-				if res.Success != true {
+				if !res.Success {
 					fmt.Println("Routes not cached from db for key " + key + ".")
 				}
 			}

@@ -49,9 +49,9 @@ func (h Handler) HandleBreakerSuperPost(w http.ResponseWriter, r *http.Request) 
 	cbDB.DbConfig = h.DbConfig
 	cbDB.CacheHost = getCacheHost()
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	bspme := new(uoauth.Claim)
+	bspme.Role = "superAdmin"
+	bspme.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -59,14 +59,14 @@ func (h Handler) HandleBreakerSuperPost(w http.ResponseWriter, r *http.Request) 
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwBreakerSuper/add"
+			bspme.URI = "/ulbora/rs/gwBreakerSuper/add"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(bspme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				bk := new(cb.Breaker)
@@ -109,9 +109,9 @@ func (h Handler) HandleBreakerSuperPut(w http.ResponseWriter, r *http.Request) {
 	cbDB.DbConfig = h.DbConfig
 	cbDB.CacheHost = getCacheHost()
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	bsume := new(uoauth.Claim)
+	bsume.Role = "superAdmin"
+	bsume.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -119,14 +119,14 @@ func (h Handler) HandleBreakerSuperPut(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case "PUT":
-			me.URI = "/ulbora/rs/gwBreakerSuper/update"
+			bsume.URI = "/ulbora/rs/gwBreakerSuper/update"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(bsume)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				bk := new(cb.Breaker)
@@ -169,9 +169,9 @@ func (h Handler) HandleBreakerSuperReset(w http.ResponseWriter, r *http.Request)
 	cbDB.DbConfig = h.DbConfig
 	cbDB.CacheHost = getCacheHost()
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
-	me.Scope = "write"
+	bsrme := new(uoauth.Claim)
+	bsrme.Role = "superAdmin"
+	bsrme.Scope = "write"
 	w.Header().Set("Content-Type", "application/json")
 	cType := r.Header.Get("Content-Type")
 	if cType != "application/json" {
@@ -179,14 +179,14 @@ func (h Handler) HandleBreakerSuperReset(w http.ResponseWriter, r *http.Request)
 	} else {
 		switch r.Method {
 		case "POST":
-			me.URI = "/ulbora/rs/gwBreakerSuper/reset"
+			bsrme.URI = "/ulbora/rs/gwBreakerSuper/reset"
 			var valid bool
-			if testMode == true {
+			if testMode {
 				valid = true
 			} else {
-				valid = auth.Authorize(me)
+				valid = auth.Authorize(bsrme)
 			}
-			if valid != true {
+			if !valid {
 				w.WriteHeader(http.StatusUnauthorized)
 			} else {
 				bk := new(cb.Breaker)
@@ -224,30 +224,30 @@ func (h Handler) HandleBreakerSuperGet(w http.ResponseWriter, r *http.Request) {
 	cbDB.DbConfig = h.DbConfig
 	cbDB.CacheHost = getCacheHost()
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	bsgme := new(uoauth.Claim)
+	bsgme.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	var clientID int64
+	var bsgClientID int64
 	var errCID error
 
 	var routeID int64
-	var errRID error
+	var errRIDbsg error
 
 	var UID int64
 	var errUID error
 
 	if vars != nil {
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
-		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
+		bsgClientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		routeID, errRIDbsg = strconv.ParseInt(vars["routeId"], 10, 0)
 		UID, errUID = strconv.ParseInt(vars["urlId"], 10, 0)
 	} else {
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		bsgClientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
 
 		var routeIDStr = r.URL.Query().Get("routeId")
-		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
+		routeID, errRIDbsg = strconv.ParseInt(routeIDStr, 10, 0)
 
 		var urlIDStr = r.URL.Query().Get("urlId")
 		UID, errUID = strconv.ParseInt(urlIDStr, 10, 0)
@@ -255,7 +255,7 @@ func (h Handler) HandleBreakerSuperGet(w http.ResponseWriter, r *http.Request) {
 	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
-	if errRID != nil {
+	if errRIDbsg != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 	if errUID != nil {
@@ -266,19 +266,19 @@ func (h Handler) HandleBreakerSuperGet(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(id)
 	switch r.Method {
 	case "GET":
-		me.URI = "/ulbora/rs/gwBreakerSuper/get"
-		me.Scope = "read"
+		bsgme.URI = "/ulbora/rs/gwBreakerSuper/get"
+		bsgme.Scope = "read"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(bsgme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			bk := new(cb.Breaker)
-			bk.ClientID = clientID
+			bk.ClientID = bsgClientID
 			bk.RestRouteID = routeID
 			bk.RouteURIID = UID
 			resOut := cbDB.GetBreaker(bk)
@@ -303,33 +303,33 @@ func (h Handler) HandleBreakerSuperDelete(w http.ResponseWriter, r *http.Request
 	cbDB.DbConfig = h.DbConfig
 	cbDB.CacheHost = getCacheHost()
 	auth := getAuth(r)
-	me := new(uoauth.Claim)
-	me.Role = "superAdmin"
+	bsdme := new(uoauth.Claim)
+	bsdme.Role = "superAdmin"
 
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	var clientID int64
+	var bsdClientID int64
 	var errCID error
 
 	var routeID int64
 	var errRID error
 
 	var UID int64
-	var errUID error
+	var errUIDbsd error
 
 	if vars != nil {
-		clientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
+		bsdClientID, errCID = strconv.ParseInt(vars["clientId"], 10, 0)
 		routeID, errRID = strconv.ParseInt(vars["routeId"], 10, 0)
-		UID, errUID = strconv.ParseInt(vars["urlId"], 10, 0)
+		UID, errUIDbsd = strconv.ParseInt(vars["urlId"], 10, 0)
 	} else {
 		var clientIDStr = r.URL.Query().Get("clientId")
-		clientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
+		bsdClientID, errCID = strconv.ParseInt(clientIDStr, 10, 0)
 
 		var routeIDStr = r.URL.Query().Get("routeId")
 		routeID, errRID = strconv.ParseInt(routeIDStr, 10, 0)
 
 		var urlIDStr = r.URL.Query().Get("urlId")
-		UID, errUID = strconv.ParseInt(urlIDStr, 10, 0)
+		UID, errUIDbsd = strconv.ParseInt(urlIDStr, 10, 0)
 	}
 	if errCID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -337,7 +337,7 @@ func (h Handler) HandleBreakerSuperDelete(w http.ResponseWriter, r *http.Request
 	if errRID != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
-	if errUID != nil {
+	if errUIDbsd != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 	}
 
@@ -345,19 +345,19 @@ func (h Handler) HandleBreakerSuperDelete(w http.ResponseWriter, r *http.Request
 	//fmt.Println(id)
 	switch r.Method {
 	case "DELETE":
-		me.URI = "/ulbora/rs/gwBreakerSuper/delete"
-		me.Scope = "write"
+		bsdme.URI = "/ulbora/rs/gwBreakerSuper/delete"
+		bsdme.Scope = "write"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
-			valid = auth.Authorize(me)
+			valid = auth.Authorize(bsdme)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			bk := new(cb.Breaker)
-			bk.ClientID = clientID
+			bk.ClientID = bsdClientID
 			bk.RestRouteID = routeID
 			bk.RouteURIID = UID
 			suc := cbDB.DeleteBreaker(bk)
@@ -424,12 +424,12 @@ func (h Handler) HandleBreakerStatusSuper(w http.ResponseWriter, r *http.Request
 		me.URI = "/ulbora/rs/gwBreakerSuper/status"
 		me.Scope = "read"
 		var valid bool
-		if testMode == true {
+		if testMode {
 			valid = true
 		} else {
 			valid = auth.Authorize(me)
 		}
-		if valid != true {
+		if !valid {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			resOut := cbDB.GetStatus(clientID, UID)
