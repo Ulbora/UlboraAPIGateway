@@ -195,7 +195,7 @@ func TestGatewayDel_doDelUrl(t *testing.T) {
 	rtn := doDelete(&p)
 	fmt.Print("doDel Res: ")
 	fmt.Println(rtn)
-	if rtn.rtnCode != http.StatusNotFound {
+	if rtn.rtnCode != http.StatusBadRequest {
 		t.Fail()
 	}
 }
