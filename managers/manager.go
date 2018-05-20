@@ -86,6 +86,7 @@ type GatewayClusterRouteURL struct {
 	Active                 bool   `json:"active"`
 	CircuitOpen            bool   `json:"circuitOpen"`
 	OpenFailCode           int    `json:"openFailCode"`
+	PartialOpen            bool   `json:"partialOpen"`
 	FailoverRouteName      string `json:"failoverRouteName"`
 	FailureThreshold       int    `json:"failureThreshold"`
 	HealthCheckTimeSeconds int    `json:"healthCheckTimeSeconds"`

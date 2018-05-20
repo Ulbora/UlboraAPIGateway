@@ -195,6 +195,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 			s.PartialOpen = true
 		}
 	}
+	fmt.Print("cache breaker open: ")
+	fmt.Println(s)
 	return &s
 }
 
@@ -248,8 +250,8 @@ func (c *CircuitBreaker) Trip(b *Breaker) {
 		//fmt.Println(cs)
 	}
 	if found {
-		//fmt.Print("cache found in Trip: ")
-		//fmt.Println(found)
+		fmt.Print("cache value found in Trip: ")
+		fmt.Println(cs)
 		cs.FailCount = cs.FailCount + 1
 		cs.LastFailureTime = time.Now()
 		if useExCache {
