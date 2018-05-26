@@ -68,8 +68,8 @@ func (gw *GatewayRoutes) GetClusterGwRoutes() *[]GatewayClusterRouteURL {
 				}
 
 			}
-			fmt.Print("rtn in cluster routes")
-			fmt.Println(rtn)
+			//fmt.Print("rtn in cluster routes")
+			//fmt.Println(rtn)
 		}
 		//fmt.Println("Found Gateway route in cache for key: " + key)
 	} else {
@@ -170,8 +170,8 @@ func parseClusterGatewayRoutesRow(foundRow *[]string, cbDB *cb.CircuitBreaker, c
 			rtn.Active = active
 		}
 		cbs := cbDB.GetStatus(cid, rtn.URLID)
-		fmt.Print("breaker: ")
-		fmt.Print(cbs)
+		//fmt.Print("breaker: ")
+		//fmt.Print(cbs)
 		rtn.OpenFailCode = cbs.OpenFailCode
 		rtn.PartialOpen = cbs.PartialOpen
 		//rtn.FailoverRouteName = cbs.FailoverRouteName

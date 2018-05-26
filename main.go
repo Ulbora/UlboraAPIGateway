@@ -182,7 +182,8 @@ func main() {
 	//router.HandleFunc("/rs/gwRouteUrlSuper/activate", handleRouteURLActivateSuper)
 
 	//gateway routes
-	router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", h.HandleGwRoute)
+	//disgard router.HandleFunc("/np/{route}/{rname}/{fpath:[^.]+}", h.HandleGwRoute)
+	router.HandleFunc("/np/{route}/{rname}/{fpath:[^ ]+}", h.HandleGwRoute)
 	router.HandleFunc("/{route}/{fpath:[^ ]+}", h.HandleGwRoute)
 	//disgard -- router.HandleFunc("/{route}/{fpath:[^.]+}", handleGwRoute)
 	router.HandleFunc("/{route}", h.HandleGwRoute)

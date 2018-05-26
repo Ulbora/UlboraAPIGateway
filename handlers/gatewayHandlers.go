@@ -104,11 +104,11 @@ func (h Handler) HandleGwRoute(w http.ResponseWriter, r *http.Request) {
 		activeRoute = false
 	}
 	//fmt.Println("getting route active: " + rName)
-	fmt.Print("active: ")
-	fmt.Println(activeRoute)
+	//fmt.Print("active: ")
+	//fmt.Println(activeRoute)
 	rts := gwr.GetGatewayRoutes(activeRoute, rName)
-	fmt.Print("routes: ")
-	fmt.Println(rts)
+	//fmt.Print("routes: ")
+	//fmt.Println(rts)
 	var b cb.Breaker
 	b.ClientID = gwr.ClientID
 	b.RestRouteID = rts.RouteID

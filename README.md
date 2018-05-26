@@ -10,6 +10,8 @@
 Ulbora API Gateway
 ==============
 
+Get a **free** account on the **Free Tier** at: http://www.myapigateway.com
+
 Multi-user lightweight API Gateway with a self service portal: http://www.myapigateway.com
 
 Copyright (C) 2016 Ulbora Labs Inc. (www.ulboralabs.com)

@@ -195,8 +195,8 @@ func (c *CircuitBreaker) GetStatus(clientID int64, urlID int64) *Status {
 			s.PartialOpen = true
 		}
 	}
-	fmt.Print("cache breaker open: ")
-	fmt.Println(s)
+	//fmt.Print("cache breaker open: ")
+	//fmt.Println(s)
 	return &s
 }
 
