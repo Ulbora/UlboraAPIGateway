@@ -1,14 +1,14 @@
 package monitor
 
 /*
- Copyright (C) 2017 Ulbora Labs Inc. (www.ulboralabs.com)
+ Copyright (C) 2017 Ulbora Labs LLC. (www.ulboralabs.com)
  All rights reserved.
 
  Copyright (C) 2017 Ken Williamson
  All rights reserved.
 
  Certain inventions and disclosures in this file may be claimed within
- patents owned or patent applications filed by Ulbora Labs Inc., or third
+ patents owned or patent applications filed by Ulbora Labs LLC., or third
  parties.
 
  This program is free software: you can redistribute it and/or modify
